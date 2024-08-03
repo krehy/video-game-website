@@ -1,9 +1,35 @@
 from django.db import models
 from wagtail.models import Page
-from wagtail.admin.panels import FieldPanel, MultiFieldPanel
-from wagtail.images.models import Image
+from wagtail.admin.panels import FieldPanel
 from wagtail.snippets.models import register_snippet
 from wagtail.fields import RichTextField
+
+class BlogIndexPage(Page):
+    intro = models.CharField(max_length=250, default='')
+
+    content_panels = Page.content_panels + [
+        FieldPanel('intro'),
+    ]
+
+    subpage_types = ['BlogPost']
+
+class ReviewIndexPage(Page):
+    intro = models.CharField(max_length=250, default='')
+
+    content_panels = Page.content_panels + [
+        FieldPanel('intro'),
+    ]
+
+    subpage_types = ['Review']
+
+class GameIndexPage(Page):
+    intro = models.CharField(max_length=250, default='')
+
+    content_panels = Page.content_panels + [
+        FieldPanel('intro'),
+    ]
+
+    subpage_types = ['Game']
 
 class BlogPost(Page):
     intro = models.CharField(max_length=250, default='')
@@ -24,6 +50,8 @@ class BlogPost(Page):
         FieldPanel('read_count'),
     ]
 
+    parent_page_types = ['BlogIndexPage']
+
 class Game(Page):
     description = RichTextField(default='')
     developer = models.ForeignKey(
@@ -43,6 +71,8 @@ class Game(Page):
         FieldPanel('platforms'),
     ]
 
+    parent_page_types = ['GameIndexPage']
+
 class Review(Page):
     intro = models.CharField(max_length=250, default='')
     body = RichTextField(default='')
@@ -61,6 +91,8 @@ class Review(Page):
         FieldPanel('main_image'),
         FieldPanel('read_count'),
     ]
+
+    parent_page_types = ['ReviewIndexPage']
 
 @register_snippet
 class Developer(models.Model):
