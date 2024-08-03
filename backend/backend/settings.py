@@ -70,6 +70,9 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 
+    'django.middleware.locale.LocaleMiddleware',  # Přidejte tento middleware
+
+
     'wagtail.contrib.redirects.middleware.RedirectMiddleware',
 
     'allauth.account.middleware.AccountMiddleware',
@@ -173,3 +176,10 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+LANGUAGE_CODE = 'cs'
+
+LANGUAGES = [
+    ('cs', 'Czech'),
+    # Další jazyky, které chcete podporovat
+]
