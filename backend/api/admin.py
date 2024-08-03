@@ -39,7 +39,7 @@ modeladmin_register(PlatformAdmin)
 
 class BlogPostAdmin(ModelAdmin):
     model = BlogPost
-    menu_label = 'Blog Posts'
+    menu_label = 'Články'  # Změňte název na 'Články'
     menu_icon = 'doc-full'  # Specifikujte název ikony
     list_display = ('title', 'intro', 'read_count')
     search_fields = ('title', 'intro')
@@ -48,8 +48,8 @@ modeladmin_register(BlogPostAdmin)
 
 class GameAdmin(ModelAdmin):
     model = Game
-    menu_label = 'Games'
-    menu_icon = 'game'  # Specifikujte název ikony
+    menu_label = 'Hry'  # Změňte název na 'Hry'
+    menu_icon = 'media'  # Použijte ikonu dostupnou ve Wagtailu
     list_display = ('title', 'description', 'developer', 'publisher')
     search_fields = ('title', 'description')
 
@@ -57,7 +57,7 @@ modeladmin_register(GameAdmin)
 
 class ReviewAdmin(ModelAdmin):
     model = Review
-    menu_label = 'Reviews'
+    menu_label = 'Recenze'  # Změňte název na 'Recenze'
     menu_icon = 'edit'  # Specifikujte název ikony
     list_display = ('title', 'intro', 'read_count')
     search_fields = ('title', 'intro')
