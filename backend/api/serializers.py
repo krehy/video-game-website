@@ -1,7 +1,17 @@
 from rest_framework import serializers
-from .models import BlogPage
+from .models import BlogPost, Review, Game
 
-class BlogPageSerializer(serializers.ModelSerializer):
+class BlogPostSerializer(serializers.ModelSerializer):
     class Meta:
-        model = BlogPage
-        fields = ['id', 'title', 'intro', 'body']
+        model = BlogPost
+        fields = '__all__'
+
+class ReviewSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Review
+        fields = '__all__'
+
+class GameSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Game
+        fields = '__all__'
