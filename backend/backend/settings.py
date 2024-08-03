@@ -59,6 +59,9 @@ INSTALLED_APPS = [
     'wagtail.contrib.settings',
     'api',
 
+    'wagtail_modeladmin',
+
+
 ]
 
 MIDDLEWARE = [
