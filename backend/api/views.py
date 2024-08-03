@@ -1,3 +1,7 @@
-from django.shortcuts import render
+from rest_framework import generics
+from .models import BlogPage
+from .serializers import BlogPageSerializer
 
-# Create your views here.
+class BlogPageList(generics.ListAPIView):
+    queryset = BlogPage.objects.all()
+    serializer_class = BlogPageSerializer
