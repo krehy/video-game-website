@@ -13,14 +13,3 @@ def rename_snippets_menu(request, menu_items):
     for item in menu_items:
         if item.name == 'snippets':
             item.label = 'Databáze'  # Replace 'Custom Snippets' with the desired label
-
-@hooks.register('construct_main_menu')
-def add_games_menu_item(request, menu_items):
-    menu_items.append(
-        MenuItem(
-            'Games',
-            '/admin/games/',
-            classnames='icon icon-fa-gamepad',  # Použijte ikonu Font Awesome nebo jinou
-            order=10000  # Nastavte pořadí, pokud je potřeba
-        )
-    )
