@@ -1,6 +1,6 @@
 // pages/games.js
 import { useEffect, useState } from 'react';
-import { fetchGames } from '../services/api';
+import { fetchGames } from '../../services/api';
 
 const Games = () => {
   const [games, setGames] = useState([]);

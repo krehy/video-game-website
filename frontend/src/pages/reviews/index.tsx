@@ -1,6 +1,6 @@
 // pages/reviews.js
 import { useEffect, useState } from 'react';
-import { fetchReviews } from '../services/api';
+import { fetchReviews } from '../../services/api';
 
 const Reviews = () => {
   const [reviews, setReviews] = useState([]);

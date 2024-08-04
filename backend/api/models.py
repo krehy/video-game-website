@@ -1,11 +1,11 @@
 from django.db import models
 from wagtail.models import Page
-from wagtail.admin.panels import FieldPanel, MultiFieldPanel, InlinePanel
+from wagtail.admin.panels import FieldPanel, InlinePanel
 from wagtail.snippets.models import register_snippet
 from wagtail.fields import RichTextField
 from wagtail.search import index
 from modelcluster.fields import ParentalKey
-from modelcluster.models import ClusterableModel
+from slugify import slugify
 
 class HomePage(Page):
     intro = models.CharField(max_length=250, default='')
@@ -30,6 +30,9 @@ class SEOFields(models.Model):
     class Meta:
         abstract = True
 
+def generate_slug(title):
+    return slugify(title)
+
 class BlogIndexPage(Page, SEOFields, index.Indexed):
     intro = models.CharField(max_length=250, default='')
 
@@ -45,6 +48,10 @@ class BlogIndexPage(Page, SEOFields, index.Indexed):
     ]
 
     subpage_types = ['BlogPost']
+
+    def save(self, *args, **kwargs):
+        self.slug = generate_slug(self.slug)
+        super().save(*args, **kwargs)
 
 class ReviewIndexPage(Page, SEOFields, index.Indexed):
     intro = models.CharField(max_length=250, default='')
@@ -62,6 +69,10 @@ class ReviewIndexPage(Page, SEOFields, index.Indexed):
 
     subpage_types = ['Review']
 
+    def save(self, *args, **kwargs):
+        self.slug = generate_slug(self.slug)
+        super().save(*args, **kwargs)
+
 class GameIndexPage(Page, SEOFields, index.Indexed):
     intro = models.CharField(max_length=250, default='')
 
@@ -78,6 +89,10 @@ class GameIndexPage(Page, SEOFields, index.Indexed):
 
     subpage_types = ['Game']
 
+    def save(self, *args, **kwargs):
+        self.slug = generate_slug(self.slug)
+        super().save(*args, **kwargs)
+
 class ProductIndexPage(Page, SEOFields, index.Indexed):
     intro = models.CharField(max_length=250, default='')
 
@@ -93,6 +108,10 @@ class ProductIndexPage(Page, SEOFields, index.Indexed):
     ]
 
     subpage_types = ['Product']
+
+    def save(self, *args, **kwargs):
+        self.slug = generate_slug(self.slug)
+        super().save(*args, **kwargs)
 
 class BlogPost(Page, SEOFields, index.Indexed):
     intro = models.CharField(max_length=250, default='')
@@ -132,6 +151,10 @@ class BlogPost(Page, SEOFields, index.Indexed):
 
     parent_page_types = ['BlogIndexPage']
 
+    def save(self, *args, **kwargs):
+        self.slug = generate_slug(self.slug)
+        super().save(*args, **kwargs)
+
 class Game(Page, SEOFields, index.Indexed):
     description = RichTextField(default='')
     developer = models.ForeignKey(
@@ -160,7 +183,36 @@ class Game(Page, SEOFields, index.Indexed):
 
     parent_page_types = ['GameIndexPage']
 
+    def save(self, *args, **kwargs):
+        self.slug = generate_slug(self.slug)
+        super().save(*args, **kwargs)
+
+class ReviewAttribute(models.Model):
+    name = models.CharField(max_length=50)
+    score = models.IntegerField(default=0)
+    text = models.TextField(blank=True, null=True)
+    review = ParentalKey('Review', on_delete=models.CASCADE, related_name='attributes')
+
+    panels = [
+        FieldPanel('name'),
+        FieldPanel('score'),
+        FieldPanel('text'),
+    ]
+
 class Review(Page, SEOFields, index.Indexed):
+    REVIEW_TYPES = [
+        ('Game', 'Hra'),
+        ('Keyboard', 'Klávesnice'),
+        ('Mouse', 'Myš'),
+        ('Monitor', 'Monitor'),
+        ('Computer', 'Počítač'),
+        ('Headphones', 'Sluchátka'),
+        ('Console', 'Konzole'),
+        ('Mobile', 'Mobil'),
+        ('Notebook', 'Notebook'),
+        ('Microphone', 'Mikrofon'),
+    ]
+
     intro = models.CharField(max_length=250, default='')
     body = RichTextField(default='')
     read_count = models.IntegerField(default=0)
@@ -177,6 +229,8 @@ class Review(Page, SEOFields, index.Indexed):
     linked_product = models.ForeignKey(
         'Product', on_delete=models.SET_NULL, null=True, blank=True, related_name='reviews'
     )
+    categories = models.ManyToManyField('ArticleCategory', blank=True, related_name='reviews')
+    review_type = models.CharField(max_length=50, choices=REVIEW_TYPES, default='Game')
 
     content_panels = Page.content_panels + [
         FieldPanel('intro'),
@@ -185,6 +239,9 @@ class Review(Page, SEOFields, index.Indexed):
         FieldPanel('read_count'),
         FieldPanel('linked_game'),
         FieldPanel('linked_product'),
+        FieldPanel('categories'),
+        FieldPanel('review_type'),
+        InlinePanel('attributes', label="Attributes"),
     ]
 
     promote_panels = [
@@ -195,6 +252,22 @@ class Review(Page, SEOFields, index.Indexed):
     ]
 
     parent_page_types = ['ReviewIndexPage']
+
+    def save(self, *args, **kwargs):
+        self.slug = generate_slug(self.slug)
+        super().save(*args, **kwargs)
+
+    def update_attributes(self):
+        existing_attributes = set(self.attributes.values_list('name', flat=True))
+        desired_attributes = set(self.ATTRIBUTE_CHOICES.get(self.review_type, []))
+        attributes_to_create = desired_attributes - existing_attributes
+        attributes_to_delete = existing_attributes - desired_attributes
+
+        for attribute_name in attributes_to_create:
+            ReviewAttribute.objects.create(name=attribute_name, review=self)
+
+        for attribute_name in attributes_to_delete:
+            self.attributes.filter(name=attribute_name).delete()
 
 class Product(Page, SEOFields, index.Indexed):
     PHYSICAL = 'physical'
@@ -243,6 +316,10 @@ class Product(Page, SEOFields, index.Indexed):
     ]
 
     parent_page_types = ['ProductIndexPage']
+
+    def save(self, *args, **kwargs):
+        self.slug = generate_slug(self.slug)
+        super().save(*args, **kwargs)
 
 @register_snippet
 class Developer(models.Model):
