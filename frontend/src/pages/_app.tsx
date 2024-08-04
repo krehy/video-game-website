@@ -1,4 +1,4 @@
-// pages/_app.js
+// pages/_app.tsx
 import '../app/globals.css';
 import Header from '../components/Header';
 
@@ -6,7 +6,9 @@ function MyApp({ Component, pageProps }) {
   return (
     <>
       <Header />
-      <Component {...pageProps} />
+      <main className="container mx-auto p-4">
+        <Component {...pageProps} />
+      </main>
     </>
   );
 }

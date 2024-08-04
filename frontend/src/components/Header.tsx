@@ -1,4 +1,4 @@
-// components/Header.js
+// components/Header.tsx
 import Link from 'next/link';
 
 const Header = () => {
@@ -13,6 +13,7 @@ const Header = () => {
           <Link href="/blog">Články</Link>
           <Link href="/reviews">Recenze</Link>
           <Link href="/games">Databáze her</Link>
+          <Link href="/eshop">Eshop</Link>
         </div>
       </nav>
     </header>

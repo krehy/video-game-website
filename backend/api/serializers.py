@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import BlogPost, Review, Game
+from .models import BlogPost, Review, Game, Product
 
 class BlogPostSerializer(serializers.ModelSerializer):
     class Meta:
@@ -14,4 +14,9 @@ class ReviewSerializer(serializers.ModelSerializer):
 class GameSerializer(serializers.ModelSerializer):
     class Meta:
         model = Game
+        fields = '__all__'
+
+class ProductSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Product
         fields = '__all__'

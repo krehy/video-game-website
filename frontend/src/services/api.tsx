@@ -1,4 +1,4 @@
-// src/services/api.tsx
+// src/services/api.ts
 import axios from 'axios';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
@@ -29,6 +29,16 @@ export const fetchGames = async () => {
     return response.data;
   } catch (error) {
     console.error('Error fetching games:', error);
+    throw error;
+  }
+};
+
+export const fetchProducts = async () => {
+  try {
+    const response = await axios.get(`${API_URL}/products/`);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching products:', error);
     throw error;
   }
 };
