@@ -1,5 +1,6 @@
 from wagtail_modeladmin.options import ModelAdmin, ModelAdminGroup, modeladmin_register
-from .models import Developer, Publisher, Genre, Platform, BlogPost, Game, Review
+from .models import Developer, Publisher, Genre, Platform, BlogPost, Game, Review, Product
+
 
 class DeveloperAdmin(ModelAdmin):
     model = Developer
@@ -8,7 +9,9 @@ class DeveloperAdmin(ModelAdmin):
     list_display = ('name',)
     search_fields = ('name',)
 
+
 modeladmin_register(DeveloperAdmin)
+
 
 class PublisherAdmin(ModelAdmin):
     model = Publisher
@@ -17,7 +20,9 @@ class PublisherAdmin(ModelAdmin):
     list_display = ('name',)
     search_fields = ('name',)
 
+
 modeladmin_register(PublisherAdmin)
+
 
 class GenreAdmin(ModelAdmin):
     model = Genre
@@ -26,7 +31,9 @@ class GenreAdmin(ModelAdmin):
     list_display = ('name',)
     search_fields = ('name',)
 
+
 modeladmin_register(GenreAdmin)
+
 
 class PlatformAdmin(ModelAdmin):
     model = Platform
@@ -35,7 +42,9 @@ class PlatformAdmin(ModelAdmin):
     list_display = ('name',)
     search_fields = ('name',)
 
+
 modeladmin_register(PlatformAdmin)
+
 
 class BlogPostAdmin(ModelAdmin):
     model = BlogPost
@@ -44,12 +53,14 @@ class BlogPostAdmin(ModelAdmin):
     list_display = ('title', 'intro', 'read_count')
     search_fields = ('title', 'intro')
 
+
 class GameAdmin(ModelAdmin):
     model = Game
     menu_label = 'Hry'
     menu_icon = 'media'
     list_display = ('title', 'description', 'developer', 'publisher')
     search_fields = ('title', 'description')
+
 
 class ReviewAdmin(ModelAdmin):
     model = Review
@@ -58,9 +69,19 @@ class ReviewAdmin(ModelAdmin):
     list_display = ('title', 'intro', 'read_count')
     search_fields = ('title', 'intro')
 
+
+class ProductAdmin(ModelAdmin):
+    model = Product
+    menu_label = 'Produkty'
+    menu_icon = 'tag'
+    list_display = ('title', 'price', 'stock')
+    search_fields = ('title', 'description')
+
+
 class ContentAdminGroup(ModelAdminGroup):
     menu_label = 'Obsah webu'
-    menu_icon = 'folder-open-inverse'  # Ikona pro hlavní položku menu
-    items = (BlogPostAdmin, GameAdmin, ReviewAdmin)
+    menu_icon = 'folder-open-inverse'
+    items = (BlogPostAdmin, GameAdmin, ReviewAdmin, ProductAdmin)
+
 
 modeladmin_register(ContentAdminGroup)

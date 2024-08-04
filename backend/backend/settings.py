@@ -63,6 +63,8 @@ INSTALLED_APPS = [
 
     'wagtail_modeladmin',
 
+    'wagtail.contrib.sitemaps',
+
 
 ]
 
@@ -108,7 +110,7 @@ ROOT_URLCONF = 'backend.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / 'templates'],  # Přidání této řádky
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -120,7 +122,6 @@ TEMPLATES = [
         },
     },
 ]
-
 WSGI_APPLICATION = 'backend.wsgi.application'
 
 
