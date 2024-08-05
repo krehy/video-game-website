@@ -1,17 +1,34 @@
-from django.db import models
 from wagtail.models import Page
 from wagtail.admin.panels import FieldPanel, InlinePanel
 from wagtail.snippets.models import register_snippet
 from wagtail.fields import RichTextField
 from wagtail.search import index
-from modelcluster.fields import ParentalKey
+from modelcluster.fields import ParentalKey, ParentalManyToManyField
+from django import forms
+from django.db import models
 from slugify import slugify
+
 
 class HomePage(Page):
     intro = models.CharField(max_length=250, default='')
+    keywords = models.CharField(max_length=255, blank=True)
+    main_image = models.ForeignKey(
+        'wagtailimages.Image',
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name='+'
+    )
 
     content_panels = Page.content_panels + [
         FieldPanel('intro'),
+        FieldPanel('main_image'),
+    ]
+
+    promote_panels = [
+        FieldPanel('seo_title'),
+        FieldPanel('keywords'),
+        FieldPanel('search_description'),
     ]
 
     subpage_types = ['BlogIndexPage', 'GameIndexPage', 'ProductIndexPage', 'ReviewIndexPage']
@@ -24,6 +41,10 @@ class HomePage(Page):
     def get_parent_page_types(cls):
         return []
 
+    class Meta:
+        verbose_name = "Home Page"
+        verbose_name_plural = "Home Pages"
+
 class SEOFields(models.Model):
     keywords = models.CharField(max_length=255, blank=True)
 
@@ -35,13 +56,20 @@ def generate_slug(title):
 
 class BlogIndexPage(Page, SEOFields, index.Indexed):
     intro = models.CharField(max_length=250, default='')
+    main_image = models.ForeignKey(
+        'wagtailimages.Image',
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name='+'
+    )
 
     content_panels = Page.content_panels + [
         FieldPanel('intro'),
+        FieldPanel('main_image'),
     ]
 
     promote_panels = [
-        FieldPanel('slug'),
         FieldPanel('seo_title'),
         FieldPanel('search_description'),
         FieldPanel('keywords'),
@@ -55,13 +83,20 @@ class BlogIndexPage(Page, SEOFields, index.Indexed):
 
 class ReviewIndexPage(Page, SEOFields, index.Indexed):
     intro = models.CharField(max_length=250, default='')
+    main_image = models.ForeignKey(
+        'wagtailimages.Image',
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name='+'
+    )
 
     content_panels = Page.content_panels + [
         FieldPanel('intro'),
+        FieldPanel('main_image'),
     ]
 
     promote_panels = [
-        FieldPanel('slug'),
         FieldPanel('seo_title'),
         FieldPanel('search_description'),
         FieldPanel('keywords'),
@@ -75,13 +110,20 @@ class ReviewIndexPage(Page, SEOFields, index.Indexed):
 
 class GameIndexPage(Page, SEOFields, index.Indexed):
     intro = models.CharField(max_length=250, default='')
+    main_image = models.ForeignKey(
+        'wagtailimages.Image',
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name='+'
+    )
 
     content_panels = Page.content_panels + [
         FieldPanel('intro'),
+        FieldPanel('main_image'),
     ]
 
     promote_panels = [
-        FieldPanel('slug'),
         FieldPanel('seo_title'),
         FieldPanel('search_description'),
         FieldPanel('keywords'),
@@ -95,13 +137,20 @@ class GameIndexPage(Page, SEOFields, index.Indexed):
 
 class ProductIndexPage(Page, SEOFields, index.Indexed):
     intro = models.CharField(max_length=250, default='')
+    main_image = models.ForeignKey(
+        'wagtailimages.Image',
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name='+'
+    )
 
     content_panels = Page.content_panels + [
         FieldPanel('intro'),
+        FieldPanel('main_image'),
     ]
 
     promote_panels = [
-        FieldPanel('slug'),
         FieldPanel('seo_title'),
         FieldPanel('search_description'),
         FieldPanel('keywords'),
@@ -130,7 +179,7 @@ class BlogPost(Page, SEOFields, index.Indexed):
     linked_product = models.ForeignKey(
         'Product', on_delete=models.SET_NULL, null=True, blank=True, related_name='blog_posts'
     )
-    categories = models.ManyToManyField('ArticleCategory', blank=True, related_name='blog_posts')
+    categories = ParentalManyToManyField('ArticleCategory', blank=True)
 
     content_panels = Page.content_panels + [
         FieldPanel('intro'),
@@ -139,11 +188,10 @@ class BlogPost(Page, SEOFields, index.Indexed):
         FieldPanel('read_count'),
         FieldPanel('linked_game'),
         FieldPanel('linked_product'),
-        FieldPanel('categories'),
+        FieldPanel('categories', widget=forms.CheckboxSelectMultiple),
     ]
 
     promote_panels = [
-        FieldPanel('slug'),
         FieldPanel('seo_title'),
         FieldPanel('search_description'),
         FieldPanel('keywords'),
@@ -163,19 +211,18 @@ class Game(Page, SEOFields, index.Indexed):
     publisher = models.ForeignKey(
         'Publisher', on_delete=models.SET_NULL, null=True, blank=True, related_name='games'
     )
-    genres = models.ManyToManyField('Genre', blank=True, related_name='games')
-    platforms = models.ManyToManyField('Platform', blank=True, related_name='games')
+    genres = ParentalManyToManyField('Genre', blank=True)
+    platforms = ParentalManyToManyField('Platform', blank=True)
 
     content_panels = Page.content_panels + [
         FieldPanel('description'),
         FieldPanel('developer'),
         FieldPanel('publisher'),
-        FieldPanel('genres'),
-        FieldPanel('platforms'),
+        FieldPanel('genres', widget=forms.CheckboxSelectMultiple),
+        FieldPanel('platforms', widget=forms.CheckboxSelectMultiple),
     ]
 
     promote_panels = [
-        FieldPanel('slug'),
         FieldPanel('seo_title'),
         FieldPanel('search_description'),
         FieldPanel('keywords'),
@@ -229,7 +276,7 @@ class Review(Page, SEOFields, index.Indexed):
     linked_product = models.ForeignKey(
         'Product', on_delete=models.SET_NULL, null=True, blank=True, related_name='reviews'
     )
-    categories = models.ManyToManyField('ArticleCategory', blank=True, related_name='reviews')
+    categories = ParentalManyToManyField('ArticleCategory', blank=True)
     review_type = models.CharField(max_length=50, choices=REVIEW_TYPES, default='Game')
 
     content_panels = Page.content_panels + [
@@ -239,13 +286,12 @@ class Review(Page, SEOFields, index.Indexed):
         FieldPanel('read_count'),
         FieldPanel('linked_game'),
         FieldPanel('linked_product'),
-        FieldPanel('categories'),
+        FieldPanel('categories', widget=forms.CheckboxSelectMultiple),
         FieldPanel('review_type'),
         InlinePanel('attributes', label="Attributes"),
     ]
 
     promote_panels = [
-        FieldPanel('slug'),
         FieldPanel('seo_title'),
         FieldPanel('search_description'),
         FieldPanel('keywords'),
@@ -295,8 +341,8 @@ class Product(Page, SEOFields, index.Indexed):
         choices=PRODUCT_TYPE_CHOICES,
         default=PHYSICAL,
     )
-    linked_games = models.ManyToManyField('Game', blank=True, related_name='products')
-    categories = models.ManyToManyField('ProductCategory', blank=True, related_name='products')
+    linked_games = ParentalManyToManyField('Game', blank=True)
+    categories = ParentalManyToManyField('ProductCategory', blank=True)
 
     content_panels = Page.content_panels + [
         FieldPanel('description'),
@@ -304,12 +350,11 @@ class Product(Page, SEOFields, index.Indexed):
         FieldPanel('stock'),
         FieldPanel('main_image'),
         FieldPanel('product_type'),
-        FieldPanel('linked_games'),
-        FieldPanel('categories'),
+        FieldPanel('linked_games', widget=forms.CheckboxSelectMultiple),
+        FieldPanel('categories', widget=forms.CheckboxSelectMultiple),
     ]
 
     promote_panels = [
-        FieldPanel('slug'),
         FieldPanel('seo_title'),
         FieldPanel('search_description'),
         FieldPanel('keywords'),
