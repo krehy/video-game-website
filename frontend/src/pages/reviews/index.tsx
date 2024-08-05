@@ -22,6 +22,25 @@ const ReviewIndex = () => {
     getSeoData();
   }, []);
 
+  const breadcrumbList = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Home",
+        "item": `${process.env.NEXT_PUBLIC_SITE_URL}/`
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "Recenze",
+        "item": `${process.env.NEXT_PUBLIC_SITE_URL}/reviews`
+      }
+    ]
+  };
+
   return (
     <div className="container mx-auto p-4">
       <Head>
@@ -30,13 +49,14 @@ const ReviewIndex = () => {
         {seoData.keywords && <meta name="keywords" content={seoData.keywords} />}
         <meta property="og:title" content={seoData.seo_title || 'Recenze'} />
         <meta property="og:description" content={seoData.search_description || 'Recenze page description'} />
-        <meta property="og:url" content="http://localhost:3000/reviews" />
+        <meta property="og:url" content={`${process.env.NEXT_PUBLIC_SITE_URL}/reviews`} />
         <meta property="og:type" content="website" />
         {seoData.main_image && <meta property="og:image" content={`${process.env.NEXT_PUBLIC_INDEX_URL}${seoData.main_image.url}`} />}
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content={seoData.seo_title || 'Recenze'} />
         <meta name="twitter:description" content={seoData.search_description || 'Recenze page description'} />
         {seoData.main_image && <meta name="twitter:image" content={`${process.env.NEXT_PUBLIC_INDEX_URL}${seoData.main_image.url}`} />}
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbList) }} />
       </Head>
       <h1 className="text-3xl font-bold mb-4">Recenze</h1>
       <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">

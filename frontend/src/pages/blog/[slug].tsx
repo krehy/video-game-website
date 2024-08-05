@@ -16,25 +16,50 @@ const ArticleDetail = ({ article, linkedGame, linkedProduct }) => {
     "@type": "Article",
     "mainEntityOfPage": {
       "@type": "WebPage",
-      "@id": `http://localhost:3000${cleanedUrlPath}`
+      "@id": `${process.env.NEXT_PUBLIC_SITE_URL}${cleanedUrlPath}`
     },
     "headline": article.seo_title || article.title,
-    "image": article.main_image ? `http://localhost:8000${article.main_image.url}` : '',
+    "image": article.main_image ? `${process.env.NEXT_PUBLIC_INDEX_URL}${article.main_image.url}` : '',
     "author": {
       "@type": "Person",
       "name": article.owner.username
     },
     "publisher": {
       "@type": "Organization",
-      "name": "Your Website Name",
+      "name": "Superpařmeni",
       "logo": {
         "@type": "ImageObject",
-        "url": "http://localhost:8000/path-to-your-logo.jpg"
+        "url": `${process.env.NEXT_PUBLIC_INDEX_URL}/path-to-your-logo.jpg`
       }
     },
     "datePublished": article.first_published_at,
     "dateModified": article.last_published_at,
     "description": article.search_description
+  };
+
+  const breadcrumbList = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Home",
+        "item": `${process.env.NEXT_PUBLIC_SITE_URL}/`
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "Blog",
+        "item": `${process.env.NEXT_PUBLIC_SITE_URL}/blog`
+      },
+      {
+        "@type": "ListItem",
+        "position": 3,
+        "name": article.title,
+        "item": `${process.env.NEXT_PUBLIC_SITE_URL}${cleanedUrlPath}`
+      }
+    ]
   };
 
   const options = {
@@ -58,7 +83,7 @@ const ArticleDetail = ({ article, linkedGame, linkedProduct }) => {
         return (
           <img
             key={domNode.attribs.id}
-            src={`http://localhost:8000/media/original_images/${domNode.attribs.alt}.jpg`}
+            src={`${process.env.NEXT_PUBLIC_INDEX_URL}/media/original_images/${domNode.attribs.alt}.jpg`}
             alt={domNode.attribs.alt}
             className={`embedded-image ${domNode.attribs.format}`}
           />
@@ -75,21 +100,22 @@ const ArticleDetail = ({ article, linkedGame, linkedProduct }) => {
         {article.keywords && <meta name="keywords" content={article.keywords} />}
         <meta property="og:title" content={article.seo_title || article.title} />
         <meta property="og:description" content={article.search_description} />
-        <meta property="og:url" content={`http://localhost:3000${cleanedUrlPath}`} />
+        <meta property="og:url" content={`${process.env.NEXT_PUBLIC_SITE_URL}${cleanedUrlPath}`} />
         <meta property="og:type" content="article" />
-        {article.main_image && <meta property="og:image" content={`http://localhost:8000${article.main_image.url}`} />}
+        {article.main_image && <meta property="og:image" content={`${process.env.NEXT_PUBLIC_INDEX_URL}${article.main_image.url}`} />}
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content={article.seo_title || article.title} />
         <meta name="twitter:description" content={article.search_description} />
-        {article.main_image && <meta name="twitter:image" content={`http://localhost:8000${article.main_image.url}`} />}
+        {article.main_image && <meta name="twitter:image" content={`${process.env.NEXT_PUBLIC_INDEX_URL}${article.main_image.url}`} />}
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaData) }} />
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbList) }} />
       </Head>
       <h1 className="text-3xl font-bold mb-4">{article.title}</h1>
       <p className="text-gray-600 mb-4">{article.intro}</p>
       <p className="text-sm text-gray-500 mb-4">Author: {article.owner.username}</p>
       {article.main_image && (
         <div className="mb-4">
-          <img src={`http://localhost:8000${article.main_image.url}`} alt={article.title} className="w-full h-auto" />
+          <img src={`${process.env.NEXT_PUBLIC_INDEX_URL}${article.main_image.url}`} alt={article.title} className="w-full h-auto" />
         </div>
       )}
       {linkedGame && (

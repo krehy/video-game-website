@@ -31,7 +31,7 @@ const ReviewDetail = ({ review, linkedGame, linkedProduct }) => {
     "itemReviewed": {
       "@type": reviewItemType,
       "name": review.title,
-      "image": review.main_image ? `http://localhost:8000${review.main_image.url}` : ''
+      "image": review.main_image ? `${process.env.NEXT_PUBLIC_INDEX_URL}${review.main_image.url}` : ''
     },
     "author": {
       "@type": "Person",
@@ -46,6 +46,31 @@ const ReviewDetail = ({ review, linkedGame, linkedProduct }) => {
     "dateModified": review.last_published_at
   };
 
+  const breadcrumbList = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Home",
+        "item": `${process.env.NEXT_PUBLIC_SITE_URL}/`
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "Recenze",
+        "item": `${process.env.NEXT_PUBLIC_SITE_URL}/reviews`
+      },
+      {
+        "@type": "ListItem",
+        "position": 3,
+        "name": review.title,
+        "item": `${process.env.NEXT_PUBLIC_SITE_URL}${cleanedUrlPath}`
+      }
+    ]
+  };
+
   return (
     <div>
       <Head>
@@ -54,14 +79,15 @@ const ReviewDetail = ({ review, linkedGame, linkedProduct }) => {
         {review.keywords && <meta name="keywords" content={review.keywords} />}
         <meta property="og:title" content={review.seo_title || review.title} />
         <meta property="og:description" content={review.search_description} />
-        <meta property="og:url" content={`http://localhost:3000${cleanedUrlPath}`} />
+        <meta property="og:url" content={`${process.env.NEXT_PUBLIC_SITE_URL}${cleanedUrlPath}`} />
         <meta property="og:type" content="article" />
-        {review.main_image && <meta property="og:image" content={`http://localhost:8000${review.main_image.url}`} />}
+        {review.main_image && <meta property="og:image" content={`${process.env.NEXT_PUBLIC_INDEX_URL}${review.main_image.url}`} />}
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content={review.seo_title || review.title} />
         <meta name="twitter:description" content={review.search_description} />
-        {review.main_image && <meta name="twitter:image" content={`http://localhost:8000${review.main_image.url}`} />}
+        {review.main_image && <meta name="twitter:image" content={`${process.env.NEXT_PUBLIC_INDEX_URL}${review.main_image.url}`} />}
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaData) }} />
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbList) }} />
       </Head>
       <h1 className="text-3xl font-bold mb-4">{review.title}</h1>
       <p className="text-gray-600 mb-4">{review.intro}</p>

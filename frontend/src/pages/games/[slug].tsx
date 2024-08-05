@@ -14,7 +14,7 @@ const GameDetail = ({ game }) => {
     "@context": "https://schema.org",
     "@type": "VideoGame",
     "name": game.title,
-    "image": game.main_image ? `http://localhost:8000${game.main_image.url}` : '',
+    "image": game.main_image ? `${process.env.NEXT_PUBLIC_INDEX_URL}${game.main_image.url}` : '',
     "description": game.body,
     "author": {
       "@type": "Organization",
@@ -28,6 +28,31 @@ const GameDetail = ({ game }) => {
     "gamePlatform": game.platforms.map(platform => platform.name)
   };
 
+  const breadcrumbList = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Home",
+        "item": `${process.env.NEXT_PUBLIC_SITE_URL}/`
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "Databáze Her",
+        "item": `${process.env.NEXT_PUBLIC_SITE_URL}/games`
+      },
+      {
+        "@type": "ListItem",
+        "position": 3,
+        "name": game.title,
+        "item": `${process.env.NEXT_PUBLIC_SITE_URL}${cleanedUrlPath}`
+      }
+    ]
+  };
+
   return (
     <div>
       <Head>
@@ -36,14 +61,15 @@ const GameDetail = ({ game }) => {
         {game.keywords && <meta name="keywords" content={game.keywords} />}
         <meta property="og:title" content={game.seo_title || game.title} />
         <meta property="og:description" content={game.search_description} />
-        <meta property="og:url" content={`http://localhost:3000${cleanedUrlPath}`} />
+        <meta property="og:url" content={`${process.env.NEXT_PUBLIC_SITE_URL}${cleanedUrlPath}`} />
         <meta property="og:type" content="video.game" />
-        {game.main_image && <meta property="og:image" content={`http://localhost:8000${game.main_image.url}`} />}
+        {game.main_image && <meta property="og:image" content={`${process.env.NEXT_PUBLIC_INDEX_URL}${game.main_image.url}`} />}
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content={game.seo_title || game.title} />
         <meta name="twitter:description" content={game.search_description} />
-        {game.main_image && <meta name="twitter:image" content={`http://localhost:8000${game.main_image.url}`} />}
+        {game.main_image && <meta name="twitter:image" content={`${process.env.NEXT_PUBLIC_INDEX_URL}${game.main_image.url}`} />}
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaData) }} />
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbList) }} />
       </Head>
       <h1 className="text-3xl font-bold mb-4">{game.title}</h1>
       <p className="text-sm text-gray-500 mb-4">Developer: {game.developer.name}</p>

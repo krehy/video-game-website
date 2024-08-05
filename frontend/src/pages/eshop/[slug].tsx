@@ -14,7 +14,7 @@ const ProductDetail = ({ product }) => {
     "@context": "https://schema.org",
     "@type": "Product",
     "name": product.title,
-    "image": product.main_image ? `http://localhost:8000${product.main_image.url}` : '',
+    "image": product.main_image ? `${process.env.NEXT_PUBLIC_INDEX_URL}${product.main_image.url}` : '',
     "description": product.body,
     "brand": {
       "@type": "Organization",
@@ -28,6 +28,31 @@ const ProductDetail = ({ product }) => {
     }
   };
 
+  const breadcrumbList = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Home",
+        "item": `${process.env.NEXT_PUBLIC_SITE_URL}/`
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "Eshop",
+        "item": `${process.env.NEXT_PUBLIC_SITE_URL}/eshop`
+      },
+      {
+        "@type": "ListItem",
+        "position": 3,
+        "name": product.title,
+        "item": `${process.env.NEXT_PUBLIC_SITE_URL}${cleanedUrlPath}`
+      }
+    ]
+  };
+
   return (
     <div>
       <Head>
@@ -36,14 +61,15 @@ const ProductDetail = ({ product }) => {
         {product.keywords && <meta name="keywords" content={product.keywords} />}
         <meta property="og:title" content={product.seo_title || product.title} />
         <meta property="og:description" content={product.search_description} />
-        <meta property="og:url" content={`http://localhost:3000${cleanedUrlPath}`} />
+        <meta property="og:url" content={`${process.env.NEXT_PUBLIC_SITE_URL}${cleanedUrlPath}`} />
         <meta property="og:type" content="product" />
-        {product.main_image && <meta property="og:image" content={`http://localhost:8000${product.main_image.url}`} />}
+        {product.main_image && <meta property="og:image" content={`${process.env.NEXT_PUBLIC_INDEX_URL}${product.main_image.url}`} />}
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content={product.seo_title || product.title} />
         <meta name="twitter:description" content={product.search_description} />
-        {product.main_image && <meta name="twitter:image" content={`http://localhost:8000${product.main_image.url}`} />}
+        {product.main_image && <meta name="twitter:image" content={`${process.env.NEXT_PUBLIC_INDEX_URL}${product.main_image.url}`} />}
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaData) }} />
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbList) }} />
       </Head>
       <h1 className="text-3xl font-bold mb-4">{product.title}</h1>
       <div className="prose" dangerouslySetInnerHTML={{ __html: product.body }} />
