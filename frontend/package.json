@@ -9,12 +9,19 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@fontsource/teko": "^5.0.20",
+    "@fortawesome/fontawesome-svg-core": "^6.6.0",
+    "@fortawesome/free-brands-svg-icons": "^6.6.0",
+    "@fortawesome/free-solid-svg-icons": "^6.6.0",
+    "@fortawesome/react-fontawesome": "^0.2.2",
+    "@heroicons/react": "^2.1.5",
     "@tailwindcss/typography": "^0.5.13",
     "axios": "^1.7.3",
     "html-react-parser": "^5.1.12",
     "next": "^14.2.5",
     "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "react-dom": "^18.3.1",
+    "react-headroom": "^3.2.1"
   },
   "devDependencies": {
     "@types/node": "^20",
