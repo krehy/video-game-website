@@ -2,6 +2,7 @@ import React from 'react';
 import Head from 'next/head';
 import { GetStaticPaths, GetStaticProps } from 'next';
 import { fetchProducts } from '../../services/api';
+import CommentShareLike from '../../components/CommentShareLike';
 
 const ProductDetail = ({ product }) => {
   if (!product) {
@@ -73,6 +74,13 @@ const ProductDetail = ({ product }) => {
       </Head>
       <h1 className="text-3xl font-bold mb-4">{product.title}</h1>
       <div className="prose" dangerouslySetInnerHTML={{ __html: product.body }} />
+      <CommentShareLike
+        pageId={product.id}
+        shareUrl={`${process.env.NEXT_PUBLIC_SITE_URL}${cleanedUrlPath}`}
+        title={product.title}
+        contentType="product"
+      />
+
     </div>
   );
 };

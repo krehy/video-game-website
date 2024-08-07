@@ -28,10 +28,7 @@ body {
     text-wrap: balance;
   }
 }
-/* globals.css */
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+
 html, body, #__next {
   font-family: 'Teko', sans-serif;
   font-weight: 700;
@@ -54,4 +51,78 @@ html, body, #__next {
 }
 .overflow-hidden {
   overflow: hidden;
+}
+/* Common styles */
+.prose ol {
+  counter-reset: item;
+  list-style: none;
+}
+.prose ol li::before {
+  content: counter(item) ". ";
+  counter-increment: item;
+  color: #8e67ea;
+  list-style: none;
+}
+.prose ul li::before {
+  content: "• ";
+  color: #8e67ea;
+}
+.prose a {
+  color: #8e67ea;
+  transition: color 0.3s;
+}
+.prose a:hover {
+  color: #251f68;
+}
+.prose ul {
+  list-style: none;
+}
+.prose h1,
+.prose h2,
+.prose h3,
+.prose h4,
+.prose {
+  color: black;
+  font-family: 'Roboto', sans-serif;
+  font-weight: 400;
+}
+
+.prose img,
+.prose iframe {
+  border-radius: 5px;
+}
+
+/* Transition effect */
+.prose, .prose-dark, .container {
+  transition: background-color 0.5s, color 0.5s;
+}
+
+/* Dark mode styles */
+.prose-dark ol li::before,
+.prose-dark ul li::before,
+.prose-dark a {
+  color: #8e67ea;
+}
+.prose-dark h1,
+.prose-dark h2,
+.prose-dark h3,
+.prose-dark h4,
+.prose-dark,
+.prose-dark p {
+  color: white;
+}
+
+/* Styl pro mobilní zařízení */
+@media (max-width: 768px) {
+  .prose iframe {
+    width: 100%;
+    height: 50%;
+    max-width: 100%;
+  }
+}
+@media (max-width: 768px) {
+  .container {
+    padding-left: 0;
+    padding-right: 0;
+  }
 }

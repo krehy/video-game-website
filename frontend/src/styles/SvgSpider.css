@@ -1,0 +1,17 @@
+/* Základní styl pro SvgSpider */
+#svgweb {
+    width: 90%;
+    margin-left: 100px;
+    transition: all 0.3s ease-in-out;
+}
+
+/* Media queries pro mobilní zařízení */
+@media (max-width: 768px) {
+    #svgweb {
+        width: 100%;
+        height: auto;
+        margin: 0px 20px auto;
+        display: block;
+        
+    }
+}

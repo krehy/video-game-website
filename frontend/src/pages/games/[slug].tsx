@@ -1,5 +1,6 @@
 import React from 'react';
 import Head from 'next/head';
+import CommentShareLike from '../../components/CommentShareLike';
 import { GetStaticPaths, GetStaticProps } from 'next';
 import { fetchGames } from '../../services/api';
 
@@ -75,6 +76,13 @@ const GameDetail = ({ game }) => {
       <p className="text-sm text-gray-500 mb-4">Developer: {game.developer.name}</p>
       <p className="text-sm text-gray-500 mb-4">Publisher: {game.publisher.name}</p>
       <div className="prose" dangerouslySetInnerHTML={{ __html: game.body }} />
+      <CommentShareLike
+        pageId={game.id}
+        shareUrl={`${process.env.NEXT_PUBLIC_SITE_URL}${cleanedUrlPath}`}
+        title={game.title}
+        contentType="game"
+      />
+
     </div>
   );
 };

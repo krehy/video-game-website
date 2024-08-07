@@ -1,6 +1,6 @@
 from django.contrib.auth.models import User
 from rest_framework import serializers
-from .models import BlogPost, Review, Game, Product, ArticleCategory, Genre, Platform, ProductCategory, Developer, Publisher, BlogIndexPage, ReviewIndexPage, GameIndexPage, ProductIndexPage, HomePage
+from .models import BlogPost, Review, ReviewAttribute, Pro, Con, Game, Product, ArticleCategory, Genre, Platform, ProductCategory, Developer, Publisher, BlogIndexPage, ReviewIndexPage, GameIndexPage, ProductIndexPage, HomePage, Comment
 from wagtail.images.models import Image
 
 class ImageSerializer(serializers.ModelSerializer):
@@ -57,10 +57,28 @@ class BlogPostSerializer(serializers.ModelSerializer):
         model = BlogPost
         fields = '__all__'
 
+class ReviewAttributeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ReviewAttribute
+        fields = ['name', 'score', 'text']
+
+class ProSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Pro
+        fields = ['id', 'text']
+
+class ConSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Con
+        fields = ['id', 'text']
+
 class ReviewSerializer(serializers.ModelSerializer):
     main_image = ImageSerializer(read_only=True)
     categories = ArticleCategorySerializer(many=True, read_only=True)
     owner = UserSerializer(read_only=True)
+    attributes = ReviewAttributeSerializer(many=True, read_only=True)
+    pros = ProSerializer(many=True, read_only=True)
+    cons = ConSerializer(many=True, read_only=True)
 
     class Meta:
         model = Review
@@ -112,10 +130,15 @@ class ProductIndexPageSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProductIndexPage
         fields = ('id', 'intro', 'seo_title', 'search_description', 'keywords', 'main_image')
-        
+
 class HomePageSerializer(serializers.ModelSerializer):
     main_image = ImageSerializer(read_only=True)
 
     class Meta:
         model = HomePage
         fields = ('id', 'seo_title', 'search_description', 'keywords', 'main_image')
+
+class CommentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Comment
+        fields = '__all__'
