@@ -1,5 +1,5 @@
 from wagtail_modeladmin.options import ModelAdmin, ModelAdminGroup, modeladmin_register
-from .models import Developer, Publisher, Genre, Platform, BlogPost, Game, Review, Product, ArticleCategory, ProductCategory
+from .models import Developer, Publisher, Genre, Platform, BlogPost, Game, Review, Product, ArticleCategory, ProductCategory, Comment
 
 class DeveloperAdmin(ModelAdmin):
     model = Developer
@@ -37,24 +37,6 @@ class PlatformAdmin(ModelAdmin):
 
 modeladmin_register(PlatformAdmin)
 
-class ArticleCategoryAdmin(ModelAdmin):
-    model = ArticleCategory
-    menu_label = 'Kategorie článků'
-    menu_icon = 'tag'
-    list_display = ('name',)
-    search_fields = ('name',)
-
-modeladmin_register(ArticleCategoryAdmin)
-
-class ProductCategoryAdmin(ModelAdmin):
-    model = ProductCategory
-    menu_label = 'Kategorie produktů'
-    menu_icon = 'tag'
-    list_display = ('name',)
-    search_fields = ('name',)
-
-modeladmin_register(ProductCategoryAdmin)
-
 class BlogPostAdmin(ModelAdmin):
     model = BlogPost
     menu_label = 'Články'
@@ -83,9 +65,17 @@ class ProductAdmin(ModelAdmin):
     list_display = ('title', 'price', 'stock')
     search_fields = ('title', 'description')
 
+class CommentAdmin(ModelAdmin):
+    model = Comment
+    menu_label = 'Komentáře'
+    menu_icon = 'pilcrow'
+    list_display = ('author', 'text', 'page', 'created_at', 'is_approved')
+    search_fields = ('author', 'text')
+    list_filter = ('is_approved',)
+
 class ContentAdminGroup(ModelAdminGroup):
     menu_label = 'Obsah webu'
     menu_icon = 'folder-open-inverse'
-    items = (BlogPostAdmin, GameAdmin, ReviewAdmin, ProductAdmin)
+    items = (BlogPostAdmin, GameAdmin, ReviewAdmin, ProductAdmin, CommentAdmin)  # Add CommentAdmin here
 
 modeladmin_register(ContentAdminGroup)

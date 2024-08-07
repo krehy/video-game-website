@@ -23,12 +23,13 @@ const BackgroundIcons = () => {
       const numRows = Math.ceil(document.documentElement.scrollHeight / (iconSize * 1.5));
       setDimensions({ numRows, numCols });
 
-      // Initialize rotations only if they are not already set
-      if (rotationsRef.current.length === 0) {
-        rotationsRef.current = Array.from({ length: numRows }, () =>
-          Array.from({ length: numCols }, () => getRotation())
-        );
-      }
+      // Initialize rotations for all rows and columns
+      const newRotations = Array.from({ length: numRows }, (_, rowIndex) => 
+        Array.from({ length: numCols }, (_, colIndex) => {
+          return rotationsRef.current[rowIndex]?.[colIndex] || getRotation();
+        })
+      );
+      rotationsRef.current = newRotations;
     };
 
     handleResize();

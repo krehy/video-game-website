@@ -15,13 +15,19 @@
     "@fortawesome/free-solid-svg-icons": "^6.6.0",
     "@fortawesome/react-fontawesome": "^0.2.2",
     "@heroicons/react": "^2.1.5",
+    "@nextui-org/react": "^2.4.6",
+    "@react-spring/web": "^9.7.4",
     "@tailwindcss/typography": "^0.5.13",
     "axios": "^1.7.3",
+    "framer-motion": "^11.3.23",
     "html-react-parser": "^5.1.12",
     "next": "^14.2.5",
+    "rc-slider": "^11.1.5",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "react-headroom": "^3.2.1"
+    "react-headroom": "^3.2.1",
+    "react-parallax-tilt": "^1.7.235",
+    "react-share": "^5.1.0"
   },
   "devDependencies": {
     "@types/node": "^20",

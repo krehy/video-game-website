@@ -1,12 +1,41 @@
-import React from 'react';
+// pages/blog/[slug].tsx
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import Head from 'next/head';
-import parse, { domToReact } from 'html-react-parser';
+import parse from 'html-react-parser';
 import { GetStaticPaths, GetStaticProps } from 'next';
-import { fetchArticles, fetchGameById, fetchProductById } from '../../services/api';
+import { fetchArticles, fetchGameById, fetchProductById, incrementReadCount } from '../../services/api';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faUser, faCalendarAlt, faSun, faMoon, faTag, faThumbtack, faGamepad, faEye } from '@fortawesome/free-solid-svg-icons';
+import Link from 'next/link';
+import CommentShareLike from '../../components/CommentShareLike';
 
 const ArticleDetail = ({ article, linkedGame, linkedProduct }) => {
+  const [isDarkMode, setIsDarkMode] = useState(false);
+  const [readCount, setReadCount] = useState(article.read_count);
+
+  useEffect(() => {
+    const darkMode = localStorage.getItem('darkMode') === 'true';
+    setIsDarkMode(darkMode);
+
+    const incrementReadCountForArticle = async () => {
+      const count = await incrementReadCount('article', article.id);
+      if (count !== null) {
+        setReadCount(count);
+      }
+    };
+
+    incrementReadCountForArticle();
+  }, [article.id]);
+
+  const toggleDarkMode = () => {
+    const newMode = !isDarkMode;
+    setIsDarkMode(newMode);
+    localStorage.setItem('darkMode', newMode);
+  };
+
   if (!article) {
-    return <div>Article not found</div>;
+    return <div>Článek nenalezen</div>;
   }
 
   const cleanedUrlPath = article.url_path.replace('/placeholder', '');
@@ -29,8 +58,7 @@ const ArticleDetail = ({ article, linkedGame, linkedProduct }) => {
       "name": "Superpařmeni",
       "logo": {
         "@type": "ImageObject",
-        "url": `${process.env.NEXT_PUBLIC_INDEX_URL}/path-to-your-logo.jpg`
-      }
+        "url": `${process.env.NEXT_PUBLIC_INDEX_URL}/path-to-your-logo.jpg`}
     },
     "datePublished": article.first_published_at,
     "dateModified": article.last_published_at,
@@ -44,7 +72,7 @@ const ArticleDetail = ({ article, linkedGame, linkedProduct }) => {
       {
         "@type": "ListItem",
         "position": 1,
-        "name": "Home",
+        "name": "Domů",
         "item": `${process.env.NEXT_PUBLIC_SITE_URL}/`
       },
       {
@@ -92,15 +120,18 @@ const ArticleDetail = ({ article, linkedGame, linkedProduct }) => {
     },
   };
 
+  const shareUrl = `${process.env.NEXT_PUBLIC_SITE_URL}${cleanedUrlPath}`;
+  const title = article.title;
+
   return (
-    <div>
+    <div className="container mx-auto p-4">
       <Head>
         <title>{article.seo_title || article.title}</title>
         <meta name="description" content={article.search_description} />
         {article.keywords && <meta name="keywords" content={article.keywords} />}
         <meta property="og:title" content={article.seo_title || article.title} />
         <meta property="og:description" content={article.search_description} />
-        <meta property="og:url" content={`${process.env.NEXT_PUBLIC_SITE_URL}${cleanedUrlPath}`} />
+        <meta property="og:url" content={shareUrl} />
         <meta property="og:type" content="article" />
         {article.main_image && <meta property="og:image" content={`${process.env.NEXT_PUBLIC_INDEX_URL}${article.main_image.url}`} />}
         <meta name="twitter:card" content="summary_large_image" />
@@ -111,36 +142,102 @@ const ArticleDetail = ({ article, linkedGame, linkedProduct }) => {
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbList) }} />
       </Head>
       <h1 className="text-3xl font-bold mb-4">{article.title}</h1>
-      <p className="text-gray-600 mb-4">{article.intro}</p>
-      <p className="text-sm text-gray-500 mb-4">Author: {article.owner.username}</p>
       {article.main_image && (
-        <div className="mb-4">
-          <img src={`${process.env.NEXT_PUBLIC_INDEX_URL}${article.main_image.url}`} alt={article.title} className="w-full h-auto" />
+        <div className="relative mb-4">
+          <img src={`${process.env.NEXT_PUBLIC_INDEX_URL}${article.main_image.url}`} alt={article.title} className="w-full h-auto object-cover rounded" />
+          <div className="absolute bottom-0 left-0 w-full bg-black bg-opacity-50 text-white p-4 rounded hidden md:block">
+            <p className="mb-2">{article.intro}</p>
+            <div className="flex items-center text-sm mb-2">
+              <FontAwesomeIcon icon={faUser} className="mr-2 text-[#8e67ea] text-lg" />
+              <span className="mr-4">{article.owner.username}</span>
+              <FontAwesomeIcon icon={faCalendarAlt} className="mr-2 text-[#8e67ea] text-lg" />
+              <span>{new Date(article.first_published_at).toLocaleDateString()}</span>
+              <FontAwesomeIcon icon={faEye} className="mr-2 text-[#8e67ea] text-lg" style={{marginLeft:'15'}} />
+              <span>{readCount}</span>
+            </div>
+            <div className="flex flex-wrap">
+              {article.categories.map((category) => (
+                <span key={category.id} className="bg-gray-200 rounded-full px-3 py-1 text-sm font-semibold text-gray-700 mr-2 mb-2">
+                  {category.name}
+                </span>
+              ))}
+            </div>
+          </div>
         </div>
       )}
-      {linkedGame && (
-        <div className="mb-4">
-          <h2 className="text-2xl font-bold">Linked Game: {linkedGame.title}</h2>
+      {/* Intro text below image for mobile */}
+      <div className="block md:hidden p-4 bg-black bg-opacity-50 text-white rounded mb-4">
+        <p className="mb-2">{article.intro}</p>
+        <div className="flex items-center text-sm mb-2">
+          <FontAwesomeIcon icon={faUser} className="mr-2 text-[#8e67ea] text-lg" />
+          <span className="mr-4">{article.owner.username}</span>
+          <FontAwesomeIcon icon={faCalendarAlt} className="mr-2 text-[#8e67ea] text-lg" />
+          <span>{new Date(article.first_published_at).toLocaleDateString()}</span>
+          <FontAwesomeIcon icon={faEye} className="mr-2 text-[#8e67ea] text-lg" />
+          <span>{readCount}</span>
         </div>
-      )}
-      {linkedProduct && (
-        <div className="mb-4">
-          <h2 className="text-2xl font-bold">Linked Product: {linkedProduct.title}</h2>
+        <div className="flex flex-wrap">
+          {article.categories.map((category) => (
+            <span key={category.id} className="bg-gray-200 rounded-full px-3 py-1 text-sm font-semibold text-gray-700 mr-2 mb-2">
+              {category.name}
+            </span>
+          ))}
         </div>
-      )}
-      <div className="prose">
-        {parse(article.body, options)}
       </div>
-      {article.categories.length > 0 && (
-        <div className="mt-4">
-          <h3 className="text-xl font-bold">Categories</h3>
-          <ul>
-            {article.categories.map((category) => (
-              <li key={category.id}>{category.name}</li>
-            ))}
-          </ul>
+      <div className={`p-4 rounded relative ${isDarkMode ? 'bg-transparent text-white' : 'bg-white text-black'}`}>
+        <div className="absolute top-4 right-4 flex items-center">
+          <FontAwesomeIcon icon={faSun} className={`mr-2 text-lg ${isDarkMode ? 'text-gray-400' : 'text-yellow-500'}`} />
+          <div className="relative inline-block w-12 mr-2 align-middle select-none transition duration-200 ease-in">
+            <input
+              type="checkbox"
+              name="toggle"
+              id="toggle"
+              checked={isDarkMode}
+              onChange={toggleDarkMode}
+              className="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer"
+              style={{ top: '-4px', left: isDarkMode ? '24px' : '4px' }}
+            />
+            <label htmlFor="toggle" className="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer"></label>
+          </div>
+          <FontAwesomeIcon icon={faMoon} className={`ml-2 text-lg ${isDarkMode ? 'text-blue-500' : 'text-gray-400'}`} />
         </div>
-      )}
+        <div className={`prose mb-4 break-words max-w-full mt-8 ${isDarkMode ? 'prose-dark' : 'prose-light'}`}>
+          {parse(article.body, options)}
+        </div>
+        {(linkedGame || linkedProduct) && (
+          <div className="mt-6">
+            <h2 className="text-2xl font-bold flex items-center">
+              <FontAwesomeIcon icon={faThumbtack} className="mr-2 text-[#8e67ea] text-lg" />
+              Připnuto:
+            </h2>
+            <div className="flex flex-wrap mt-4">
+              {linkedGame && (
+                <div className="mr-4 mb-4 flex items-center">
+                  <FontAwesomeIcon icon={faGamepad} className="mr-2 text-lg" />
+                  <Link className="mr-2 text-[#8e67ea] text-lg" href={`/games/${linkedGame.slug}`}>
+                    {linkedGame.title}
+                  </Link>
+                </div>
+              )}
+              {linkedProduct && (
+                <div className="mr-4 mb-4 flex items-center">
+                  <FontAwesomeIcon icon={faTag} className="mr-2 text-lg" />
+                  <Link className="mr-2 text-[#8e67ea] text-lg" href={`/eshop/${linkedProduct.slug}`}>
+                    {linkedProduct.title}
+                  </Link>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+        {/* Použití nové komponenty CommentShareLike */}
+        <CommentShareLike
+          pageId={article.id}
+          shareUrl={`${process.env.NEXT_PUBLIC_SITE_URL}${cleanedUrlPath}`}
+          title={article.title}
+          contentType="article"
+        />
+      </div>
     </div>
   );
 };
@@ -173,7 +270,15 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
     const linkedProduct = article.linked_product ? await fetchProductById(article.linked_product) : null;
 
     return {
-      props: { article, linkedGame, linkedProduct },
+      props: { 
+        article: {
+          ...article,
+          like_count: article.like_count || 0,
+          dislike_count: article.dislike_count || 0,
+        },
+        linkedGame, 
+        linkedProduct 
+      },
     };
   } catch (error) {
     console.error('Error fetching article for static props:', error);
