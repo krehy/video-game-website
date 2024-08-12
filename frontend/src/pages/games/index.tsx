@@ -3,10 +3,11 @@ import Head from 'next/head';
 import Link from 'next/link';
 import { fetchGames, fetchGameIndexSEO } from '../../services/api';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faFilter } from '@fortawesome/free-solid-svg-icons';
+import { faFilter, faCalendarAlt, faUser, faBuilding } from '@fortawesome/free-solid-svg-icons';
+import Slider from 'rc-slider';
 import 'rc-slider/assets/index.css';
 import '../../styles/slider.css';
-import '../../styles/animation.css';
+import { motion } from 'framer-motion';
 
 const GameIndex = () => {
   const [games, setGames] = useState([]);
@@ -17,13 +18,17 @@ const GameIndex = () => {
     title: '',
     developer: '',
     publisher: '',
-    genre: '',
-    platform: '',
+    genres: [],
+    platforms: [],
+    dateRange: [0, 100],
   });
   const [developers, setDevelopers] = useState([]);
   const [publishers, setPublishers] = useState([]);
   const [genres, setGenres] = useState([]);
   const [platforms, setPlatforms] = useState([]);
+  const [dateRange, setDateRange] = useState([0, 100]);
+  const [minDate, setMinDate] = useState(null);
+  const [maxDate, setMaxDate] = useState(null);
 
   useEffect(() => {
     const getGames = async () => {
@@ -31,16 +36,26 @@ const GameIndex = () => {
       setGames(gameData);
       setFilteredGames(gameData);
 
-      // Extract unique developers, publishers, genres, and platforms
-      const uniqueDevelopers = [...new Set(gameData.map(game => game.developer?.name).filter(Boolean))];
-      const uniquePublishers = [...new Set(gameData.map(game => game.publisher?.name).filter(Boolean))];
-      const uniqueGenres = [...new Set(gameData.flatMap(game => game.genres.map(genre => genre.name)).filter(Boolean))];
-      const uniquePlatforms = [...new Set(gameData.flatMap(game => game.platforms.map(platform => platform.name)).filter(Boolean))];
+      if (gameData.length > 0) {
+        const dates = gameData.map(game => new Date(game.release_date).getTime());
+        const minDate = new Date(Math.min(...dates));
+        const maxDate = new Date(Math.max(...dates));
+        setMinDate(minDate);
+        setMaxDate(maxDate);
+        setFilters({ ...filters, dateRange: [minDate.getTime(), maxDate.getTime()] });
+        setDateRange([minDate.getTime(), maxDate.getTime()]);
 
-      setDevelopers(uniqueDevelopers);
-      setPublishers(uniquePublishers);
-      setGenres(uniqueGenres);
-      setPlatforms(uniquePlatforms);
+        // Extract unique developers, publishers, genres, and platforms
+        const uniqueDevelopers = [...new Set(gameData.map(game => game.developer?.name).filter(Boolean))];
+        const uniquePublishers = [...new Set(gameData.map(game => game.publisher?.name).filter(Boolean))];
+        const uniqueGenres = [...new Set(gameData.flatMap(game => game.genres.map(genre => genre.name)).filter(Boolean))];
+        const uniquePlatforms = [...new Set(gameData.flatMap(game => game.platforms.map(platform => platform.name)).filter(Boolean))];
+
+        setDevelopers(uniqueDevelopers);
+        setPublishers(uniquePublishers);
+        setGenres(uniqueGenres);
+        setPlatforms(uniquePlatforms);
+      }
     };
 
     const getSeoData = async () => {
@@ -57,9 +72,10 @@ const GameIndex = () => {
       const matchesTitle = filters.title ? game.title.toLowerCase().includes(filters.title.toLowerCase()) : true;
       const matchesDeveloper = filters.developer ? game.developer?.name === filters.developer : true;
       const matchesPublisher = filters.publisher ? game.publisher?.name === filters.publisher : true;
-      const matchesGenre = filters.genre ? game.genres.some(genre => genre.name === filters.genre) : true;
-      const matchesPlatform = filters.platform ? game.platforms.some(platform => platform.name === filters.platform) : true;
-      return matchesTitle && matchesDeveloper && matchesPublisher && matchesGenre && matchesPlatform;
+      const matchesGenre = filters.genres.length > 0 ? filters.genres.every(genre => game.genres.some(g => g.name === genre)) : true;
+      const matchesPlatform = filters.platforms.length > 0 ? filters.platforms.every(platform => game.platforms.some(p => p.name === platform)) : true;
+      const matchesDateRange = filters.dateRange ? isDateInRange(game.release_date, filters.dateRange) : true;
+      return matchesTitle && matchesDeveloper && matchesPublisher && matchesGenre && matchesPlatform && matchesDateRange;
     });
 
     setFilteredGames(filtered);
@@ -71,6 +87,33 @@ const GameIndex = () => {
       ...filters,
       [name]: value
     });
+  };
+
+  const handleCheckboxChange = (e, category) => {
+    const { name, checked } = e.target;
+    setFilters((prevFilters) => {
+      const updatedCategory = checked
+        ? [...prevFilters[category], name]
+        : prevFilters[category].filter((item) => item !== name);
+      return { ...prevFilters, [category]: updatedCategory };
+    });
+  };
+
+  const handleSliderChange = (value) => {
+    setFilters({
+      ...filters,
+      dateRange: value
+    });
+    setDateRange(value);
+  };
+
+  const isDateInRange = (date, range) => {
+    const gameDate = new Date(date).getTime();
+    return gameDate >= range[0] && gameDate <= range[1];
+  };
+
+  const formatDate = (timestamp) => {
+    return timestamp ? new Date(timestamp).toLocaleDateString() : '';
   };
 
   const toggleFilter = () => {
@@ -120,7 +163,12 @@ const GameIndex = () => {
           <FontAwesomeIcon icon={faFilter} className="text-2xl ml-2" />
         </button>
       </div>
-      {showFilter && (
+      <motion.div
+        initial={{ height: 0, opacity: 0 }}
+        animate={{ height: showFilter ? 'auto' : 0, opacity: showFilter ? 1 : 0 }}
+        transition={{ duration: 0.3 }}
+        style={{ overflow: 'hidden' }}
+      >
         <div className="bg-white p-4 shadow-md rounded mb-4">
           <div className="mb-4">
             <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="title">
@@ -171,41 +219,66 @@ const GameIndex = () => {
             </select>
           </div>
           <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="genre">
+            <label className="block text-gray-700 text-sm font-bold mb-2">
               Žánr
             </label>
-            <select
-              name="genre"
-              id="genre"
-              value={filters.genre}
-              onChange={handleFilterChange}
-              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-            >
-              <option value="">Všechny žánry</option>
+            <div className="flex flex-wrap">
               {genres.map((genre, index) => (
-                <option key={index} value={genre}>{genre}</option>
+                <label key={index} className="mr-4 mb-2 flex items-center">
+                  <input
+                    type="checkbox"
+                    name={genre}
+                    checked={filters.genres.includes(genre)}
+                    onChange={(e) => handleCheckboxChange(e, 'genres')}
+                    className="w-6 h-6 text-[#8e67ea] form-checkbox focus:ring-[#8e67ea] rounded-md"
+                  />
+                  <span className="ml-2 text-gray-700">{genre}</span>
+                </label>
               ))}
-            </select>
+            </div>
           </div>
           <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="platform">
+            <label className="block text-gray-700 text-sm font-bold mb-2">
               Platforma
             </label>
-            <select
-              name="platform"
-              id="platform"
-              value={filters.platform}
-              onChange={handleFilterChange}
-              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-            >
-              <option value="">Všechny platformy</option>
+            <div className="flex flex-wrap">
               {platforms.map((platform, index) => (
-                <option key={index} value={platform}>{platform}</option>
+                <label key={index} className="mr-4 mb-2 flex items-center">
+                  <input
+                    type="checkbox"
+                    name={platform}
+                    checked={filters.platforms.includes(platform)}
+                    onChange={(e) => handleCheckboxChange(e, 'platforms')}
+                    className="w-6 h-6 text-[#8e67ea] form-checkbox focus:ring-[#8e67ea] rounded-md"
+                  />
+                  <span className="ml-2 text-gray-700">{platform}</span>
+                </label>
               ))}
-            </select>
+            </div>
+          </div>
+          <div className="mb-4">
+            <label className="block text-gray-700 text-sm font-bold mb-2">
+              Datum vydání
+            </label>
+            <Slider
+              range
+              min={minDate ? minDate.getTime() : 0}
+              max={maxDate ? maxDate.getTime() : 100}
+              defaultValue={dateRange}
+              value={filters.dateRange}
+              onChange={handleSliderChange}
+              tipFormatter={(value) => formatDate(value)}
+              trackStyle={{ backgroundColor: '#8e67ea' }}
+              handleStyle={[{ borderColor: '#8e67ea' }, { borderColor: '#8e67ea' }]}
+              railStyle={{ backgroundColor: '#ddd' }}
+            />
+            <div className="flex justify-between text-gray-700 mt-2">
+              <span>Od: {formatDate(dateRange[0])}</span>
+              <span>Do: {formatDate(dateRange[1])}</span>
+            </div>
           </div>
         </div>
-      )}
+      </motion.div>
       <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
         {filteredGames.map((game) => (
           <div key={game.slug} className="bg-white shadow-md rounded overflow-hidden relative">
@@ -224,18 +297,28 @@ const GameIndex = () => {
               </div>
             )}
             <div className="p-4">
-              <p className="text-gray-700 mb-4 break-words">{game.description}</p>
-              <div className="flex flex-wrap">
+              <div className="flex flex-wrap text-gray-500 text-sm mb-4">
                 {game.developer && (
-                  <span className="bg-gray-200 rounded-full px-3 py-1 text-sm font-semibold text-gray-700 mr-2 mb-2">
-                    {game.developer.name}
-                  </span>
+                  <div className="flex items-center mr-4 mb-2">
+                    <FontAwesomeIcon icon={faUser} className="mr-1 text-[#8e67ea]" />
+                    <span>{game.developer.name}</span>
+                  </div>
                 )}
                 {game.publisher && (
-                  <span className="bg-gray-200 rounded-full px-3 py-1 text-sm font-semibold text-gray-700 mr-2 mb-2">
-                    {game.publisher.name}
-                  </span>
+                  <div className="flex items-center mr-4 mb-2">
+                    <FontAwesomeIcon icon={faBuilding} className="mr-1 text-[#8e67ea]" />
+                    <span>{game.publisher.name}</span>
+                  </div>
                 )}
+                {game.release_date && (
+                  <div className="flex items-center mb-2">
+                    <FontAwesomeIcon icon={faCalendarAlt} className="mr-1 text-[#8e67ea]" />
+                    <span>{new Date(game.release_date).toLocaleDateString()}</span>
+                  </div>
+                )}
+              </div>
+              <p className="text-gray-700 mb-4 break-words" dangerouslySetInnerHTML={{ __html: game.description }}></p>
+              <div className="flex flex-wrap">
                 {game.genres.map((genre) => (
                   <span key={genre.id} className="bg-gray-200 rounded-full px-3 py-1 text-sm font-semibold text-gray-700 mr-2 mb-2">
                     {genre.name}

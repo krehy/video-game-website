@@ -8,7 +8,6 @@ from django import forms
 from django.db import models
 from slugify import slugify
 
-
 class HomePage(Page):
     intro = models.CharField(max_length=250, default='')
     keywords = models.CharField(max_length=255, blank=True)
@@ -183,7 +182,7 @@ class BlogPost(Page, SEOFields, index.Indexed):
         related_name='+'
     )
     linked_game = models.ForeignKey(
-        'Game', on_delete=models.SET_NULL, null=True, blank=True, related_name='blog_posts'
+        'Game', on_delete=models.SET_NULL, null=True, blank=True, related_name='linked_blog_posts'
     )
     linked_product = models.ForeignKey(
         'Product', on_delete=models.SET_NULL, null=True, blank=True, related_name='blog_posts'
@@ -225,6 +224,7 @@ class Game(Page, SEOFields, index.Indexed):
     )
     genres = ParentalManyToManyField('Genre', blank=True)
     platforms = ParentalManyToManyField('Platform', blank=True)
+    release_date = models.DateField(null=True, blank=True)  # Add release date field
     like_count = models.IntegerField(default=0)  # Add like count for games
     dislike_count = models.IntegerField(default=0)  # Add dislike count for games
     main_image = models.ForeignKey(
@@ -242,6 +242,7 @@ class Game(Page, SEOFields, index.Indexed):
         FieldPanel('publisher'),
         FieldPanel('genres', widget=forms.CheckboxSelectMultiple),
         FieldPanel('platforms', widget=forms.CheckboxSelectMultiple),
+        FieldPanel('release_date'),  # Include in admin panel
         FieldPanel('main_image'),
         FieldPanel('trailer_url'),  # Include in admin panel
         FieldPanel('like_count'),  # Include in admin panel
@@ -282,6 +283,7 @@ class Pro(models.Model):
         FieldPanel('text'),
     ]
 
+
 class Con(models.Model):
     review = ParentalKey('Review', on_delete=models.CASCADE, related_name='cons')
     text = models.CharField(max_length=255)
@@ -289,6 +291,7 @@ class Con(models.Model):
     panels = [
         FieldPanel('text'),
     ]
+
 
 class Review(Page, SEOFields, index.Indexed):
     REVIEW_TYPES = [
@@ -317,7 +320,7 @@ class Review(Page, SEOFields, index.Indexed):
         related_name='+'
     )
     linked_game = models.ForeignKey(
-        'Game', on_delete=models.SET_NULL, null=True, blank=True, related_name='reviews'
+        'Game', on_delete=models.SET_NULL, null=True, blank=True, related_name='linked_reviews'
     )
     linked_product = models.ForeignKey(
         'Product', on_delete=models.SET_NULL, null=True, blank=True, related_name='reviews'

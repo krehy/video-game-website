@@ -1,6 +1,6 @@
 from django.contrib.auth.models import User
 from rest_framework import serializers
-from .models import BlogPost, Review, ReviewAttribute, Pro, Con, Game, Product, ArticleCategory, Genre, Platform, ProductCategory, Developer, Publisher, BlogIndexPage, ReviewIndexPage, GameIndexPage, ProductIndexPage, HomePage, Comment
+from .models import BlogPost, Review, ReviewAttribute, Game, Product, ArticleCategory, Genre, Platform, ProductCategory, Developer, Publisher, BlogIndexPage, ReviewIndexPage, GameIndexPage, ProductIndexPage, HomePage, Comment
 from wagtail.images.models import Image
 
 class ImageSerializer(serializers.ModelSerializer):
@@ -62,23 +62,11 @@ class ReviewAttributeSerializer(serializers.ModelSerializer):
         model = ReviewAttribute
         fields = ['name', 'score', 'text']
 
-class ProSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Pro
-        fields = ['id', 'text']
-
-class ConSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Con
-        fields = ['id', 'text']
-
 class ReviewSerializer(serializers.ModelSerializer):
     main_image = ImageSerializer(read_only=True)
     categories = ArticleCategorySerializer(many=True, read_only=True)
     owner = UserSerializer(read_only=True)
     attributes = ReviewAttributeSerializer(many=True, read_only=True)
-    pros = ProSerializer(many=True, read_only=True)
-    cons = ConSerializer(many=True, read_only=True)
 
     class Meta:
         model = Review
@@ -90,6 +78,8 @@ class GameSerializer(serializers.ModelSerializer):
     platforms = PlatformSerializer(many=True, read_only=True)
     developer = DeveloperSerializer(read_only=True)
     publisher = PublisherSerializer(read_only=True)
+    linked_blog_posts = BlogPostSerializer(many=True, read_only=True)
+    linked_reviews = ReviewSerializer(many=True, read_only=True)
 
     class Meta:
         model = Game
@@ -130,7 +120,7 @@ class ProductIndexPageSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProductIndexPage
         fields = ('id', 'intro', 'seo_title', 'search_description', 'keywords', 'main_image')
-
+        
 class HomePageSerializer(serializers.ModelSerializer):
     main_image = ImageSerializer(read_only=True)
 

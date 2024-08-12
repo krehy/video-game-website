@@ -245,22 +245,31 @@ const ReviewDetail = ({ review, linkedGame, linkedProduct }) => {
           <span>Celkové skóre:</span> <span style={{ fontSize: '4rem', color: '#8e67ea' }}><AnimatedNumber number={averageScore} inView={true} /></span>
         </div>
         <div className="pros-cons-grid grid grid-cols-1 sm:grid-cols-2 gap-8 mt-8">
-          <div className="flex flex-col items-center">
-            <h2 className="text-2xl font-semibold mb-2">Klady</h2>
-            <ul className="list-none text-green-500 font-sans">
-              {review.pros.map((pro, index) => (
-                <li key={index} className="mb-2">{pro.text}</li>
-              ))}
-            </ul>
-          </div>
-          <div className="flex flex-col items-center">
-            <h2 className="text-2xl font-semibold mb-2">Zápory</h2>
-            <ul className="list-none text-red-500 font-sans">
-              {review.cons.map((con, index) => (
-                <li key={index} className="mb-2">{con.text}</li>
-              ))}
-            </ul>
-          </div>
+        <div className="flex flex-col items-center">
+  <h2 className="text-2xl font-semibold mb-2">Klady</h2>
+  <ul className="list-none text-green-500 font-sans">
+    {review.pros && Array.isArray(review.pros) && review.pros.length > 0 ? (
+      review.pros.map((pro, index) => (
+        <li key={index} className="mb-2">{pro.text}</li>
+      ))
+    ) : (
+      <li>Žádné klady nejsou k dispozici</li>
+    )}
+  </ul>
+</div>
+
+<div className="flex flex-col items-center">
+  <h2 className="text-2xl font-semibold mb-2">Zápory</h2>
+  <ul className="list-none text-red-500 font-sans">
+    {review.cons && Array.isArray(review.cons) && review.cons.length > 0 ? (
+      review.cons.map((con, index) => (
+        <li key={index} className="mb-2">{con.text}</li>
+      ))
+    ) : (
+      <li>Žádné zápory nejsou k dispozici</li>
+    )}
+  </ul>
+</div>
         </div>
         {(linkedGame || linkedProduct) && (
           <div className="mt-6">
