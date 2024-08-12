@@ -126,3 +126,13 @@ html, body, #__next {
     padding-right: 0;
   }
 }
+
+.nav-link {
+  border-bottom: 4px solid transparent;
+  transition: border-color 0.3s ease;
+}
+
+.nav-link:hover,
+.nav-link.active {
+  border-bottom: 4px solid #8e67ea;
+}

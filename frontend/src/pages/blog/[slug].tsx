@@ -1,4 +1,3 @@
-// pages/blog/[slug].tsx
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import Head from 'next/head';
@@ -19,9 +18,13 @@ const ArticleDetail = ({ article, linkedGame, linkedProduct }) => {
     setIsDarkMode(darkMode);
 
     const incrementReadCountForArticle = async () => {
-      const count = await incrementReadCount('article', article.id);
-      if (count !== null) {
-        setReadCount(count);
+      try {
+        const count = await incrementReadCount('article', article.id);
+        if (count !== null) {
+          setReadCount(count);
+        }
+      } catch (error) {
+        console.error("Error incrementing read count:", error);
       }
     };
 
@@ -152,7 +155,7 @@ const ArticleDetail = ({ article, linkedGame, linkedProduct }) => {
               <span className="mr-4">{article.owner.username}</span>
               <FontAwesomeIcon icon={faCalendarAlt} className="mr-2 text-[#8e67ea] text-lg" />
               <span>{new Date(article.first_published_at).toLocaleDateString()}</span>
-              <FontAwesomeIcon icon={faEye} className="mr-2 text-[#8e67ea] text-lg" style={{marginLeft:'15'}} />
+              <FontAwesomeIcon icon={faEye} className="mr-2 text-[#8e67ea] text-lg" />
               <span>{readCount}</span>
             </div>
             <div className="flex flex-wrap">
@@ -211,26 +214,33 @@ const ArticleDetail = ({ article, linkedGame, linkedProduct }) => {
               Připnuto:
             </h2>
             <div className="flex flex-wrap mt-4">
-              {linkedGame && (
+              {linkedGame ? (
                 <div className="mr-4 mb-4 flex items-center">
                   <FontAwesomeIcon icon={faGamepad} className="mr-2 text-lg" />
                   <Link className="mr-2 text-[#8e67ea] text-lg" href={`/games/${linkedGame.slug}`}>
                     {linkedGame.title}
                   </Link>
                 </div>
+              ) : (
+                <div className="mr-4 mb-4 text-lg text-red-500">
+                  Hra nebyla nalezena.
+                </div>
               )}
-              {linkedProduct && (
+              {linkedProduct ? (
                 <div className="mr-4 mb-4 flex items-center">
                   <FontAwesomeIcon icon={faTag} className="mr-2 text-lg" />
                   <Link className="mr-2 text-[#8e67ea] text-lg" href={`/eshop/${linkedProduct.slug}`}>
                     {linkedProduct.title}
                   </Link>
                 </div>
+              ) : (
+                <div className="mr-4 mb-4 text-lg text-red-500">
+                  Produkt nebyl nalezen.
+                </div>
               )}
             </div>
           </div>
         )}
-        {/* Použití nové komponenty CommentShareLike */}
         <CommentShareLike
           pageId={article.id}
           shareUrl={`${process.env.NEXT_PUBLIC_SITE_URL}${cleanedUrlPath}`}
@@ -266,8 +276,8 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
       };
     }
 
-    const linkedGame = article.linked_game ? await fetchGameById(article.linked_game) : null;
-    const linkedProduct = article.linked_product ? await fetchProductById(article.linked_product) : null;
+    const linkedGame = article.linked_game ? await fetchGameById(article.linked_game).catch(() => null) : null;
+    const linkedProduct = article.linked_product ? await fetchProductById(article.linked_product).catch(() => null) : null;
 
     return {
       props: { 

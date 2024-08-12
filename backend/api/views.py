@@ -1,5 +1,6 @@
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny
 from rest_framework import viewsets
 from .models import BlogPost, Review, Game, Product, BlogIndexPage, ReviewIndexPage, GameIndexPage, ProductIndexPage, HomePage, Comment, ArticleCategory
@@ -39,9 +40,10 @@ class ReviewViewSet(viewsets.ModelViewSet):
     serializer_class = ReviewSerializer
 
 class GameViewSet(viewsets.ModelViewSet):
-    queryset = Game.objects.filter(live=True)
+    queryset = Game.objects.prefetch_related('linked_blog_posts', 'linked_reviews').filter(live=True)
     serializer_class = GameSerializer
-
+    lookup_field = 'pk'  # Změněno z 'slug' na 'pk'
+    
 class ProductViewSet(viewsets.ModelViewSet):
     queryset = Product.objects.filter(live=True)
     serializer_class = ProductSerializer

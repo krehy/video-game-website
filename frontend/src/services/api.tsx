@@ -62,10 +62,11 @@ export const fetchGameById = async (id: string) => {
     const response = await axiosInstance.get(`/games/${id}/`);
     return response.data;
   } catch (error) {
-    console.error(`Error fetching game by id (${id}):`, error);
-    throw error;
+    console.error(`Error fetching game by id (${id}):`, error.response ? error.response.data : error.message);
+    return null; // Ujistěte se, že vrátíte null v případě chyby
   }
 };
+
 
 export const fetchProductById = async (id: string) => {
   try {
@@ -76,6 +77,27 @@ export const fetchProductById = async (id: string) => {
     throw error;
   }
 };
+
+export const fetchArticlesByGameId = async (gameId: number) => {
+  try {
+    const response = await axiosInstance.get(`/posts/?linked_game=${gameId}`);
+    return response.data;
+  } catch (error) {
+    console.error(`Error fetching articles linked to game (${gameId}):`, error);
+    throw error;
+  }
+};
+
+export const fetchReviewsByGameId = async (gameId: number) => {
+  try {
+    const response = await axiosInstance.get(`/reviews/?linked_game=${gameId}`);
+    return response.data;
+  } catch (error) {
+    console.error(`Error fetching reviews linked to game (${gameId}):`, error);
+    throw error;
+  }
+};
+
 
 export const fetchBlogIndexSEO = async () => {
   try {
