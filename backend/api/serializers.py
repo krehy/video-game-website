@@ -1,6 +1,12 @@
 from django.contrib.auth.models import User
 from rest_framework import serializers
-from .models import BlogPost, Review, ReviewAttribute, Game, Product, ArticleCategory, Genre, Platform, ProductCategory, Developer, Publisher, BlogIndexPage, ReviewIndexPage, GameIndexPage, ProductIndexPage, HomePage, Comment
+from .models import (
+    ProductImage, Pro, Con, ContactMessage, BlogPost, Review,
+    ReviewAttribute, Game, Product, ArticleCategory, Genre, Platform,
+    ProductCategory, Developer, Publisher, BlogIndexPage, ReviewIndexPage,
+    GameIndexPage, ProductIndexPage, HomePage, Comment, ProductVariant,
+    ClothingSize, ClothingColor
+)
 from wagtail.images.models import Image
 
 class ImageSerializer(serializers.ModelSerializer):
@@ -33,11 +39,6 @@ class PlatformSerializer(serializers.ModelSerializer):
         model = Platform
         fields = ('id', 'name')
 
-class ProductCategorySerializer(serializers.ModelSerializer):
-    class Meta:
-        model = ProductCategory
-        fields = ('id', 'name')
-
 class DeveloperSerializer(serializers.ModelSerializer):
     class Meta:
         model = Developer
@@ -47,6 +48,47 @@ class PublisherSerializer(serializers.ModelSerializer):
     class Meta:
         model = Publisher
         fields = ('id', 'name')
+
+class ClothingSizeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ClothingSize
+        fields = ('id', 'name')
+
+class ClothingColorSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ClothingColor
+        fields = ('id', 'name', 'hex_code')
+
+class ProductVariantSerializer(serializers.ModelSerializer):
+    platform = PlatformSerializer(read_only=True)
+    size = ClothingSizeSerializer(read_only=True)
+    color = ClothingColorSerializer(read_only=True)
+
+    class Meta:
+        model = ProductVariant
+        fields = ('id', 'platform', 'size', 'color', 'format', 'stock', 'price')
+
+class ProductImageSerializer(serializers.ModelSerializer):
+    image = ImageSerializer(read_only=True)
+
+    class Meta:
+        model = ProductImage
+        fields = ['id', 'image']
+
+class ProductCategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProductCategory
+        fields = ('id', 'name')
+
+class ProductSerializer(serializers.ModelSerializer):
+    main_image = ImageSerializer(read_only=True)
+    categories = ProductCategorySerializer(many=True, read_only=True)
+    images = ProductImageSerializer(source='images.all', many=True, read_only=True)
+    product_variants = ProductVariantSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Product
+        fields = '__all__'
 
 class BlogPostSerializer(serializers.ModelSerializer):
     main_image = ImageSerializer(read_only=True)
@@ -62,11 +104,23 @@ class ReviewAttributeSerializer(serializers.ModelSerializer):
         model = ReviewAttribute
         fields = ['name', 'score', 'text']
 
+class ProSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Pro
+        fields = ['text']
+
+class ConSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Con
+        fields = ['text']
+
 class ReviewSerializer(serializers.ModelSerializer):
     main_image = ImageSerializer(read_only=True)
     categories = ArticleCategorySerializer(many=True, read_only=True)
     owner = UserSerializer(read_only=True)
     attributes = ReviewAttributeSerializer(many=True, read_only=True)
+    pros = ProSerializer(many=True, read_only=True)
+    cons = ConSerializer(many=True, read_only=True)
 
     class Meta:
         model = Review
@@ -83,14 +137,6 @@ class GameSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Game
-        fields = '__all__'
-
-class ProductSerializer(serializers.ModelSerializer):
-    main_image = ImageSerializer(read_only=True)
-    categories = ProductCategorySerializer(many=True, read_only=True)
-
-    class Meta:
-        model = Product
         fields = '__all__'
 
 class BlogIndexPageSerializer(serializers.ModelSerializer):
@@ -120,7 +166,7 @@ class ProductIndexPageSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProductIndexPage
         fields = ('id', 'intro', 'seo_title', 'search_description', 'keywords', 'main_image')
-        
+
 class HomePageSerializer(serializers.ModelSerializer):
     main_image = ImageSerializer(read_only=True)
 
@@ -128,7 +174,17 @@ class HomePageSerializer(serializers.ModelSerializer):
         model = HomePage
         fields = ('id', 'seo_title', 'search_description', 'keywords', 'main_image')
 
+class HomePageContentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = HomePage
+        fields = ['about_us', 'footer_text', 'privacy_policy']
+
 class CommentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Comment
         fields = '__all__'
+
+class ContactMessageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ContactMessage
+        fields = ['message_type', 'name', 'email', 'message']

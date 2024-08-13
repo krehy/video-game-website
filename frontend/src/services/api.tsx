@@ -98,6 +98,16 @@ export const fetchReviewsByGameId = async (gameId: number) => {
   }
 };
 
+export const submitContactMessage = async (messageData: any) => {
+  try {
+    const response = await axiosInstance.post('/contact_message/', messageData);
+    return response.data;
+  } catch (error) {
+    console.error('Error submitting contact message:', error);
+    throw error;
+  }
+};
+
 
 export const fetchBlogIndexSEO = async () => {
   try {
@@ -142,9 +152,19 @@ export const fetchProductIndexSEO = async () => {
 export const fetchHomePageSEO = async () => {
   try {
     const response = await axiosInstance.get('/homepage/');
-    return response.data[0];  // Assuming there's only one HomePage
+    return response.data;  // Vrátí celý objekt HomePage
   } catch (error) {
     console.error('Error fetching home page SEO:', error.response?.data || error.message);
+    throw error;
+  }
+};
+
+export const fetchHomePageContent = async () => {
+  try {
+    const response = await axiosInstance.get('/homepage-content/');
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching home page content:', error);
     throw error;
   }
 };

@@ -1,10 +1,11 @@
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.decorators import api_view, permission_classes
-from rest_framework.decorators import action
+from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny
 from rest_framework import viewsets
 from .models import BlogPost, Review, Game, Product, BlogIndexPage, ReviewIndexPage, GameIndexPage, ProductIndexPage, HomePage, Comment, ArticleCategory
-from .serializers import BlogPostSerializer, ReviewSerializer, GameSerializer, ProductSerializer, BlogIndexPageSerializer, ReviewIndexPageSerializer, GameIndexPageSerializer, ProductIndexPageSerializer, HomePageSerializer, CommentSerializer, ArticleCategorySerializer
+from .serializers import HomePageContentSerializer, ContactMessageSerializer, BlogPostSerializer, ReviewSerializer, GameSerializer, ProductSerializer, BlogIndexPageSerializer, ReviewIndexPageSerializer, GameIndexPageSerializer, ProductIndexPageSerializer, HomePageSerializer, CommentSerializer, ArticleCategorySerializer
+
 from rest_framework.response import Response
 from rest_framework import status
 from django.shortcuts import redirect
@@ -29,6 +30,14 @@ def increment_read_count(request, content_type, pk):
     content_object.read_count += 1
     content_object.save()
     return Response({'status': 'success', 'read_count': content_object.read_count})
+
+class ContactMessageView(APIView):
+    def post(self, request, *args, **kwargs):
+        serializer = ContactMessageSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({'success': 'Zpráva byla úspěšně odeslána.'}, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class BlogPostViewSet(viewsets.ModelViewSet):
@@ -67,6 +76,14 @@ class ProductIndexPageViewSet(viewsets.ReadOnlyModelViewSet):
 class HomePageViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = HomePage.objects.all()
     serializer_class = HomePageSerializer
+
+class HomePageContentView(APIView):
+    def get(self, request, *args, **kwargs):
+        homepage = HomePage.objects.live().first()
+        if homepage:
+            serializer = HomePageContentSerializer(homepage)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response({"detail": "HomePage not found"}, status=status.HTTP_404_NOT_FOUND)
 
 class CommentViewSet(viewsets.ModelViewSet):
     queryset = Comment.objects.filter(is_approved=True)

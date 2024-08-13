@@ -18,8 +18,8 @@ const GameIndex = () => {
     title: '',
     developer: '',
     publisher: '',
-    genres: [],
-    platforms: [],
+    genre: '',
+    platform: '',
     dateRange: [0, 100],
   });
   const [developers, setDevelopers] = useState([]);
@@ -72,8 +72,8 @@ const GameIndex = () => {
       const matchesTitle = filters.title ? game.title.toLowerCase().includes(filters.title.toLowerCase()) : true;
       const matchesDeveloper = filters.developer ? game.developer?.name === filters.developer : true;
       const matchesPublisher = filters.publisher ? game.publisher?.name === filters.publisher : true;
-      const matchesGenre = filters.genres.length > 0 ? filters.genres.every(genre => game.genres.some(g => g.name === genre)) : true;
-      const matchesPlatform = filters.platforms.length > 0 ? filters.platforms.every(platform => game.platforms.some(p => p.name === platform)) : true;
+      const matchesGenre = filters.genre ? game.genres.some(genre => genre.name === filters.genre) : true;
+      const matchesPlatform = filters.platform ? game.platforms.some(platform => platform.name === filters.platform) : true;
       const matchesDateRange = filters.dateRange ? isDateInRange(game.release_date, filters.dateRange) : true;
       return matchesTitle && matchesDeveloper && matchesPublisher && matchesGenre && matchesPlatform && matchesDateRange;
     });
@@ -86,16 +86,6 @@ const GameIndex = () => {
     setFilters({
       ...filters,
       [name]: value
-    });
-  };
-
-  const handleCheckboxChange = (e, category) => {
-    const { name, checked } = e.target;
-    setFilters((prevFilters) => {
-      const updatedCategory = checked
-        ? [...prevFilters[category], name]
-        : prevFilters[category].filter((item) => item !== name);
-      return { ...prevFilters, [category]: updatedCategory };
     });
   };
 
@@ -219,42 +209,38 @@ const GameIndex = () => {
             </select>
           </div>
           <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-bold mb-2">
+            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="genre">
               Žánr
             </label>
-            <div className="flex flex-wrap">
+            <select
+              name="genre"
+              id="genre"
+              value={filters.genre}
+              onChange={handleFilterChange}
+              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+            >
+              <option value="">Všechny žánry</option>
               {genres.map((genre, index) => (
-                <label key={index} className="mr-4 mb-2 flex items-center">
-                  <input
-                    type="checkbox"
-                    name={genre}
-                    checked={filters.genres.includes(genre)}
-                    onChange={(e) => handleCheckboxChange(e, 'genres')}
-                    className="w-6 h-6 text-[#8e67ea] form-checkbox focus:ring-[#8e67ea] rounded-md"
-                  />
-                  <span className="ml-2 text-gray-700">{genre}</span>
-                </label>
+                <option key={index} value={genre}>{genre}</option>
               ))}
-            </div>
+            </select>
           </div>
           <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-bold mb-2">
+            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="platform">
               Platforma
             </label>
-            <div className="flex flex-wrap">
+            <select
+              name="platform"
+              id="platform"
+              value={filters.platform}
+              onChange={handleFilterChange}
+              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+            >
+              <option value="">Všechny platformy</option>
               {platforms.map((platform, index) => (
-                <label key={index} className="mr-4 mb-2 flex items-center">
-                  <input
-                    type="checkbox"
-                    name={platform}
-                    checked={filters.platforms.includes(platform)}
-                    onChange={(e) => handleCheckboxChange(e, 'platforms')}
-                    className="w-6 h-6 text-[#8e67ea] form-checkbox focus:ring-[#8e67ea] rounded-md"
-                  />
-                  <span className="ml-2 text-gray-700">{platform}</span>
-                </label>
+                <option key={index} value={platform}>{platform}</option>
               ))}
-            </div>
+            </select>
           </div>
           <div className="mb-4">
             <label className="block text-gray-700 text-sm font-bold mb-2">

@@ -3,6 +3,8 @@ import '@fontsource/teko/700.css';
 import Header from '../components/Header';
 import BackgroundIcons from '../components/BackgroundIcons';
 import { NextUIProvider } from '@nextui-org/react';
+import Footer from '../components/Footer';
+
 import { AnimatePresence, motion } from 'framer-motion';
 
 function MyApp({ Component, pageProps, router }) {
@@ -24,7 +26,10 @@ function MyApp({ Component, pageProps, router }) {
             </motion.div>
           </AnimatePresence>
         </main>
+
       </div>
+      <Footer />
+
     </NextUIProvider>
   );
 }
