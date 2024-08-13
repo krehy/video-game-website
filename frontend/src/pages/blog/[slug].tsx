@@ -223,7 +223,7 @@ const ArticleDetail = ({ article, linkedGame, linkedProduct }) => {
                 </div>
               ) : (
                 <div className="mr-4 mb-4 text-lg text-red-500">
-                  Hra nebyla nalezena.
+                 
                 </div>
               )}
               {linkedProduct ? (
@@ -235,7 +235,7 @@ const ArticleDetail = ({ article, linkedGame, linkedProduct }) => {
                 </div>
               ) : (
                 <div className="mr-4 mb-4 text-lg text-red-500">
-                  Produkt nebyl nalezen.
+                 
                 </div>
               )}
             </div>

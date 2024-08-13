@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from api.views import (
-    increment_read_count,
+    increment_read_count, ContactMessageView, HomePageContentView,
     BlogPostViewSet, ReviewViewSet, GameViewSet, ProductViewSet,
     BlogIndexPageViewSet, ReviewIndexPageViewSet, GameIndexPageViewSet, CommentViewSet,
     ProductIndexPageViewSet, HomePageViewSet, ArticleCategoryViewSet,
@@ -47,6 +47,8 @@ urlpatterns = [
     path('api/games/<int:pk>/like/', like_game, name='like_game'),
     path('api/games/<int:pk>/dislike/', dislike_game, name='dislike_game'),
     path('api/increment-read-count/<str:content_type>/<int:pk>/', increment_read_count, name='increment-read-count'),
+    path('api/contact_message/', ContactMessageView.as_view(), name='contact_message'),
+    path('api/homepage-content/', HomePageContentView.as_view(), name='homepage-content'),
     path('', home_redirect),
     path('', include('wagtail.urls')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

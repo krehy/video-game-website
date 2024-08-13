@@ -4,10 +4,16 @@ from wagtail.snippets.models import register_snippet
 from wagtail.fields import RichTextField
 from wagtail.search import index
 from modelcluster.fields import ParentalKey, ParentalManyToManyField
+from modelcluster.models import ClusterableModel
 from django import forms
 from django.db import models
 from slugify import slugify
 
+# Utility function to generate slugs
+def generate_slug(title):
+    return slugify(title)
+
+# Home Page model
 class HomePage(Page):
     intro = models.CharField(max_length=250, default='')
     keywords = models.CharField(max_length=255, blank=True)
@@ -18,10 +24,18 @@ class HomePage(Page):
         on_delete=models.SET_NULL,
         related_name='+'
     )
+    privacy_policy = RichTextField(blank=True, help_text="Zásady osobních údajů")
+    terms_conditions = RichTextField(blank=True, help_text="Obchodní podmínky")
+    about_us = RichTextField(blank=True, help_text="O nás")
+    footer_text = RichTextField(blank=True, help_text="Text ve footeru")
 
     content_panels = Page.content_panels + [
         FieldPanel('intro'),
         FieldPanel('main_image'),
+        FieldPanel('privacy_policy'),
+        FieldPanel('terms_conditions'),
+        FieldPanel('about_us'),
+        FieldPanel('footer_text'),
     ]
 
     promote_panels = [
@@ -44,18 +58,14 @@ class HomePage(Page):
         verbose_name = "Home Page"
         verbose_name_plural = "Home Pages"
 
-
+# SEO Fields (abstract model)
 class SEOFields(models.Model):
     keywords = models.CharField(max_length=255, blank=True)
 
     class Meta:
         abstract = True
 
-
-def generate_slug(title):
-    return slugify(title)
-
-
+# Blog Index Page model
 class BlogIndexPage(Page, SEOFields, index.Indexed):
     intro = models.CharField(max_length=250, default='')
     main_image = models.ForeignKey(
@@ -83,7 +93,7 @@ class BlogIndexPage(Page, SEOFields, index.Indexed):
         self.slug = generate_slug(self.slug)
         super().save(*args, **kwargs)
 
-
+# Review Index Page model
 class ReviewIndexPage(Page, SEOFields, index.Indexed):
     intro = models.CharField(max_length=250, default='')
     main_image = models.ForeignKey(
@@ -111,7 +121,7 @@ class ReviewIndexPage(Page, SEOFields, index.Indexed):
         self.slug = generate_slug(self.slug)
         super().save(*args, **kwargs)
 
-
+# Game Index Page model
 class GameIndexPage(Page, SEOFields, index.Indexed):
     intro = models.CharField(max_length=250, default='')
     main_image = models.ForeignKey(
@@ -139,7 +149,7 @@ class GameIndexPage(Page, SEOFields, index.Indexed):
         self.slug = generate_slug(self.slug)
         super().save(*args, **kwargs)
 
-
+# Product Index Page model
 class ProductIndexPage(Page, SEOFields, index.Indexed):
     intro = models.CharField(max_length=250, default='')
     main_image = models.ForeignKey(
@@ -167,7 +177,7 @@ class ProductIndexPage(Page, SEOFields, index.Indexed):
         self.slug = generate_slug(self.slug)
         super().save(*args, **kwargs)
 
-
+# Blog Post model
 class BlogPost(Page, SEOFields, index.Indexed):
     intro = models.CharField(max_length=250, default='')
     body = RichTextField(default='')
@@ -213,7 +223,7 @@ class BlogPost(Page, SEOFields, index.Indexed):
         self.slug = generate_slug(self.slug)
         super().save(*args, **kwargs)
 
-
+# Game model
 class Game(Page, SEOFields, index.Indexed):
     description = RichTextField(default='')
     developer = models.ForeignKey(
@@ -224,9 +234,9 @@ class Game(Page, SEOFields, index.Indexed):
     )
     genres = ParentalManyToManyField('Genre', blank=True)
     platforms = ParentalManyToManyField('Platform', blank=True)
-    release_date = models.DateField(null=True, blank=True)  # Add release date field
-    like_count = models.IntegerField(default=0)  # Add like count for games
-    dislike_count = models.IntegerField(default=0)  # Add dislike count for games
+    release_date = models.DateField(null=True, blank=True)
+    like_count = models.IntegerField(default=0)
+    dislike_count = models.IntegerField(default=0)
     main_image = models.ForeignKey(
         'wagtailimages.Image',
         null=True,
@@ -234,7 +244,7 @@ class Game(Page, SEOFields, index.Indexed):
         on_delete=models.SET_NULL,
         related_name='+'
     )
-    trailer_url = models.URLField(blank=True, null=True)  # Add trailer URL for games
+    trailer_url = models.URLField(blank=True, null=True)
 
     content_panels = Page.content_panels + [
         FieldPanel('description'),
@@ -242,11 +252,11 @@ class Game(Page, SEOFields, index.Indexed):
         FieldPanel('publisher'),
         FieldPanel('genres', widget=forms.CheckboxSelectMultiple),
         FieldPanel('platforms', widget=forms.CheckboxSelectMultiple),
-        FieldPanel('release_date'),  # Include in admin panel
+        FieldPanel('release_date'),
         FieldPanel('main_image'),
-        FieldPanel('trailer_url'),  # Include in admin panel
-        FieldPanel('like_count'),  # Include in admin panel
-        FieldPanel('dislike_count'),  # Include in admin panel
+        FieldPanel('trailer_url'),
+        FieldPanel('like_count'),
+        FieldPanel('dislike_count'),
     ]
 
     promote_panels = [
@@ -261,7 +271,7 @@ class Game(Page, SEOFields, index.Indexed):
         self.slug = generate_slug(self.slug)
         super().save(*args, **kwargs)
 
-
+# Review Attribute model
 class ReviewAttribute(models.Model):
     name = models.CharField(max_length=50)
     score = models.IntegerField(default=0)
@@ -274,7 +284,7 @@ class ReviewAttribute(models.Model):
         FieldPanel('text'),
     ]
 
-
+# Pro model (for review pros)
 class Pro(models.Model):
     review = ParentalKey('Review', on_delete=models.CASCADE, related_name='pros')
     text = models.CharField(max_length=255)
@@ -283,7 +293,7 @@ class Pro(models.Model):
         FieldPanel('text'),
     ]
 
-
+# Con model (for review cons)
 class Con(models.Model):
     review = ParentalKey('Review', on_delete=models.CASCADE, related_name='cons')
     text = models.CharField(max_length=255)
@@ -292,7 +302,7 @@ class Con(models.Model):
         FieldPanel('text'),
     ]
 
-
+# Review model
 class Review(Page, SEOFields, index.Indexed):
     REVIEW_TYPES = [
         ('Game', 'Hra'),
@@ -310,8 +320,8 @@ class Review(Page, SEOFields, index.Indexed):
     intro = models.CharField(max_length=250, default='')
     body = RichTextField(default='')
     read_count = models.IntegerField(default=0)
-    like_count = models.IntegerField(default=0)  # Add like count for reviews
-    dislike_count = models.IntegerField(default=0)  # Add dislike count for reviews
+    like_count = models.IntegerField(default=0)
+    dislike_count = models.IntegerField(default=0)
     main_image = models.ForeignKey(
         'wagtailimages.Image',
         null=True,
@@ -335,11 +345,11 @@ class Review(Page, SEOFields, index.Indexed):
         FieldPanel('linked_game'),
         FieldPanel('linked_product'),
         FieldPanel('review_type'),
-        FieldPanel('like_count'),  # Include in admin panel
-        FieldPanel('dislike_count'),  # Include in admin panel
+        FieldPanel('like_count'),
+        FieldPanel('dislike_count'),
         InlinePanel('attributes', label="Attributes"),
-        InlinePanel('pros', label="Klady"),  # Add pros to the content panels
-        InlinePanel('cons', label="Zápory"),  # Add cons to the content panels
+        InlinePanel('pros', label="Klady"),
+        InlinePanel('cons', label="Zápory"),
     ]
 
     promote_panels = [
@@ -366,23 +376,27 @@ class Review(Page, SEOFields, index.Indexed):
         for attribute_name in attributes_to_delete:
             self.attributes.filter(name=attribute_name).delete()
 
+# Product Image model
+class ProductImage(models.Model):
+    product = ParentalKey('Product', related_name='images', on_delete=models.CASCADE)
+    image = models.ForeignKey(
+        'wagtailimages.Image',
+        on_delete=models.CASCADE,
+        related_name='+'
+    )
 
-class Product(Page, SEOFields, index.Indexed):
-    PHYSICAL = 'physical'
-    DIGITAL = 'digital'
-    AFFILIATE = 'affiliate'
-
-    PRODUCT_TYPE_CHOICES = [
-        (PHYSICAL, 'Physical Product'),
-        (DIGITAL, 'Digital Product'),
-        (AFFILIATE, 'Affiliate Product'),
+    panels = [
+        FieldPanel('image'),
     ]
 
+    def __str__(self):
+        return f"Image for {self.product.title}"
+
+# Product model
+class Product(Page, SEOFields, index.Indexed):
     description = RichTextField()
-    price = models.DecimalField(max_digits=10, decimal_places=2)
-    stock = models.IntegerField(default=0)
-    like_count = models.IntegerField(default=0)  # Add like count for products
-    dislike_count = models.IntegerField(default=0)  # Add dislike count for products
+    like_count = models.IntegerField(default=0)
+    dislike_count = models.IntegerField(default=0)
     main_image = models.ForeignKey(
         'wagtailimages.Image',
         null=True,
@@ -390,24 +404,18 @@ class Product(Page, SEOFields, index.Indexed):
         on_delete=models.SET_NULL,
         related_name='+'
     )
-    product_type = models.CharField(
-        max_length=10,
-        choices=PRODUCT_TYPE_CHOICES,
-        default=PHYSICAL,
-    )
     linked_games = ParentalManyToManyField('Game', blank=True)
     categories = ParentalManyToManyField('ProductCategory', blank=True)
 
     content_panels = Page.content_panels + [
         FieldPanel('description'),
-        FieldPanel('price'),
-        FieldPanel('stock'),
         FieldPanel('main_image'),
-        FieldPanel('product_type'),
+        InlinePanel('images', label="Additional Images"),
         FieldPanel('linked_games', widget=forms.CheckboxSelectMultiple),
         FieldPanel('categories', widget=forms.CheckboxSelectMultiple),
-        FieldPanel('like_count'),  # Include in admin panel
-        FieldPanel('dislike_count'),  # Include in admin panel
+        FieldPanel('like_count'),
+        FieldPanel('dislike_count'),
+        InlinePanel('product_variants', label="Product Variants"),
     ]
 
     promote_panels = [
@@ -422,7 +430,34 @@ class Product(Page, SEOFields, index.Indexed):
         self.slug = generate_slug(self.slug)
         super().save(*args, **kwargs)
 
+# Product Variant model
+class ProductVariant(models.Model):
+    FORMAT_CHOICES = [
+        ('digital', 'Digital'),
+        ('physical', 'Physical'),
+    ]
 
+    product = ParentalKey('Product', related_name='product_variants', on_delete=models.CASCADE)
+    platform = models.ForeignKey('Platform', null=True, blank=True, on_delete=models.SET_NULL)
+    size = models.ForeignKey('ClothingSize', null=True, blank=True, on_delete=models.SET_NULL)
+    color = models.ForeignKey('ClothingColor', null=True, blank=True, on_delete=models.SET_NULL)
+    format = models.CharField(max_length=10, choices=FORMAT_CHOICES, default='physical')
+    stock = models.IntegerField(default=0)
+    price = models.IntegerField()  # Moved to ProductVariant model
+
+    panels = [
+        FieldPanel('platform'),
+        FieldPanel('size'),
+        FieldPanel('color'),
+        FieldPanel('format'),
+        FieldPanel('stock'),
+        FieldPanel('price'),
+    ]
+
+    def __str__(self):
+        return f"Variant of {self.product.title}"
+
+# Developer model (Snippet)
 @register_snippet
 class Developer(models.Model):
     name = models.CharField(max_length=255)
@@ -434,7 +469,7 @@ class Developer(models.Model):
     def __str__(self):
         return self.name
 
-
+# Publisher model (Snippet)
 @register_snippet
 class Publisher(models.Model):
     name = models.CharField(max_length=255)
@@ -446,7 +481,7 @@ class Publisher(models.Model):
     def __str__(self):
         return self.name
 
-
+# Genre model (Snippet)
 @register_snippet
 class Genre(models.Model):
     name = models.CharField(max_length=255)
@@ -458,7 +493,7 @@ class Genre(models.Model):
     def __str__(self):
         return self.name
 
-
+# Platform model (Snippet)
 @register_snippet
 class Platform(models.Model):
     name = models.CharField(max_length=255)
@@ -470,7 +505,7 @@ class Platform(models.Model):
     def __str__(self):
         return self.name
 
-
+# Article Category model (Snippet)
 @register_snippet
 class ArticleCategory(models.Model):
     name = models.CharField(max_length=255)
@@ -482,7 +517,7 @@ class ArticleCategory(models.Model):
     def __str__(self):
         return self.name
 
-
+# Product Category model (Snippet)
 @register_snippet
 class ProductCategory(models.Model):
     name = models.CharField(max_length=255)
@@ -494,7 +529,39 @@ class ProductCategory(models.Model):
     def __str__(self):
         return self.name
 
+# Clothing Size model (Snippet)
+@register_snippet
+class ClothingSize(models.Model):
+    SIZE_CHOICES = [
+        ('S', 'Small'),
+        ('M', 'Medium'),
+        ('L', 'Large'),
+        ('XL', 'Extra Large'),
+    ]
+    name = models.CharField(max_length=5, choices=SIZE_CHOICES)
 
+    panels = [
+        FieldPanel('name'),
+    ]
+
+    def __str__(self):
+        return self.name
+
+# Clothing Color model (Snippet)
+@register_snippet
+class ClothingColor(models.Model):
+    name = models.CharField(max_length=50)
+    hex_code = models.CharField(max_length=7)
+
+    panels = [
+        FieldPanel('name'),
+        FieldPanel('hex_code'),
+    ]
+
+    def __str__(self):
+        return self.name
+
+# Comment model
 class Comment(models.Model):
     page = models.ForeignKey(Page, related_name='comments', on_delete=models.CASCADE)
     author = models.CharField(max_length=255)
@@ -504,3 +571,20 @@ class Comment(models.Model):
 
     def __str__(self):
         return f"Comment by {self.author} on {self.page.title}"
+
+# Contact Message model
+class ContactMessage(models.Model):
+    MESSAGE_TYPE_CHOICES = [
+        ('cooperation', 'Spolupráce'),
+        ('problem', 'Nahlásit problém'),
+        ('inquiry', 'Jiný dotaz'),
+    ]
+
+    message_type = models.CharField(max_length=20, choices=MESSAGE_TYPE_CHOICES)
+    name = models.CharField(max_length=100)
+    email = models.EmailField()
+    message = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f'{self.get_message_type_display()} - {self.name}'

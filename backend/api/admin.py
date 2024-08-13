@@ -1,5 +1,5 @@
 from wagtail_modeladmin.options import ModelAdmin, ModelAdminGroup, modeladmin_register
-from .models import Developer, Publisher, Genre, Platform, BlogPost, Game, Review, Product, ArticleCategory, ProductCategory, Comment
+from .models import ContactMessage, Developer, Publisher, Genre, Platform, BlogPost, Game, Review, Product, ArticleCategory, ProductCategory, Comment, ProductVariant
 
 class DeveloperAdmin(ModelAdmin):
     model = Developer
@@ -58,12 +58,22 @@ class ReviewAdmin(ModelAdmin):
     list_display = ('title', 'intro', 'read_count')
     search_fields = ('title', 'intro')
 
+class ProductVariantAdmin(ModelAdmin):
+    model = ProductVariant
+    menu_label = 'Varianty produktů'
+    menu_icon = 'tag'
+    list_display = ('product', 'platform', 'size', 'color', 'price', 'stock')
+    search_fields = ('product__title',)
+
 class ProductAdmin(ModelAdmin):
     model = Product
     menu_label = 'Produkty'
     menu_icon = 'tag'
-    list_display = ('title', 'price', 'stock')
+    list_display = ('title',)
     search_fields = ('title', 'description')
+
+modeladmin_register(ProductAdmin)
+modeladmin_register(ProductVariantAdmin)
 
 class CommentAdmin(ModelAdmin):
     model = Comment
@@ -76,6 +86,18 @@ class CommentAdmin(ModelAdmin):
 class ContentAdminGroup(ModelAdminGroup):
     menu_label = 'Obsah webu'
     menu_icon = 'folder-open-inverse'
-    items = (BlogPostAdmin, GameAdmin, ReviewAdmin, ProductAdmin, CommentAdmin)  # Add CommentAdmin here
+    items = (BlogPostAdmin, GameAdmin, ReviewAdmin, ProductAdmin, ProductVariantAdmin, CommentAdmin)
 
 modeladmin_register(ContentAdminGroup)
+
+class ContactMessageAdmin(ModelAdmin):
+    model = ContactMessage
+    menu_label = "Zprávy"
+    menu_icon = "mail"
+    menu_order = 100
+    add_to_settings_menu = False
+    exclude_from_explorer = False
+    list_display = ("message_type", "name", "email", "created_at")
+    search_fields = ("name", "email", "message")
+
+modeladmin_register(ContactMessageAdmin)
