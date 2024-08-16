@@ -56,9 +56,9 @@ const Header = () => {
             <Link href="/games" passHref legacyBehavior>
               <a className={`nav-link ${isActive('/games') ? 'active' : ''}`}>Databáze her</a>
             </Link>
-            <Link href="/eshop" passHref legacyBehavior>
+            {/* <Link href="/eshop" passHref legacyBehavior>
               <a className={`nav-link ${isActive('/eshop') ? 'active' : ''}`}>Eshop</a>
-            </Link>
+            </Link> */}
           </nav>
           {scrolled && (
             <button onClick={toggleMenu} className="text-white lg:hidden">

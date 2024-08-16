@@ -61,7 +61,7 @@ AUTHENTICATION_BACKENDS = (
 ALLOWED_HOSTS = [
     'localhost',
     '127.0.0.1',
-    '10.0.0.176',
+    '10.0.0.182',
     '192.168.0.129',
     
 ]

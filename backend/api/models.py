@@ -588,3 +588,20 @@ class ContactMessage(models.Model):
 
     def __str__(self):
         return f'{self.get_message_type_display()} - {self.name}'
+
+class Aktualita(models.Model):
+    text = RichTextField(features=['bold', 'italic', 'link'], help_text="Text of the update with formatting options")
+    is_active = models.BooleanField(default=True, help_text="If unchecked, this update will not be shown")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return self.text[:50]
+
+    panels = [
+        FieldPanel('text'),
+        FieldPanel('is_active'),
+    ]

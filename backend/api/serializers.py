@@ -1,6 +1,7 @@
 from django.contrib.auth.models import User
 from rest_framework import serializers
 from .models import (
+    Aktualita,
     ProductImage, Pro, Con, ContactMessage, BlogPost, Review,
     ReviewAttribute, Game, Product, ArticleCategory, Genre, Platform,
     ProductCategory, Developer, Publisher, BlogIndexPage, ReviewIndexPage,
@@ -8,6 +9,12 @@ from .models import (
     ClothingSize, ClothingColor
 )
 from wagtail.images.models import Image
+
+class AktualitaSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Aktualita
+        fields = ['id', 'text', 'created_at']
+
 
 class ImageSerializer(serializers.ModelSerializer):
     url = serializers.SerializerMethodField()

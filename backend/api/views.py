@@ -1,15 +1,20 @@
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.views import APIView
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly
 from rest_framework import viewsets
-from .models import BlogPost, Review, Game, Product, BlogIndexPage, ReviewIndexPage, GameIndexPage, ProductIndexPage, HomePage, Comment, ArticleCategory
-from .serializers import HomePageContentSerializer, ContactMessageSerializer, BlogPostSerializer, ReviewSerializer, GameSerializer, ProductSerializer, BlogIndexPageSerializer, ReviewIndexPageSerializer, GameIndexPageSerializer, ProductIndexPageSerializer, HomePageSerializer, CommentSerializer, ArticleCategorySerializer
+from .models import Aktualita, BlogPost, Review, Game, Product, BlogIndexPage, ReviewIndexPage, GameIndexPage, ProductIndexPage, HomePage, Comment, ArticleCategory
+from .serializers import AktualitaSerializer, HomePageContentSerializer, ContactMessageSerializer, BlogPostSerializer, ReviewSerializer, GameSerializer, ProductSerializer, BlogIndexPageSerializer, ReviewIndexPageSerializer, GameIndexPageSerializer, ProductIndexPageSerializer, HomePageSerializer, CommentSerializer, ArticleCategorySerializer
 
 from rest_framework.response import Response
 from rest_framework import status
 from django.shortcuts import redirect
 from django.shortcuts import get_object_or_404
+
+class AktualitaViewSet(viewsets.ModelViewSet):
+    queryset = Aktualita.objects.filter(is_active=True)
+    serializer_class = AktualitaSerializer
+    permission_classes = [IsAuthenticatedOrReadOnly]
 
 @csrf_exempt
 @api_view(['POST'])
