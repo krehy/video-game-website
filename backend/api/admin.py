@@ -1,5 +1,13 @@
 from wagtail_modeladmin.options import ModelAdmin, ModelAdminGroup, modeladmin_register
-from .models import ContactMessage, Developer, Publisher, Genre, Platform, BlogPost, Game, Review, Product, ArticleCategory, ProductCategory, Comment, ProductVariant
+from .models import Aktualita, ContactMessage, Developer, Publisher, Genre, Platform, BlogPost, Game, Review, Product, ArticleCategory, ProductCategory, Comment, ProductVariant
+
+class AktualitaAdmin(ModelAdmin):
+    model = Aktualita
+    menu_label = 'Aktuality'
+    menu_icon = 'list-ul'
+    list_display = ('text', 'is_active', 'created_at', 'updated_at')
+    search_fields = ('text',)
+    list_filter = ('is_active', 'created_at')
 
 class DeveloperAdmin(ModelAdmin):
     model = Developer
@@ -8,16 +16,12 @@ class DeveloperAdmin(ModelAdmin):
     list_display = ('name',)
     search_fields = ('name',)
 
-modeladmin_register(DeveloperAdmin)
-
 class PublisherAdmin(ModelAdmin):
     model = Publisher
     menu_label = 'Publishers'
     menu_icon = 'group'
     list_display = ('name',)
     search_fields = ('name',)
-
-modeladmin_register(PublisherAdmin)
 
 class GenreAdmin(ModelAdmin):
     model = Genre
@@ -26,16 +30,12 @@ class GenreAdmin(ModelAdmin):
     list_display = ('name',)
     search_fields = ('name',)
 
-modeladmin_register(GenreAdmin)
-
 class PlatformAdmin(ModelAdmin):
     model = Platform
     menu_label = 'Platforms'
     menu_icon = 'desktop'
     list_display = ('name',)
     search_fields = ('name',)
-
-modeladmin_register(PlatformAdmin)
 
 class BlogPostAdmin(ModelAdmin):
     model = BlogPost
@@ -72,9 +72,6 @@ class ProductAdmin(ModelAdmin):
     list_display = ('title',)
     search_fields = ('title', 'description')
 
-modeladmin_register(ProductAdmin)
-modeladmin_register(ProductVariantAdmin)
-
 class CommentAdmin(ModelAdmin):
     model = Comment
     menu_label = 'Komentáře'
@@ -86,7 +83,7 @@ class CommentAdmin(ModelAdmin):
 class ContentAdminGroup(ModelAdminGroup):
     menu_label = 'Obsah webu'
     menu_icon = 'folder-open-inverse'
-    items = (BlogPostAdmin, GameAdmin, ReviewAdmin, ProductAdmin, ProductVariantAdmin, CommentAdmin)
+    items = (AktualitaAdmin, BlogPostAdmin, GameAdmin, ReviewAdmin, ProductAdmin, ProductVariantAdmin, CommentAdmin)
 
 modeladmin_register(ContentAdminGroup)
 
@@ -101,3 +98,8 @@ class ContactMessageAdmin(ModelAdmin):
     search_fields = ("name", "email", "message")
 
 modeladmin_register(ContactMessageAdmin)
+
+modeladmin_register(DeveloperAdmin)
+modeladmin_register(PublisherAdmin)
+modeladmin_register(GenreAdmin)
+modeladmin_register(PlatformAdmin)

@@ -5,7 +5,7 @@ from api.views import (
     increment_read_count, ContactMessageView, HomePageContentView,
     BlogPostViewSet, ReviewViewSet, GameViewSet, ProductViewSet,
     BlogIndexPageViewSet, ReviewIndexPageViewSet, GameIndexPageViewSet, CommentViewSet,
-    ProductIndexPageViewSet, HomePageViewSet, ArticleCategoryViewSet,
+    ProductIndexPageViewSet, HomePageViewSet, ArticleCategoryViewSet, AktualitaViewSet,
     like_article, dislike_article, like_review, dislike_review, like_product, dislike_product, like_game, dislike_game
 )
 from wagtail.contrib.sitemaps.views import sitemap
@@ -17,6 +17,7 @@ from django.conf import settings
 def home_redirect(request):
     return redirect('/cms/')
 
+# Initialize the router and register the viewsets
 router = DefaultRouter()
 router.register(r'posts', BlogPostViewSet)
 router.register(r'reviews', ReviewViewSet)
@@ -29,6 +30,7 @@ router.register(r'productindex', ProductIndexPageViewSet)
 router.register(r'homepage', HomePageViewSet)
 router.register(r'comments', CommentViewSet, basename='comment')
 router.register(r'categories', ArticleCategoryViewSet, basename='categories')
+router.register(r'aktuality', AktualitaViewSet, basename='aktuality')  # Register the Aktualita viewset
 
 urlpatterns = [
     path('admin/', admin.site.urls),

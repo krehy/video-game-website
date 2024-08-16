@@ -7,6 +7,16 @@ const axiosInstance = axios.create({
   withCredentials: true, // Ensure credentials are sent with requests
 });
 
+export const fetchAktuality = async () => {
+  try {
+    const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/aktuality/`);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching aktuality:', error);
+    return [];
+  }
+};
+
 export const fetchArticles = async () => {
   try {
     const response = await axiosInstance.get('/posts/');
@@ -33,16 +43,6 @@ export const fetchGames = async () => {
     return response.data;
   } catch (error) {
     console.error('Error fetching games:', error);
-    throw error;
-  }
-};
-
-export const fetchProducts = async () => {
-  try {
-    const response = await axiosInstance.get('/products/');
-    return response.data;
-  } catch (error) {
-    console.error('Error fetching products:', error);
     throw error;
   }
 };
