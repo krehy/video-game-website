@@ -20,7 +20,7 @@ const HomePage = () => {
   const [mostReadReview, setMostReadReview] = useState<any>(null);
   const [mostLikedArticle, setMostLikedArticle] = useState<any>(null);
   const [mostLikedReview, setMostLikedReview] = useState<any>(null);
-
+//a
   useEffect(() => {
     const getSeoData = async () => {
       const seo = await fetchHomePageSEO();
