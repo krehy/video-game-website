@@ -1,12 +1,10 @@
 from django.contrib.auth.models import User
 from rest_framework import serializers
 from .models import (
-    Aktualita,
-    ProductImage, Pro, Con, ContactMessage, BlogPost, Review,
-    ReviewAttribute, Game, Product, ArticleCategory, Genre, Platform,
-    ProductCategory, Developer, Publisher, BlogIndexPage, ReviewIndexPage,
-    GameIndexPage, ProductIndexPage, HomePage, Comment, ProductVariant,
-    ClothingSize, ClothingColor
+    Aktualita, Pro, Con, ContactMessage, BlogPost, Review,
+    ReviewAttribute, Game, ArticleCategory, Genre, Platform,
+    Developer, Publisher, BlogIndexPage, ReviewIndexPage,
+    GameIndexPage, ProductIndexPage, HomePage, Comment
 )
 from wagtail.images.models import Image
 
@@ -55,47 +53,6 @@ class PublisherSerializer(serializers.ModelSerializer):
     class Meta:
         model = Publisher
         fields = ('id', 'name')
-
-class ClothingSizeSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = ClothingSize
-        fields = ('id', 'name')
-
-class ClothingColorSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = ClothingColor
-        fields = ('id', 'name', 'hex_code')
-
-class ProductVariantSerializer(serializers.ModelSerializer):
-    platform = PlatformSerializer(read_only=True)
-    size = ClothingSizeSerializer(read_only=True)
-    color = ClothingColorSerializer(read_only=True)
-
-    class Meta:
-        model = ProductVariant
-        fields = ('id', 'platform', 'size', 'color', 'format', 'stock', 'price')
-
-class ProductImageSerializer(serializers.ModelSerializer):
-    image = ImageSerializer(read_only=True)
-
-    class Meta:
-        model = ProductImage
-        fields = ['id', 'image']
-
-class ProductCategorySerializer(serializers.ModelSerializer):
-    class Meta:
-        model = ProductCategory
-        fields = ('id', 'name')
-
-class ProductSerializer(serializers.ModelSerializer):
-    main_image = ImageSerializer(read_only=True)
-    categories = ProductCategorySerializer(many=True, read_only=True)
-    images = ProductImageSerializer(source='images.all', many=True, read_only=True)
-    product_variants = ProductVariantSerializer(many=True, read_only=True)
-
-    class Meta:
-        model = Product
-        fields = '__all__'
 
 class BlogPostSerializer(serializers.ModelSerializer):
     main_image = ImageSerializer(read_only=True)

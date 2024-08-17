@@ -63,6 +63,7 @@ ALLOWED_HOSTS = [
     '127.0.0.1',
     '10.0.0.182',
     '192.168.0.129',
+    '10.0.0.193',
     
 ]
 
@@ -70,11 +71,13 @@ CSRF_TRUSTED_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
     "http://10.0.0.176:3000",
+    "http://10.0.0.193:3000",
 ]
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://10.0.0.176:3000",
+    "http://10.0.0.193:3000",
 ]
 
 CSRF_COOKIE_HTTPONLY = False
@@ -112,7 +115,7 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'video_game_website',
-        'USER': 'admin',
+        'USER': 'new_admin',
         'PASSWORD': 'Hostinger123;',
         'HOST': 'localhost',
         'PORT': '5432',
@@ -122,12 +125,13 @@ DATABASES = {
 CACHES = {
     'default': {
         'BACKEND': 'django_redis.cache.RedisCache',
-        'LOCATION': 'redis://127.0.0.1:6379/1',
+        'LOCATION': 'redis://127.0.0.1:6379/1',  # Ensure the location is correct
         'OPTIONS': {
             'CLIENT_CLASS': 'django_redis.client.DefaultClient',
         }
     }
 }
+
 
 AUTH_PASSWORD_VALIDATORS = [
     {

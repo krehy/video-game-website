@@ -9,26 +9,16 @@ const ReviewBody = ({ review, isDarkMode }) => {
         <div className="mt-4">
           {review.attributes.map((attribute, index) => (
             <div key={index} className="mb-8 flex items-start space-x-4 border-b pb-4">
-              <div className="relative flex-grow break-words" style={{ overflowWrap: 'break-word', wordBreak: 'break-all' }}>
-                <h3 className="text-lg font-normal break-words">{attribute.name}</h3>
-                <div className="relative">
+              <div className="relative flex-grow break-words">
+              <h3 className="text-lg font-sans font-extrabold break-words">{attribute.name}</h3>
+              <div className="relative">
                   <div
-                    className="inline-block"
-                    style={{
-                      float: 'right',
-                      width: '4.5rem',
-                      marginLeft: '1rem',
-                      textAlign: 'center',
-                      backgroundColor: '#8e67ea',
-                      color: 'white',
-                      borderRadius: '50%',
-                      fontSize: '2rem',
-                      lineHeight: '3rem',
-                    }}
+                    className="inline-block float-right ml-4 text-center bg-[#8e67ea] text-white rounded-full font-normal text-2xl leading-10 whitespace-nowrap"
+                    style={{ width: '4.5rem' }}
                   >
                     {attribute.score}/10
                   </div>
-                  <p className="font-sans break-words font-normal" style={{ wordBreak: 'break-all', overflowWrap: 'break-word', marginRight: '5rem' }}>
+                  <p className="font-sans font-normal break-words mr-20">
                     {attribute.text}
                   </p>
                 </div>

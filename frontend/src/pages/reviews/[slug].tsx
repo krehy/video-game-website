@@ -1,16 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { GetStaticPaths, GetStaticProps } from 'next';
 import { fetchReviews, fetchGameById, fetchProductById, incrementReadCount } from '../../services/api';
-// Importy pro jednotlivé komponenty
 import ReviewHeader from '../../components/ReviewsDetailPage/ReviewHeader';
 import ReviewSchema from '../../components/ReviewsDetailPage/ReviewSchema';
 import ReviewBody from '../../components/ReviewsDetailPage/ReviewBody';
-import ReviewToggleDarkMode from '../../components/ReviewsDetailPage/ReviewToggleDarkMode';
 import ReviewConclusion from '../../components/ReviewsDetailPage/ReviewConclusion';
 import ReviewProsCons from '../../components/ReviewsDetailPage/ReviewProsCons';
 import ReviewPinnedContent from '../../components/ReviewsDetailPage/ReviewPinnedContent';
 import ReviewMetaTags from '../../components/ReviewsDetailPage/ReviewMetaTags';
 import CommentShareLike from '../../components/CommentShareLike';
+import ActiveUsers from '../../components/ActiveUsers'; 
+import DarkModeToggle from '../../components/ArticleDetailPage/DarkModeToggle'; // Import the shared DarkModeToggle
 
 const ReviewDetail = ({ review, linkedGame, linkedProduct }) => {
   const [isDarkMode, setIsDarkMode] = useState(false);
@@ -47,18 +47,25 @@ const ReviewDetail = ({ review, linkedGame, linkedProduct }) => {
     <div className="container mx-auto p-4">
       <ReviewMetaTags review={review} cleanedUrlPath={cleanedUrlPath} />
       <ReviewHeader review={review} readCount={readCount} />
-      <ReviewToggleDarkMode isDarkMode={isDarkMode} toggleDarkMode={toggleDarkMode} />
-      <ReviewBody review={review} isDarkMode={isDarkMode} />
-      <ReviewConclusion review={review} averageScore={averageScore} isDarkMode={isDarkMode} />
-      <ReviewProsCons pros={review.pros} cons={review.cons} />
-      <ReviewPinnedContent linkedGame={linkedGame} linkedProduct={linkedProduct} />
-      <ReviewSchema review={review} cleanedUrlPath={cleanedUrlPath} />
-      <CommentShareLike
-        pageId={review.id}
-        shareUrl={`${process.env.NEXT_PUBLIC_SITE_URL}${cleanedUrlPath}`}
-        title={review.title}
-        contentType="review"
-      />
+
+      <div className={`p-4 rounded relative ${isDarkMode ? 'bg-transparent text-white' : 'bg-white text-black'}`}>
+        <DarkModeToggle isDarkMode={isDarkMode} toggleDarkMode={toggleDarkMode} />
+        
+        {/* Use the ActiveUsers component */}
+        <ActiveUsers contentType="review" contentId={review.id} />
+
+        <ReviewBody review={review} isDarkMode={isDarkMode} />
+        <ReviewConclusion review={review} averageScore={averageScore} isDarkMode={isDarkMode} />
+        <ReviewProsCons pros={review.pros} cons={review.cons} />
+        <ReviewPinnedContent linkedGame={linkedGame} linkedProduct={linkedProduct} />
+        <ReviewSchema review={review} cleanedUrlPath={cleanedUrlPath} />
+        <CommentShareLike
+          pageId={review.id}
+          shareUrl={`${process.env.NEXT_PUBLIC_SITE_URL}${cleanedUrlPath}`}
+          title={review.title}
+          contentType="review"
+        />
+      </div>
     </div>
   );
 };
