@@ -56,6 +56,9 @@ const Header = () => {
             <Link href="/games" passHref legacyBehavior>
               <a className={`nav-link ${isActive('/games') ? 'active' : ''}`}>Databáze her</a>
             </Link>
+            <Link href="/calendar" passHref legacyBehavior>
+              <a className={`nav-link ${isActive('/calendar') ? 'active' : ''}`}>Herní kalendář</a>
+            </Link>
             {/* <Link href="/eshop" passHref legacyBehavior>
               <a className={`nav-link ${isActive('/eshop') ? 'active' : ''}`}>Eshop</a>
             </Link> */}

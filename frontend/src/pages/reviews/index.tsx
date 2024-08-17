@@ -108,7 +108,7 @@ const ReviewIndex = () => {
         return reviews;
     }
   };
-
+  
   const loadMoreReviews = () => {
     setVisibleReviewsCount((prevCount) => prevCount + 9);
   };

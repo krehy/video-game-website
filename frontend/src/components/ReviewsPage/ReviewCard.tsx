@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUser, faCalendarAlt, faEye } from '@fortawesome/free-solid-svg-icons';
+import { motion } from 'framer-motion';
 import AnimatedNumber from './AnimatedNumber';
 
 const reviewTypeTranslations = {
@@ -17,18 +18,48 @@ const reviewTypeTranslations = {
   'Microphone': 'Mikrofon'
 };
 
-const ReviewCard = ({ review }) => {
+const ReviewCard = ({ review, info }) => {
+  const [isHovered, setIsHovered] = useState(false);
+
   const averageScore = review.attributes.reduce((acc, attribute) => acc + attribute.score, 0) / review.attributes.length;
 
   return (
-    <div className="bg-white shadow-md rounded overflow-hidden relative">
+    <motion.div 
+      whileHover={{ scale: 1.05 }} 
+      whileTap={{ scale: 0.95 }}
+      className="bg-white shadow-md rounded overflow-hidden relative"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
       {review.main_image && (
         <div className="relative">
-          <img
-            src={`${process.env.NEXT_PUBLIC_INDEX_URL}${review.main_image.url}`}
-            alt={review.title}
-            className="w-full h-48 object-cover"
-          />
+          <Link href={`/reviews/${review.slug}`}>
+            <img
+              src={`${process.env.NEXT_PUBLIC_INDEX_URL}${review.main_image.url}`}
+              alt={review.title}
+              className="w-full h-48 object-cover"
+            />
+          </Link>
+          {info && (
+            <motion.div 
+              initial={{ y: '-100%' }}
+              animate={isHovered ? { y: 0 } : { y: '-100%' }}
+              transition={{ duration: 0.3 }}
+              className="absolute top-0 left-0 w-full p-2"
+              style={{
+                backgroundImage: 'linear-gradient(to bottom, #8e67ea, transparent)',
+              }}
+            >
+              <p className="text-center text-black font-bold text-4xl" 
+                 style={{
+                   letterSpacing: '0.25em',
+                   textTransform: 'uppercase',
+                   margin: 0,
+                 }}>
+                Recenze
+              </p>
+            </motion.div>
+          )}
           <div className="absolute bottom-0 left-0 w-full bg-[#8e67ea] bg-opacity-70 text-white p-2 flex justify-between items-center">
             <Link href={`/reviews/${review.slug}`}>
               <h2 className="text-lg font-semibold">{review.title}</h2>
@@ -57,7 +88,7 @@ const ReviewCard = ({ review }) => {
           </span>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 };
 

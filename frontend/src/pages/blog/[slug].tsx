@@ -1,22 +1,27 @@
-// pages/blog/[slug].js
 import React, { useState, useEffect } from 'react';
 import { GetStaticPaths, GetStaticProps } from 'next';
-import { fetchArticles, fetchGameById, fetchProductById, incrementReadCount } from '../../services/api';
+import { 
+  fetchArticles, 
+  fetchGameById, 
+  fetchProductById,
+  incrementReadCount, 
+} from '../../services/api';
 import ArticleHeader from '../../components/ArticleDetailPage/ArticleHeader';
 import ArticleBody from '../../components/ArticleDetailPage/ArticleBody';
 import ArticleSchema from '../../components/ArticleDetailPage/ArticleSchema';
 import DarkModeToggle from '../../components/ArticleDetailPage/DarkModeToggle';
 import PinnedContent from '../../components/ArticleDetailPage/PinnedContent';
 import CommentShareLike from '../../components/CommentShareLike';
+import ActiveUsers from '../../components/ActiveUsers'; // Importujte komponentu ActiveUsers
 
 const ArticleDetail = ({ article, linkedGame, linkedProduct }) => {
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [readCount, setReadCount] = useState(article.read_count);
-
+  
   useEffect(() => {
     const darkMode = localStorage.getItem('darkMode') === 'true';
     setIsDarkMode(darkMode);
-
+  
     const incrementReadCountForArticle = async () => {
       try {
         const count = await incrementReadCount('article', article.id);
@@ -30,7 +35,7 @@ const ArticleDetail = ({ article, linkedGame, linkedProduct }) => {
 
     incrementReadCountForArticle();
   }, [article.id]);
-
+  
   const toggleDarkMode = () => {
     const newMode = !isDarkMode;
     setIsDarkMode(newMode);
@@ -79,6 +84,10 @@ const ArticleDetail = ({ article, linkedGame, linkedProduct }) => {
       <ArticleHeader article={article} readCount={readCount} isDarkMode={isDarkMode} />
       <div className={`p-4 rounded relative ${isDarkMode ? 'bg-transparent text-white' : 'bg-white text-black'}`}>
         <DarkModeToggle isDarkMode={isDarkMode} toggleDarkMode={toggleDarkMode} />
+
+        {/* Použití komponenty ActiveUsers */}
+        <ActiveUsers contentType="article" contentId={article.id} />
+
         <ArticleBody body={article.body} isDarkMode={isDarkMode} options={options} />
         <PinnedContent linkedGame={linkedGame} linkedProduct={linkedProduct} />
         <CommentShareLike
@@ -87,7 +96,6 @@ const ArticleDetail = ({ article, linkedGame, linkedProduct }) => {
           title={article.title}
           contentType="article"
         />
-        
       </div>
     </div>
   );
@@ -130,6 +138,7 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
         linkedGame, 
         linkedProduct 
       },
+      revalidate: 5, // Regenerate the page every 5 seconds
     };
   } catch (error) {
     console.error('Error fetching article for static props:', error);

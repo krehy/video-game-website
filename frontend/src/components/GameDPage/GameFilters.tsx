@@ -1,7 +1,7 @@
 import React from 'react';
 import { Range } from 'react-range';
 
-const GameFilters = ({ filters, handleFilterChange, handleSliderChange, developers, publishers, genres, platforms, dateRange, minDate, maxDate, formatDate }) => {
+const GameFilters = ({ filters, handleFilterChange, handleCheckboxChange, handleSliderChange, developers, publishers, genres, platforms, dateRange, minDate, maxDate, formatDate }) => {
   return (
     <div className="bg-white p-4 shadow-md rounded mb-4">
       {/* Input pro název hry */}
@@ -17,6 +17,7 @@ const GameFilters = ({ filters, handleFilterChange, handleSliderChange, develope
           onChange={handleFilterChange}
           className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
           placeholder="Zadejte název hry"
+          autoFocus
         />
       </div>
       {/* Vývojář */}
@@ -60,36 +61,44 @@ const GameFilters = ({ filters, handleFilterChange, handleSliderChange, develope
         <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="genre">
           Žánr
         </label>
-        <select
-          name="genre"
-          id="genre"
-          value={filters.genre}
-          onChange={handleFilterChange}
-          className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-        >
-          <option value="">Všechny žánry</option>
+        <div className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
           {genres.map((genre, index) => (
-            <option key={index} value={genre}>{genre}</option>
+            <div key={index} className="mb-2">
+              <input
+                type="checkbox"
+                id={`genre-${index}`}
+                name="genres"
+                value={genre}
+                checked={filters.genres.includes(genre)}
+                onChange={handleCheckboxChange}
+                className="mr-2 leading-tight"
+              />
+              <label htmlFor={`genre-${index}`}>{genre}</label>
+            </div>
           ))}
-        </select>
+        </div>
       </div>
       {/* Platforma */}
       <div className="mb-4">
         <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="platform">
           Platforma
         </label>
-        <select
-          name="platform"
-          id="platform"
-          value={filters.platform}
-          onChange={handleFilterChange}
-          className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-        >
-          <option value="">Všechny platformy</option>
+        <div className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
           {platforms.map((platform, index) => (
-            <option key={index} value={platform}>{platform}</option>
+            <div key={index} className="mb-2">
+              <input
+                type="checkbox"
+                id={`platform-${index}`}
+                name="platforms"
+                value={platform}
+                checked={filters.platforms.includes(platform)}
+                onChange={handleCheckboxChange}
+                className="mr-2 leading-tight"
+              />
+              <label htmlFor={`platform-${index}`}>{platform}</label>
+            </div>
           ))}
-        </select>
+        </div>
       </div>
       {/* Datum vydání */}
       <div className="mb-4">

@@ -1,5 +1,5 @@
 from wagtail_modeladmin.options import ModelAdmin, ModelAdminGroup, modeladmin_register
-from .models import Aktualita, ContactMessage, Developer, Publisher, Genre, Platform, BlogPost, Game, Review, Product, ArticleCategory, ProductCategory, Comment, ProductVariant
+from .models import Aktualita, ContactMessage, Developer, Publisher, Genre, Platform, BlogPost, Game, Review, ArticleCategory, Comment
 
 class AktualitaAdmin(ModelAdmin):
     model = Aktualita
@@ -58,19 +58,6 @@ class ReviewAdmin(ModelAdmin):
     list_display = ('title', 'intro', 'read_count')
     search_fields = ('title', 'intro')
 
-class ProductVariantAdmin(ModelAdmin):
-    model = ProductVariant
-    menu_label = 'Varianty produktů'
-    menu_icon = 'tag'
-    list_display = ('product', 'platform', 'size', 'color', 'price', 'stock')
-    search_fields = ('product__title',)
-
-class ProductAdmin(ModelAdmin):
-    model = Product
-    menu_label = 'Produkty'
-    menu_icon = 'tag'
-    list_display = ('title',)
-    search_fields = ('title', 'description')
 
 class CommentAdmin(ModelAdmin):
     model = Comment
@@ -83,7 +70,7 @@ class CommentAdmin(ModelAdmin):
 class ContentAdminGroup(ModelAdminGroup):
     menu_label = 'Obsah webu'
     menu_icon = 'folder-open-inverse'
-    items = (AktualitaAdmin, BlogPostAdmin, GameAdmin, ReviewAdmin, ProductAdmin, ProductVariantAdmin, CommentAdmin)
+    items = (AktualitaAdmin, BlogPostAdmin, GameAdmin, ReviewAdmin, CommentAdmin)
 
 modeladmin_register(ContentAdminGroup)
 

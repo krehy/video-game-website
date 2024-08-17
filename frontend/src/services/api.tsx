@@ -68,16 +68,6 @@ export const fetchGameById = async (id: string) => {
 };
 
 
-export const fetchProductById = async (id: string) => {
-  try {
-    const response = await axiosInstance.get(`/products/${id}/`);
-    return response.data;
-  } catch (error) {
-    console.error(`Error fetching product by id (${id}):`, error);
-    throw error;
-  }
-};
-
 export const fetchArticlesByGameId = async (gameId: number) => {
   try {
     const response = await axiosInstance.get(`/posts/?linked_game=${gameId}`);
@@ -299,4 +289,73 @@ export const incrementReadCount = async (contentType: string, id: number) => {
     }
   }
   return null;
+};
+
+export const incrementActiveUsers = async (contentType: string, contentId: number) => {
+  try {
+    const response = await axios.post(`${API_URL}/increment-active-users/${contentType}/${contentId}/`, null, {
+      withCredentials: true,  // Pokud je potřeba zaslat credentials
+    });
+    return response.data.active_users;
+  } catch (error) {
+    console.error(`Error incrementing active users for ${contentType} (${contentId}):`, error.response ? error.response.data : error.message);
+    throw error;
+  }
+};
+
+export const decrementActiveUsers = async (contentType: string, contentId: number) => {
+  try {
+    const response = await axios.post(`${API_URL}/decrement-active-users/${contentType}/${contentId}/`, null, {
+      withCredentials: true,  // Pokud je potřeba zaslat credentials
+    });
+    return response.data.active_users;
+  } catch (error) {
+    console.error(`Error decrementing active users for ${contentType} (${contentId}):`, error.response ? error.response.data : error.message);
+    throw error;
+  }
+};
+
+export const fetchActiveUsers = async (contentType: string, contentId: number) => {
+  try {
+    const response = await axiosInstance.get(`/active-users/${contentType}/${contentId}/`);
+    return response.data.active_users;
+  } catch (error) {
+    console.error(`Error fetching active users for ${contentType} (${contentId}):`, error);
+    throw error;
+  }
+};
+
+export const fetchTopMostRead = async (contentType: string) => {
+  const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/top-most-read/${contentType}/`);
+
+  if (!response.ok) {
+    throw new Error('Failed to fetch top most-read content');
+  }
+  return response.json();
+};
+
+export const incrementSearchWeek = async (gameId: number) => {
+  try {
+    const response = await axios.post(`${API_URL}/increment-search-week/${gameId}/`, null, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      withCredentials: true,  // Pokud je potřeba zaslat credentials
+    });
+
+    return response.data;
+  } catch (error) {
+    console.error('Error incrementing search_week:', error.response ? error.response.data : error.message);
+    return null;
+  }
+};
+
+export const fetchMostSearchedGame = async () => {
+  try {
+    const response = await axiosInstance.get(`${API_URL}/most-searched-game-week/`);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching most searched game:', error.response ? error.response.data : error.message);
+    return null;
+  }
 };

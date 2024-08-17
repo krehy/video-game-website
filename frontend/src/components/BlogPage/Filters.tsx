@@ -1,13 +1,10 @@
 import React from 'react';
 import { Range } from 'react-range';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faFilter } from '@fortawesome/free-solid-svg-icons';
 
 const Filters = ({ categories, filters, handleFilterChange, handleSliderChange, dateRange, formatDate, minDate, maxDate }) => (
   <div className="bg-white p-4 shadow-md rounded mb-4">
-    <div className="mb-4 flex items-center">
-      <label className="block text-gray-700 text-sm font-bold mb-2 flex items-center" htmlFor="title">
-        <FontAwesomeIcon icon={faFilter} className="mr-2 text-[#8e67ea]" />
+    <div className="mb-4">
+      <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="title">
         Hledat
       </label>
       <input
