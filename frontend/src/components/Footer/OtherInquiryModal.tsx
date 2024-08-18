@@ -3,7 +3,12 @@ import { submitContactMessage } from '../../services/api';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTimes } from '@fortawesome/free-solid-svg-icons';
 
-const OtherInquiryModal = ({ isOpen, onClose }) => {
+interface OtherInquiryModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+const OtherInquiryModal: React.FC<OtherInquiryModalProps> = ({ isOpen, onClose }) => {
   const [formData, setFormData] = useState({
     message_type: 'inquiry',
     name: '',
@@ -11,14 +16,14 @@ const OtherInquiryModal = ({ isOpen, onClose }) => {
     message: ''
   });
 
-  const handleChange = (e) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value
     });
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const messageData = {
       message_type: 'inquiry',

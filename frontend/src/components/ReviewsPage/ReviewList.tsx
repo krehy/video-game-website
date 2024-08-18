@@ -1,7 +1,15 @@
+// src/components/ReviewsPage/ReviewList.tsx
 import React from 'react';
 import ReviewCard from './ReviewCard';
+import { Review } from '../../types';
 
-const ReviewList = ({ reviews, visibleReviewsCount, loadMoreReviews }) => {
+interface ReviewListProps {
+  reviews: Review[];
+  visibleReviewsCount: number;
+  loadMoreReviews: () => void;
+}
+
+const ReviewList: React.FC<ReviewListProps> = ({ reviews, visibleReviewsCount, loadMoreReviews }) => {
   return (
     <>
       <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">

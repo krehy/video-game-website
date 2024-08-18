@@ -1,6 +1,11 @@
 import React from 'react';
+import { Game } from '../../types'; // Adjust the import path as necessary
 
-const GameSchema = ({ game }) => {
+interface GameSchemaProps {
+  game: Game;
+}
+
+const GameSchema: React.FC<GameSchemaProps> = ({ game }) => {
   const schemaData = {
     "@context": "https://schema.org",
     "@type": "VideoGame",
@@ -16,7 +21,7 @@ const GameSchema = ({ game }) => {
       "name": game.publisher ? game.publisher.name : 'Unknown Publisher'
     },
     "genre": game.genres.map(genre => genre.name),
-    "gamePlatform": game.platforms.map(platform => platform.name)
+    "gamePlatform": game.platforms ? game.platforms.map(platform => platform.name) : []
   };
 
   return (

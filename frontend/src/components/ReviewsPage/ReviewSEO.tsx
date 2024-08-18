@@ -1,7 +1,9 @@
+// src/components/ReviewsPage/ReviewSEO.tsx
 import React from 'react';
 import Head from 'next/head';
+import { ReviewSEOProps } from '../../types'; // Upravte cestu k souboru s typy
 
-const ReviewSEO = ({ seoData, breadcrumbList }) => {
+const ReviewSEO: React.FC<ReviewSEOProps> = ({ seoData, breadcrumbList }) => {
   const seoTitle = seoData?.seo_title || 'Recenze';
   const seoDescription = seoData?.search_description || 'Recenze page description';
   const seoKeywords = seoData?.keywords || '';
@@ -21,7 +23,9 @@ const ReviewSEO = ({ seoData, breadcrumbList }) => {
       <meta name="twitter:title" content={seoTitle} />
       <meta name="twitter:description" content={seoDescription} />
       {seoImage && <meta name="twitter:image" content={seoImage} />}
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbList) }} />
+      {breadcrumbList && (
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbList) }} />
+      )}
     </Head>
   );
 };

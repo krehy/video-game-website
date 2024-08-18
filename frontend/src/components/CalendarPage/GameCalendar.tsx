@@ -1,27 +1,31 @@
+// src/components/CalendarPage/GameCalendar.tsx
+
 import React, { useEffect, useState, useRef } from 'react';
 import FullCalendar from '@fullcalendar/react';
+import { EventClickArg, CalendarApi } from '@fullcalendar/core';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import dayjs from 'dayjs';
 import DarkModeToggle from './DarkModeToggle';
 import csLocale from '@fullcalendar/core/locales/cs';
 import { fetchGames } from '../../services/api';
 import GameDetailModal from './GameDetailModal';
+import { Game } from '../../types';
 
 const GameCalendar = () => {
-    const [games, setGames] = useState([]);
+    const [games, setGames] = useState<Game[]>([]);
     const [isDarkMode, setIsDarkMode] = useState(false);
-    const [selectedGame, setSelectedGame] = useState(null);
+    const [selectedGame, setSelectedGame] = useState<Game | null>(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
-    const [isLoading, setIsLoading] = useState(true); // Added loading state
-    const calendarRef = useRef(null); // Ref to access the calendar API
+    const [isLoading, setIsLoading] = useState(true);
+    const calendarRef = useRef<FullCalendar>(null);
 
     useEffect(() => {
         const loadGames = async () => {
             try {
                 const gameData = await fetchGames();
                 setGames(gameData);
-                setIsLoading(false);  // Set loading to false after data is fetched
+                setIsLoading(false);
             } catch (error) {
                 console.error('Error fetching games:', error);
             }
@@ -34,25 +38,28 @@ const GameCalendar = () => {
         const handleResize = () => {
             if (calendarRef.current) {
                 const calendarApi = calendarRef.current.getApi();
-                calendarApi.render();  // Re-render the calendar on window resize
+                calendarApi.updateSize();
             }
         };
 
         window.addEventListener('resize', handleResize);
-
         return () => {
             window.removeEventListener('resize', handleResize);
         };
     }, []);
 
-    const toggleDarkMode = () => {
-        setIsDarkMode(!isDarkMode);
+    useEffect(() => {
+        document.body.classList.toggle('dark-mode', isDarkMode);
+    }, [isDarkMode]);
+
+    const toggleDarkMode = (darkMode: boolean) => {
+        setIsDarkMode(darkMode);
     };
 
-    const handleEventClick = (info) => {
+    const handleEventClick = (info: EventClickArg) => {
         info.jsEvent.preventDefault();
         const game = games.find(g => g.url_path === info.event.url);
-        setSelectedGame(game);
+        setSelectedGame(game || null);
         setIsModalOpen(true);
     };
 
@@ -61,17 +68,19 @@ const GameCalendar = () => {
         setSelectedGame(null);
     };
 
-    const handleSearchChange = (e) => {
+    const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const query = e.target.value;
         setSearchQuery(query);
 
         const game = games.find(g => g.title.toLowerCase() === query.toLowerCase());
         if (game) {
-            const calendarApi = calendarRef.current.getApi();
-            calendarApi.gotoDate(game.release_date); // Go to the release date of the game
-            calendarApi.changeView('dayGridDay'); // Switch to day view
-            setSelectedGame(game); // Optionally open the modal with game details
-            setIsModalOpen(true); // Open the modal automatically if a match is found
+            const calendarApi = calendarRef.current?.getApi();
+            if (calendarApi) {
+                calendarApi.gotoDate(game.release_date);
+                calendarApi.changeView('dayGridDay');
+            }
+            setSelectedGame(game);
+            setIsModalOpen(true);
         }
     };
 
@@ -88,7 +97,7 @@ const GameCalendar = () => {
         }));
 
     return (
-        <div className={isDarkMode ? 'dark bg-transparent text-white' : 'bg-white text-black'}>
+        <div className={`container ${isDarkMode ? 'dark' : ''}`}>
             <DarkModeToggle isDarkMode={isDarkMode} toggleDarkMode={toggleDarkMode} />
             <div className="mb-4 flex justify-center">
                 <input
@@ -97,11 +106,11 @@ const GameCalendar = () => {
                     onChange={handleSearchChange}
                     placeholder="Vyhledat hru podle názvu"
                     className="p-2 border rounded w-2/3 text-black"
-                    style={{ borderColor: '#8e67ea', marginTop: '20px' }} // Black text for input
+                    style={{ borderColor: '#8e67ea', marginTop: '20px' }}
                 />
             </div>
             {isLoading ? (
-                <div className="loading-spinner">Loading...</div> // Display a loading spinner or message
+                <div className="loading-spinner">Loading...</div>
             ) : (
                 <div className={`p-6 rounded-lg shadow-lg ${isDarkMode ? 'bg-transparent' : 'bg-white'}`}>
                     <FullCalendar
@@ -111,8 +120,8 @@ const GameCalendar = () => {
                         events={events}
                         locale={csLocale}
                         eventClick={handleEventClick}
-                        eventColor="#8e67ea"  // Set event color to #8e67ea
-                        eventTextColor="white" // Set event text color to white
+                        eventColor="#8e67ea"
+                        eventTextColor="white"
                         dayCellClassNames="custom-border"
                         dayHeaderClassNames="bg-customPurple text-white"
                         headerToolbar={{
@@ -120,9 +129,6 @@ const GameCalendar = () => {
                             center: 'title',
                             end: 'dayGridMonth,dayGridWeek,dayGridDay',
                         }}
-                        headerToolbarClassNames="bg-customDark text-white p-2 rounded-lg"
-                        buttonClassNames="custom-button px-4 py-2 rounded-lg mx-1"
-                        className="custom-calendar"
                         dayCellDidMount={(info) => {
                             if (info.isToday) {
                                 info.el.classList.add('highlight-today');
@@ -155,13 +161,29 @@ const GameCalendar = () => {
                     border-color: #8e67ea !important;
                 }
 
-                .custom-button {
-                    background-color: #251f68 !important;
-                    color: white !important;
+                .fc-toolbar {
+                    background-color: #251f68;
+                    color: white;
+                    padding: 10px;
+                    border-radius: 8px;
                 }
 
-                .custom-button:hover {
-                    background-color: #3c358f !important;
+                .fc-button {
+                    background-color: #251f68;
+                    color: white;
+                    padding: 5px 10px;
+                    border-radius: 5px;
+                    margin: 0 5px;
+                }
+
+                .fc-button:hover {
+                    background-color: #3c358f;
+                }
+
+                .loading-spinner {
+                    text-align: center;
+                    font-size: 1.5em;
+                    margin-top: 20px;
                 }
             `}</style>
         </div>

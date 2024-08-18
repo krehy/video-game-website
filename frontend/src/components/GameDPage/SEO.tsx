@@ -1,7 +1,8 @@
 import React from 'react';
 import Head from 'next/head';
+import { SEOData, BreadcrumbList, SEOProps } from '../../types'; // Adjust path as needed
 
-const SEO = ({ seoData, breadcrumbList }) => {
+const SEO: React.FC<SEOProps> = ({ seoData, breadcrumbList }) => {
   const seoTitle = seoData?.seo_title || 'Databáze Her';
   const seoDescription = seoData?.search_description || 'Databáze Her page description';
   const seoKeywords = seoData?.keywords || '';

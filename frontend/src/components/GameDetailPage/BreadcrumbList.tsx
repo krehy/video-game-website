@@ -1,6 +1,15 @@
 import React from 'react';
 
-const BreadcrumbList = ({ game }) => {
+interface Game {
+  title: string;
+  url_path: string;
+}
+
+interface BreadcrumbListProps {
+  game: Game;
+}
+
+const BreadcrumbList: React.FC<BreadcrumbListProps> = ({ game }) => {
   const cleanedUrlPath = game.url_path.replace('/placeholder', '');
   const breadcrumbList = {
     "@context": "https://schema.org",

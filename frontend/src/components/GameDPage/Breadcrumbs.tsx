@@ -1,7 +1,8 @@
 import React from 'react';
+import { BreadcrumbList } from '../../types'; // Adjust the import path as necessary
 
 const Breadcrumbs = () => {
-  const breadcrumbList = {
+  const breadcrumbList: BreadcrumbList = {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
     "itemListElement": [
@@ -19,7 +20,7 @@ const Breadcrumbs = () => {
       }
     ]
   };
-
+  
   return <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbList) }} />;
 };
 

@@ -121,7 +121,9 @@ def most_searched_game_of_week(request):
                 'description': most_searched_game.description,
                 'slug': most_searched_game.slug,
                 'search_week': most_searched_game.search_week,
-                'main_image_url': main_image_url,
+                'main_image': {
+                    'url': main_image_url
+                },
                 'release_date': most_searched_game.release_date,
             })
         return JsonResponse({'error': 'No games found'}, status=404)

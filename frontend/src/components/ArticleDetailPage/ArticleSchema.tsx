@@ -1,8 +1,10 @@
-// components/ArticleSchema.js
+// src/components/ArticleDetailPage/ArticleSchema.tsx
+
 import React from 'react';
 import Head from 'next/head';
+import { ArticleSchemaProps } from '../../types';
 
-const ArticleSchema = ({ article, cleanedUrlPath }) => {
+const ArticleSchema: React.FC<ArticleSchemaProps> = ({ article, cleanedUrlPath }) => {
   const schemaData = {
     "@context": "https://schema.org",
     "@type": "Article",
@@ -21,7 +23,8 @@ const ArticleSchema = ({ article, cleanedUrlPath }) => {
       "name": "Superpařmeni",
       "logo": {
         "@type": "ImageObject",
-        "url": `${process.env.NEXT_PUBLIC_INDEX_URL}/path-to-your-logo.jpg`}
+        "url": `${process.env.NEXT_PUBLIC_INDEX_URL}/path-to-your-logo.jpg`
+      }
     },
     "datePublished": article.first_published_at,
     "dateModified": article.last_published_at,

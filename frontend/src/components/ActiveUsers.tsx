@@ -1,7 +1,10 @@
+// src/components/ActiveUsers.tsx
+
 import React, { useState, useEffect } from 'react';
 import { incrementActiveUsers, decrementActiveUsers } from '../services/api';
+import { ActiveUsersProps } from '../types';
 
-const ActiveUsers = ({ contentType, contentId }) => {
+const ActiveUsers: React.FC<ActiveUsersProps> = ({ contentType, contentId }) => {
   const [activeUsers, setActiveUsers] = useState(0);
   const [isClient, setIsClient] = useState(false);
 

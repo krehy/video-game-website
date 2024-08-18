@@ -1,10 +1,25 @@
+// src/components/GamePage/GameFilters.tsx
+
 import React from 'react';
 import { Range } from 'react-range';
+import { GameFiltersProps } from '../../types';
 
-const GameFilters = ({ filters, handleFilterChange, handleCheckboxChange, handleSliderChange, developers, publishers, genres, platforms, dateRange, minDate, maxDate, formatDate }) => {
+const GameFilters: React.FC<GameFiltersProps> = ({
+  filters,
+  handleFilterChange,
+  handleCheckboxChange,
+  handleSliderChange,
+  developers,
+  publishers,
+  genres,
+  platforms,
+  dateRange,
+  minDate,
+  maxDate,
+  formatDate
+}) => {
   return (
     <div className="bg-white p-4 shadow-md rounded mb-4">
-      {/* Input pro název hry */}
       <div className="mb-4">
         <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="title">
           Hledat
@@ -20,7 +35,6 @@ const GameFilters = ({ filters, handleFilterChange, handleCheckboxChange, handle
           autoFocus
         />
       </div>
-      {/* Vývojář */}
       <div className="mb-4">
         <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="developer">
           Vývojář
@@ -38,7 +52,6 @@ const GameFilters = ({ filters, handleFilterChange, handleCheckboxChange, handle
           ))}
         </select>
       </div>
-      {/* Vydavatel */}
       <div className="mb-4">
         <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="publisher">
           Vydavatel
@@ -56,7 +69,6 @@ const GameFilters = ({ filters, handleFilterChange, handleCheckboxChange, handle
           ))}
         </select>
       </div>
-      {/* Žánr */}
       <div className="mb-4">
         <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="genre">
           Žánr
@@ -64,50 +76,50 @@ const GameFilters = ({ filters, handleFilterChange, handleCheckboxChange, handle
         <div className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
           {genres.map((genre, index) => (
             <div key={index} className="mb-2">
-              <input
-                type="checkbox"
-                id={`genre-${index}`}
-                name="genres"
-                value={genre}
-                checked={filters.genres.includes(genre)}
-                onChange={handleCheckboxChange}
-                className="mr-2 leading-tight"
-              />
-              <label htmlFor={`genre-${index}`}>{genre}</label>
+              <label className="inline-flex items-center">
+                <input
+                  type="checkbox"
+                  name="genres"
+                  value={genre}
+                  checked={filters.genres.includes(genre)}
+                  onChange={handleCheckboxChange}
+                  className="form-checkbox h-4 w-4 text-indigo-600 transition duration-150 ease-in-out"
+                />
+                <span className="ml-2 text-gray-700">{genre}</span>
+              </label>
             </div>
           ))}
         </div>
       </div>
-      {/* Platforma */}
       <div className="mb-4">
-        <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="platform">
+        <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="platforms">
           Platforma
         </label>
         <div className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
           {platforms.map((platform, index) => (
             <div key={index} className="mb-2">
-              <input
-                type="checkbox"
-                id={`platform-${index}`}
-                name="platforms"
-                value={platform}
-                checked={filters.platforms.includes(platform)}
-                onChange={handleCheckboxChange}
-                className="mr-2 leading-tight"
-              />
-              <label htmlFor={`platform-${index}`}>{platform}</label>
+              <label className="inline-flex items-center">
+                <input
+                  type="checkbox"
+                  name="platforms"
+                  value={platform}
+                  checked={filters.platforms.includes(platform)}
+                  onChange={handleCheckboxChange}
+                  className="form-checkbox h-4 w-4 text-indigo-600 transition duration-150 ease-in-out"
+                />
+                <span className="ml-2 text-gray-700">{platform}</span>
+              </label>
             </div>
           ))}
         </div>
       </div>
-      {/* Datum vydání */}
       <div className="mb-4">
         <label className="block text-gray-700 text-sm font-bold mb-2">
           Datum vydání
         </label>
         <Range
           values={filters.dateRange}
-          step={86400000} // Jeden den v milisekundách
+          step={86400000}
           min={minDate ? minDate.getTime() : 0}
           max={maxDate ? maxDate.getTime() : 100}
           onChange={handleSliderChange}

@@ -1,8 +1,10 @@
-// components/IndexPage/SEO.js
+// src/components/BlogPage/SEO.tsx
+
 import React from 'react';
 import Head from 'next/head';
+import { SEOProps } from '../../types';
 
-const SEO = ({ seoData, breadcrumbList }) => {
+const SEO: React.FC<SEOProps> = ({ seoData, breadcrumbList }) => {
   const seoTitle = seoData?.seo_title || 'Blog';
   const seoDescription = seoData?.search_description || 'Blog page description';
   const seoKeywords = seoData?.keywords || '';

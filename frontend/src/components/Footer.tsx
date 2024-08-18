@@ -8,8 +8,19 @@ import OtherInquiryModal from './Footer/OtherInquiryModal';
 import PrivacyPolicyModal from './Footer/PrivacyPolicyModal';
 import { fetchHomePageContent } from '../services/api';
 
+interface Settings {
+  secondaryColor?: string;
+  about_us?: string;
+  instagramUrl?: string;
+  facebookUrl?: string;
+  tiktokUrl?: string;
+  discordInvite?: string;
+  footer_text?: string;
+  privacy_policy?: string;
+}
+
 const Footer = () => {
-  const [settings, setSettings] = useState({});
+  const [settings, setSettings] = useState<Settings>({});
   const [showCooperationModal, setShowCooperationModal] = useState(false);
   const [showReportProblemModal, setShowReportProblemModal] = useState(false);
   const [showOtherInquiryModal, setShowOtherInquiryModal] = useState(false);
@@ -65,13 +76,13 @@ const Footer = () => {
           <div className="w-full md:w-1/3">
             <h2 className="text-xl font-bold mb-4" style={{ color: highlightColor }}>Sleduj nás</h2>
             <div className="flex justify-center md:justify-start space-x-4">
-              <a title='Instagram' href={settings.instagramUrl || "https://instagram.com"} className="text-white hover:text-highlight transition duration-300">
+              <a title='Instagram' href={settings.instagramUrl || "https://instagram.com/superparmeni"} className="text-white hover:text-highlight transition duration-300">
                 <FontAwesomeIcon icon={faInstagram} size="2x" style={{ color: 'white' }} />
               </a>
-              <a title='Facebook' href={settings.facebookUrl || "https://facebook.com"} className="text-white hover:text-highlight transition duration-300">
+              <a title='Facebook' href={settings.facebookUrl || "https://facebook.com/superparmeni"} className="text-white hover:text-highlight transition duration-300">
                 <FontAwesomeIcon icon={faFacebook} size="2x" style={{ color: 'white' }} />
               </a>
-              <a title='TikTok' href={settings.tiktokUrl || "https://tiktok.com"} className="text-white hover:text-highlight transition duration-300">
+              <a title='TikTok' href={settings.tiktokUrl || "https://tiktok.com/superparmeni"} className="text-white hover:text-highlight transition duration-300">
                 <FontAwesomeIcon icon={faTiktok} size="2x" style={{ color: 'white' }} />
               </a>
               <a title='Discord' href={settings.discordInvite || "https://discord.com"} className="text-white hover:text-highlight transition duration-300">
@@ -95,7 +106,11 @@ const Footer = () => {
       <CooperationModal isOpen={showCooperationModal} onClose={() => setShowCooperationModal(false)} />
       <ReportProblemModal isOpen={showReportProblemModal} onClose={() => setShowReportProblemModal(false)} />
       <OtherInquiryModal isOpen={showOtherInquiryModal} onClose={() => setShowOtherInquiryModal(false)} />
-      <PrivacyPolicyModal isOpen={showPrivacyPolicyModal} onClose={() => setShowPrivacyPolicyModal(false)} content={settings.privacy_policy} />
+      <PrivacyPolicyModal
+        isOpen={showPrivacyPolicyModal}
+        onClose={() => setShowPrivacyPolicyModal(false)}
+        content={settings.privacy_policy || ""} // Použití výchozí hodnoty, pokud je undefined
+      />
     </div>
   );
 };

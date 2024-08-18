@@ -1,7 +1,9 @@
-// components/IndexPage/Breadcrumbs.js
-import React from 'react';
+// src/components/BlogPage/Breadcrumbs.tsx
 
-const Breadcrumbs = ({ breadcrumbList }) => (
+import React from 'react';
+import { BreadcrumbsProps } from '../../types';
+
+const Breadcrumbs: React.FC<BreadcrumbsProps> = ({ breadcrumbList }) => (
   <script
     type="application/ld+json"
     dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbList) }}

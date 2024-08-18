@@ -4,6 +4,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUser, faCalendarAlt, faEye } from '@fortawesome/free-solid-svg-icons';
 import { motion } from 'framer-motion';
 import AnimatedNumber from './AnimatedNumber';
+import Image from 'next/image';
+import { Review } from '../../types'; // Adjust the import path if necessary
 
 const reviewTypeTranslations = {
   'Game': 'Hra',
@@ -18,10 +20,18 @@ const reviewTypeTranslations = {
   'Microphone': 'Mikrofon'
 };
 
-const ReviewCard = ({ review, info }) => {
+interface ReviewCardProps {
+  review: Review;
+  info?: boolean; // info is optional
+}
+
+const ReviewCard: React.FC<ReviewCardProps> = ({ review, info }) => {
   const [isHovered, setIsHovered] = useState(false);
 
-  const averageScore = review.attributes.reduce((acc, attribute) => acc + attribute.score, 0) / review.attributes.length;
+  // Safely calculate averageScore
+  const averageScore = review.attributes
+    ? review.attributes.reduce((acc, attribute) => acc + attribute.score, 0) / review.attributes.length
+    : 0;
 
   return (
     <motion.div 
@@ -33,12 +43,17 @@ const ReviewCard = ({ review, info }) => {
     >
       {review.main_image && (
         <div className="relative">
-          <Link href={`/reviews/${review.slug}`}>
-            <img
-              src={`${process.env.NEXT_PUBLIC_INDEX_URL}${review.main_image.url}`}
-              alt={review.title}
-              className="w-full h-48 object-cover"
-            />
+          <Link href={`/reviews/${review.slug}`} legacyBehavior>
+            <a>
+              <Image
+                src={`${process.env.NEXT_PUBLIC_INDEX_URL}${review.main_image.url}`}
+                alt={review.title}
+                width={800} // Adjust the width according to your design
+                height={300} // Adjust the height according to your design
+                layout="responsive"
+                objectFit="cover"
+              />
+            </a>
           </Link>
           {info && (
             <motion.div 
@@ -61,13 +76,17 @@ const ReviewCard = ({ review, info }) => {
             </motion.div>
           )}
           <div className="absolute bottom-0 left-0 w-full bg-[#8e67ea] bg-opacity-70 text-white p-2 flex justify-between items-center">
-            <Link href={`/reviews/${review.slug}`}>
-              <h2 className="text-lg font-semibold">{review.title}</h2>
+            <Link href={`/reviews/${review.slug}`} legacyBehavior>
+              <a>
+                <h2 className="text-lg font-semibold">{review.title}</h2>
+              </a>
             </Link>
-            <Link href={`/reviews/${review.slug}`}>
-              <span className="text-2xl font-bold text-white" title="Získané skóre">
-                <AnimatedNumber number={averageScore} inView={true} />
-              </span>
+            <Link href={`/reviews/${review.slug}`} legacyBehavior>
+              <a>
+                <span className="text-2xl font-bold text-white" title="Získané skóre">
+                  <AnimatedNumber number={averageScore} inView={true} />
+                </span>
+              </a>
             </Link>
           </div>
         </div>
@@ -78,7 +97,7 @@ const ReviewCard = ({ review, info }) => {
           <span className="mr-4">{review.owner.username}</span>
           <FontAwesomeIcon icon={faCalendarAlt} className="mr-1 text-[#8e67ea]" />
           <span>{new Date(review.first_published_at).toLocaleDateString()}</span>
-          <FontAwesomeIcon icon={faEye} className="ml-4 text-[#8e67ea]" />
+          <FontAwesomeIcon style={{marginRight:'7px'}} icon={faEye} className="ml-4 text-[#8e67ea]" />
           <span>{review.read_count}</span>
         </div>
         <p className="text-gray-700 mb-4 break-words">{review.intro}</p>

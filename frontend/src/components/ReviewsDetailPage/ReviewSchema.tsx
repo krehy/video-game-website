@@ -1,7 +1,14 @@
 import React from 'react';
+import { Review } from '../../types'; // Adjust the import path if necessary
 
-const ReviewSchema = ({ review, cleanedUrlPath }) => {
-  const reviewTypeMap = {
+// Define the props interface
+interface ReviewSchemaProps {
+  review: Review;
+  cleanedUrlPath: string;
+}
+
+const ReviewSchema: React.FC<ReviewSchemaProps> = ({ review, cleanedUrlPath }) => {
+  const reviewTypeMap: { [key: string]: string } = {
     Game: 'VideoGame',
     Keyboard: 'Product',
     Mouse: 'Product',
@@ -28,10 +35,10 @@ const ReviewSchema = ({ review, cleanedUrlPath }) => {
       '@type': 'Person',
       name: review.owner.username,
     },
-    reviewBody: review.body,
+    reviewBody: review.intro, // Change `review.body` to an existing property like `intro`
     reviewRating: {
       '@type': 'Rating',
-      ratingValue: review.rating,
+      ratingValue: review.rating, // Ensure `rating` exists in the Review interface
     },
     datePublished: review.first_published_at,
     dateModified: review.last_published_at,

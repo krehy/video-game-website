@@ -8,8 +8,13 @@ import GameContent from '../../components/GameDetailPage/GameContent';
 import GamePinnedContent from '../../components/GameDetailPage/GamePinnedContent';
 import GameSchema from '../../components/GameDetailPage/GameSchema';
 import BreadcrumbList from '../../components/GameDetailPage/BreadcrumbList';
+import { Game } from '../../types';  // Import Game from types file
 
-const GameDetail = ({ game }) => {
+interface GameDetailProps {
+  game: Game;
+}
+
+const GameDetail: React.FC<GameDetailProps> = ({ game }) => {
   const [isDarkMode, setIsDarkMode] = useState(false);
 
   useEffect(() => {
@@ -20,9 +25,9 @@ const GameDetail = ({ game }) => {
   useEffect(() => {
     const lastViewed = localStorage.getItem(`lastViewed_${game.id}`);
     const today = new Date().toISOString().split('T')[0];
-  
+
     if (lastViewed !== today) {
-      incrementSearchWeek(game.id)
+      incrementSearchWeek(Number(game.id))
         .then(data => {
           if (data) {
             console.log('Week search count:', data.search_week);
@@ -32,11 +37,11 @@ const GameDetail = ({ game }) => {
         .catch(error => console.error('Error incrementing week search:', error));
     }
   }, [game.id]);
-  
+
   const toggleDarkMode = () => {
     const newMode = !isDarkMode;
     setIsDarkMode(newMode);
-    localStorage.setItem('darkMode', newMode);
+    localStorage.setItem('darkMode', JSON.stringify(newMode));
   };
 
   if (!game) {
@@ -49,10 +54,9 @@ const GameDetail = ({ game }) => {
         <title>{game.seo_title || game.title}</title>
         <meta name="description" content={game.search_description} />
         {game.keywords && <meta name="keywords" content={game.keywords} />}
-        {/* Ostatní SEO metatagy */}
         <GameSchema game={game} />
-        <BreadcrumbList game={game} />
-      </Head>
+        <BreadcrumbList game={{ ...game, url_path: game.url_path ?? '' }} />
+        </Head>
       <h1 className="text-3xl font-bold mb-4">{game.title}</h1>
       {game.main_image && <GameHeader game={game} />}
       <div className={`p-4 rounded relative ${isDarkMode ? 'bg-transparent text-white' : 'bg-white text-black'}`}>
@@ -87,8 +91,8 @@ const GameDetail = ({ game }) => {
 
 export const getStaticPaths: GetStaticPaths = async () => {
   try {
-    const games = await fetchGames();
-    const paths = games.map((game) => ({
+    const games: Game[] = await fetchGames(); // Ensure fetchGames returns an array of Game
+    const paths = games.map((game: Game) => ({
       params: { slug: game.slug },
     }));
     return { paths, fallback: false };
@@ -100,8 +104,8 @@ export const getStaticPaths: GetStaticPaths = async () => {
 
 export const getStaticProps: GetStaticProps = async ({ params }) => {
   try {
-    const games = await fetchGames();
-    const game = games.find((g) => g.slug === params?.slug);
+    const games: Game[] = await fetchGames();
+    const game = games.find((g: Game) => g.slug === params?.slug);
 
     if (!game) {
       return {

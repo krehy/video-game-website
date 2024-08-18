@@ -2,16 +2,21 @@ import React from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faThumbtack, faTag, faGamepad } from '@fortawesome/free-solid-svg-icons';
 import Link from 'next/link';
+import { Game } from '../../types'; // Import typu Game z types.tsx
 
-const GamePinnedContent = ({ game }) => (
-  game.linked_blog_posts.length > 0 || game.linked_reviews.length > 0 ? (
+interface GamePinnedContentProps {
+  game: Game;
+}
+
+const GamePinnedContent: React.FC<GamePinnedContentProps> = ({ game }) => (
+  (game.linked_blog_posts?.length ?? 0) > 0 || (game.linked_reviews?.length ?? 0) > 0 ? (
     <div className="mt-6">
       <h2 className="text-2xl font-bold flex items-center">
         <FontAwesomeIcon icon={faThumbtack} className="mr-2 text-[#8e67ea] text-lg" />
         Připnuto:
       </h2>
       <div className="flex flex-wrap mt-4">
-        {game.linked_blog_posts.map((article) => (
+        {game.linked_blog_posts?.map((article) => (
           <div key={article.id} className="mr-4 mb-4 flex items-center">
             <FontAwesomeIcon icon={faTag} className="mr-2 text-lg" />
             <Link className="mr-2 text-[#8e67ea] text-lg" href={`/blog/${article.slug}`}>
@@ -19,7 +24,7 @@ const GamePinnedContent = ({ game }) => (
             </Link>
           </div>
         ))}
-        {game.linked_reviews.map((review) => (
+        {game.linked_reviews?.map((review) => (
           <div key={review.id} className="mr-4 mb-4 flex items-center">
             <FontAwesomeIcon icon={faGamepad} className="mr-2 text-lg" />
             <Link className="mr-2 text-[#8e67ea] text-lg" href={`/reviews/${review.slug}`}>

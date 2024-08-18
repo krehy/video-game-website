@@ -1,44 +1,52 @@
 import React, { useState, useEffect } from 'react';
 import { fetchReviews, fetchReviewIndexSEO } from '../../services/api';
-import { motion } from 'framer-motion';import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { motion } from 'framer-motion';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faFilter } from '@fortawesome/free-solid-svg-icons';
-import ReviewFilters from '../../components/ReviewsPage/ReviewFilter';
+import ReviewFilterComponent from '../../components/ReviewsPage/ReviewFilters';
 import ReviewList from '../../components/ReviewsPage/ReviewList';
 import ReviewSEO from '../../components/ReviewsPage/ReviewSEO';
+import { Review, ReviewFilters as ReviewFiltersType } from '../../types';
 
-const ReviewIndex = () => {
-  const [reviews, setReviews] = useState([]);
-  const [filteredReviews, setFilteredReviews] = useState([]);
+const ReviewIndex: React.FC = () => {
+  const [reviews, setReviews] = useState<Review[]>([]);
+  const [filteredReviews, setFilteredReviews] = useState<Review[]>([]);
   const [seoData, setSeoData] = useState({});
   const [showFilter, setShowFilter] = useState(false);
-  const [reviewTypes, setReviewTypes] = useState([]);
-  const [filters, setFilters] = useState({
+  const [reviewTypes, setReviewTypes] = useState<string[]>([]);
+  const [filters, setFilters] = useState<ReviewFiltersType>({
     title: '',
-    dateRange: [0, 100],
+    dateRange: [0, 100] as [number, number],
     reviewType: '',
-    sortBy: 'newest'
+    sortBy: 'newest',
+    category: ''
   });
   const [visibleReviewsCount, setVisibleReviewsCount] = useState(9);
-  const [dateRange, setDateRange] = useState([0, 100]);
-  const [minDate, setMinDate] = useState(null);
-  const [maxDate, setMaxDate] = useState(null);
+  const [dateRange, setDateRange] = useState<[number, number]>([0, 100]);
+  const [minDate, setMinDate] = useState<Date | null>(null);
+  const [maxDate, setMaxDate] = useState<Date | null>(null);
 
   useEffect(() => {
     const getReviews = async () => {
-      const reviewData = await fetchReviews();
+      const reviewData: Review[] = await fetchReviews();
       setReviews(reviewData);
       setFilteredReviews(reviewData);
 
       if (reviewData.length > 0) {
-        const dates = reviewData.map(review => new Date(review.first_published_at).getTime());
-        const minDate = new Date(Math.min(...dates));
-        const maxDate = new Date(Math.max(...dates));
-        setMinDate(minDate);
-        setMaxDate(maxDate);
-        setFilters({ ...filters, dateRange: [minDate.getTime(), maxDate.getTime()] });
-        setDateRange([minDate.getTime(), maxDate.getTime()]);
+        const dates = reviewData.map((review: Review) => new Date(review.first_published_at).getTime());
+        const minDateValue = new Date(Math.min(...dates));
+        const maxDateValue = new Date(Math.max(...dates));
+        setMinDate(minDateValue);
+        setMaxDate(maxDateValue);
+        setFilters(prevFilters => ({
+          ...prevFilters,
+          dateRange: [minDateValue.getTime(), maxDateValue.getTime()] as [number, number]
+        }));
+        setDateRange([minDateValue.getTime(), maxDateValue.getTime()] as [number, number]);
 
-        const types = [...new Set(reviewData.map(review => review.review_type))];
+        const types = reviewData
+          .map(review => review.review_type || '')
+          .filter((value, index, self) => self.indexOf(value) === index);
         setReviewTypes(types);
       }
     };
@@ -53,11 +61,12 @@ const ReviewIndex = () => {
   }, []);
 
   useEffect(() => {
-    let filtered = reviews.filter(review => {
+    let filtered = reviews.filter((review: Review) => {
       const matchesTitle = filters.title ? review.title.toLowerCase().includes(filters.title.toLowerCase()) : true;
       const matchesReviewType = filters.reviewType ? review.review_type === filters.reviewType : true;
-      const matchesDateRange = filters.dateRange ? isDateInRange(review.first_published_at, filters.dateRange) : true;
-      return matchesTitle && matchesDateRange && matchesReviewType;
+      const matchesDateRange = filters.dateRange.length === 2 ? isDateInRange(review.first_published_at, filters.dateRange) : true;
+      const matchesCategory = filters.category ? review.categories.some(cat => cat.name === filters.category) : true;
+      return matchesTitle && matchesDateRange && matchesReviewType && matchesCategory;
     });
 
     filtered = sortReviews(filtered, filters.sortBy);
@@ -65,41 +74,44 @@ const ReviewIndex = () => {
     setFilteredReviews(filtered);
   }, [filters, reviews]);
 
-  const handleFilterChange = (e) => {
+  const handleFilterChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    setFilters({
-      ...filters,
+    setFilters(prevFilters => ({
+      ...prevFilters,
       [name]: value
-    });
+    }));
   };
 
-  const handleSliderChange = (value) => {
-    setFilters({
-      ...filters,
-      dateRange: value
-    });
-    setDateRange(value);
+  const handleSliderChange = (values: number[]) => {
+    if (values.length === 2) {
+      const [min, max] = values;
+      setFilters(prevFilters => ({
+        ...prevFilters,
+        dateRange: [min, max] as [number, number]
+      }));
+      setDateRange([min, max] as [number, number]);
+    }
   };
 
-  const isDateInRange = (date, range) => {
+  const isDateInRange = (date: string, range: [number, number]) => {
     const reviewDate = new Date(date).getTime();
     return reviewDate >= range[0] && reviewDate <= range[1];
   };
 
-  const formatDate = (timestamp) => {
+  const formatDate = (timestamp: number) => {
     return timestamp ? new Date(timestamp).toLocaleDateString() : '';
   };
 
-  const sortReviews = (reviews, sortBy) => {
+  const sortReviews = (reviews: Review[], sortBy: string) => {
     switch (sortBy) {
       case 'newest':
-        return reviews.sort((a, b) => new Date(b.first_published_at) - new Date(a.first_published_at));
+        return reviews.sort((a, b) => new Date(b.first_published_at).getTime() - new Date(a.first_published_at).getTime());
       case 'oldest':
-        return reviews.sort((a, b) => new Date(a.first_published_at) - new Date(b.first_published_at));
+        return reviews.sort((a, b) => new Date(a.first_published_at).getTime() - new Date(b.first_published_at).getTime());
       case 'mostRead':
-        return reviews.sort((a, b) => b.read_count - a.read_count);
+        return reviews.sort((a, b) => (b.read_count ?? 0) - (a.read_count ?? 0));
       case 'leastRead':
-        return reviews.sort((a, b) => a.read_count - b.read_count);
+        return reviews.sort((a, b) => (a.read_count ?? 0) - (b.read_count ?? 0));
       case 'aToZ':
         return reviews.sort((a, b) => a.title.localeCompare(b.title));
       case 'zToA':
@@ -108,9 +120,9 @@ const ReviewIndex = () => {
         return reviews;
     }
   };
-  
+
   const loadMoreReviews = () => {
-    setVisibleReviewsCount((prevCount) => prevCount + 9);
+    setVisibleReviewsCount(prevCount => prevCount + 9);
   };
 
   const breadcrumbList = {
@@ -121,13 +133,19 @@ const ReviewIndex = () => {
         "@type": "ListItem",
         "position": 1,
         "name": "Home",
-        "item": `${process.env.NEXT_PUBLIC_SITE_URL}/`
+        "item": {
+          "@id": `${process.env.NEXT_PUBLIC_SITE_URL}/`,
+          "name": "Home"
+        }
       },
       {
         "@type": "ListItem",
         "position": 2,
         "name": "Recenze",
-        "item": `${process.env.NEXT_PUBLIC_SITE_URL}/reviews`
+        "item": {
+          "@id": `${process.env.NEXT_PUBLIC_SITE_URL}/reviews`,
+          "name": "Recenze"
+        }
       }
     ]
   };
@@ -152,17 +170,15 @@ const ReviewIndex = () => {
         transition={{ duration: 0.3 }}
         style={{ overflow: 'hidden' }}
       >
-        <ReviewFilters
+        <ReviewFilterComponent
           filters={filters}
-          setFilters={setFilters}
-          reviewTypes={reviewTypes}
-          minDate={minDate}
-          maxDate={maxDate}
-          dateRange={dateRange}
-          setDateRange={setDateRange}
-          formatDate={formatDate}
           handleFilterChange={handleFilterChange}
           handleSliderChange={handleSliderChange}
+          dateRange={dateRange}
+          categories={reviewTypes.map(type => ({ id: type, name: type }))}
+          formatDate={formatDate}
+          minDate={minDate ?? undefined}  // Handle null by passing undefined
+          maxDate={maxDate ?? undefined}  // Handle null by passing undefined
         />
       </motion.div>
       <ReviewList
