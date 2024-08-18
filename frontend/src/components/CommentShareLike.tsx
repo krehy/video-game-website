@@ -1,5 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { fetchComments, submitComment, likeArticle, dislikeArticle, likeReview, dislikeReview, likeProduct, dislikeProduct, likeGame, dislikeGame, fetchArticles, fetchReviews, fetchProducts, fetchGames } from '../services/api';
+import {
+  fetchComments,
+  submitComment,
+  likeArticle,
+  dislikeArticle,
+  likeReview,
+  dislikeReview,
+  likeGame,
+  dislikeGame,
+  fetchArticles,
+  fetchReviews,
+  fetchGames
+} from '../services/api';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faThumbsUp, faThumbsDown, faComment } from '@fortawesome/free-solid-svg-icons';
 import {
@@ -10,16 +22,17 @@ import {
   FacebookIcon,
   TwitterIcon,
   RedditIcon,
-  EmailIcon,
+  EmailIcon
 } from 'react-share';
+import { CommentShareLikeProps, Comment, Article, Review, Game } from '../types';
 
-const CommentShareLike = ({ pageId, shareUrl, title, contentType }) => {
-  const [comments, setComments] = useState([]);
+const CommentShareLike: React.FC<CommentShareLikeProps> = ({ pageId, shareUrl, title, contentType }) => {
+  const [comments, setComments] = useState<Comment[]>([]);
   const [newComment, setNewComment] = useState({ author: '', text: '' });
   const [showCommentForm, setShowCommentForm] = useState(true);
   const [showSubmissionMessage, setShowSubmissionMessage] = useState(false);
   const [hasRated, setHasRated] = useState(false);
-  const [userRating, setUserRating] = useState(null);
+  const [userRating, setUserRating] = useState<string | null>(null);
   const [likeCount, setLikeCount] = useState(0);
   const [dislikeCount, setDislikeCount] = useState(0);
 
@@ -33,8 +46,8 @@ const CommentShareLike = ({ pageId, shareUrl, title, contentType }) => {
   useEffect(() => {
     const fetchCommentsData = async () => {
       try {
-        const response = await fetchComments(pageId);
-        setComments(response.filter(comment => comment.page === pageId && comment.is_approved));
+        const response = await fetchComments(pageId.toString());
+        setComments(response.filter((comment: Comment) => comment.page === pageId && comment.is_approved));
       } catch (error) {
         console.error('Error fetching comments:', error);
       }
@@ -46,19 +59,15 @@ const CommentShareLike = ({ pageId, shareUrl, title, contentType }) => {
         switch (contentType) {
           case 'article':
             const articles = await fetchArticles();
-            item = articles.find(article => article.id === pageId);
+            item = articles.find((article: Article) => article.id === pageId); // Typ `Article`
             break;
           case 'review':
             const reviews = await fetchReviews();
-            item = reviews.find(review => review.id === pageId);
-            break;
-          case 'product':
-            const products = await fetchProducts();
-            item = products.find(product => product.id === pageId);
+            item = reviews.find((review: Review) => review.id === pageId); // Typ `Review`
             break;
           case 'game':
             const games = await fetchGames();
-            item = games.find(game => game.id === pageId);
+            item = games.find((game: Game) => game.id === pageId); // Typ `Game`
             break;
           default:
             break;
@@ -77,7 +86,7 @@ const CommentShareLike = ({ pageId, shareUrl, title, contentType }) => {
     fetchLikeDislikeCount();
   }, [pageId, contentType]);
 
-  const handleCommentSubmit = async (e) => {
+  const handleCommentSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       await submitComment({ ...newComment, page: pageId });
@@ -86,7 +95,6 @@ const CommentShareLike = ({ pageId, shareUrl, title, contentType }) => {
       setShowSubmissionMessage(true);
       localStorage.setItem('commentAuthor', newComment.author);
 
-      // Show submission message for 10 seconds
       setTimeout(() => {
         setShowSubmissionMessage(false);
         setShowCommentForm(true);
@@ -96,7 +104,7 @@ const CommentShareLike = ({ pageId, shareUrl, title, contentType }) => {
     }
   };
 
-  const handleRating = async (rating) => {
+  const handleRating = async (rating: 'like' | 'dislike') => {
     if (!hasRated) {
       try {
         let response;
@@ -106,9 +114,6 @@ const CommentShareLike = ({ pageId, shareUrl, title, contentType }) => {
             break;
           case 'review':
             response = rating === 'like' ? await likeReview(pageId) : await dislikeReview(pageId);
-            break;
-          case 'product':
-            response = rating === 'like' ? await likeProduct(pageId) : await dislikeProduct(pageId);
             break;
           case 'game':
             response = rating === 'like' ? await likeGame(pageId) : await dislikeGame(pageId);
@@ -127,7 +132,7 @@ const CommentShareLike = ({ pageId, shareUrl, title, contentType }) => {
 
         setUserRating(rating);
         setHasRated(true);
-        localStorage.setItem(`rated-${pageId}`, true);
+        localStorage.setItem(`rated-${pageId}`, 'true');
       } catch (error) {
         console.error('Error rating the item:', error);
       }
@@ -163,7 +168,7 @@ const CommentShareLike = ({ pageId, shareUrl, title, contentType }) => {
       <div className="mt-6 text-center mb-4">
         <h2 className="text-2xl font-bold mb-4">Sdílej a poděl se s přáteli:</h2>
         <div className="flex justify-center space-x-4 mb-6">
-          <FacebookShareButton url={shareUrl} quote={title}>
+          <FacebookShareButton url={shareUrl}>
             <FacebookIcon size={40} round />
           </FacebookShareButton>
           <TwitterShareButton url={shareUrl} title={title}>
@@ -205,7 +210,7 @@ const CommentShareLike = ({ pageId, shareUrl, title, contentType }) => {
         </form>
       )}
       <div className="mt-6 text-center">
-        <p className="text-xl font-bold">Hej hráči! Jak se vám líbil tento článek? Ohodnoťte ho!</p>
+        <p className="text-xl font-bold">Hej hráči! Jak se ti to líbilo? Ohodnoť to!</p>
         <div className="flex justify-center space-x-4 mt-2">
           <button
             onClick={() => handleRating('like')}

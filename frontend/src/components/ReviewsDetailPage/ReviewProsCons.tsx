@@ -1,6 +1,17 @@
 import React from 'react';
 
-const ReviewProsCons = ({ pros, cons }) => {
+// Define the type for a single pro or con
+interface ProCon {
+  text: string;
+}
+
+// Define the props interface
+interface ReviewProsConsProps {
+  pros?: ProCon[]; // Optional array of pros
+  cons?: ProCon[]; // Optional array of cons
+}
+
+const ReviewProsCons: React.FC<ReviewProsConsProps> = ({ pros, cons }) => {
   return (
     <div className="pros-cons-grid grid grid-cols-1 sm:grid-cols-2 gap-8 mt-8">
       <div className="flex flex-col items-center">

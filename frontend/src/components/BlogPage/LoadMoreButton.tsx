@@ -1,7 +1,9 @@
-// components/IndexPage/LoadMoreButton.js
-import React from 'react';
+// src/components/BlogPage/LoadMoreButton.tsx
 
-const LoadMoreButton = ({ onClick, isVisible }) => {
+import React from 'react';
+import { LoadMoreButtonProps } from '../../types';
+
+const LoadMoreButton: React.FC<LoadMoreButtonProps> = ({ onClick, isVisible }) => {
   if (!isVisible) return null;
 
   return (

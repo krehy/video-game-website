@@ -1,10 +1,20 @@
 import React from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUser, faBuilding, faCalendarAlt } from '@fortawesome/free-solid-svg-icons';
+import Image from 'next/image';
+import { GameHeaderProps } from '../../types';  // Import typů z types.tsx
 
-const GameHeader = ({ game }) => (
+const GameHeader: React.FC<GameHeaderProps> = ({ game }) => (
   <div className="relative mb-4">
-    <img src={`${process.env.NEXT_PUBLIC_INDEX_URL}${game.main_image.url}`} alt={game.title} className="w-full h-auto object-cover rounded" />
+    <Image
+      src={`${process.env.NEXT_PUBLIC_INDEX_URL}${game.main_image.url}`}
+      alt={game.title}
+      layout="responsive"
+      width={1200} // Set according to your design requirements
+      height={600} // Set according to your design requirements
+      objectFit="cover"
+      className="rounded"
+    />
     <div className="absolute bottom-0 left-0 w-full bg-black bg-opacity-50 text-white p-4 rounded hidden md:block">
       <div className="flex items-center text-sm mb-2">
         <FontAwesomeIcon icon={faUser} className="mr-2 text-[#8e67ea] text-lg" />

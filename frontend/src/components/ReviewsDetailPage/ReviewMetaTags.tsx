@@ -1,7 +1,13 @@
 import React from 'react';
 import Head from 'next/head';
+import { Review } from '../../types'; // Adjust the import path as necessary
 
-const ReviewMetaTags = ({ review, cleanedUrlPath }) => {
+interface ReviewMetaTagsProps {
+  review: Review; // Use the Review type for review
+  cleanedUrlPath: string;
+}
+
+const ReviewMetaTags: React.FC<ReviewMetaTagsProps> = ({ review, cleanedUrlPath }) => {
   return (
     <Head>
       <title>{review.seo_title || review.title}</title>

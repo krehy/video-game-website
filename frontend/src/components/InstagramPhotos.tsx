@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { fetchInstagramPhotos } from '../services/instagram';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTimes } from '@fortawesome/free-solid-svg-icons';
+import Image from 'next/image';
 
 const InstagramPhotos = () => {
   const [photos, setPhotos] = useState<any[]>([]);
@@ -33,7 +34,14 @@ const InstagramPhotos = () => {
         {photos.length > 0 ? (
           photos.map(photo => (
             <li key={photo.id} className="cursor-pointer" onClick={() => openModal(photo)}>
-              <img src={photo.thumbnail_url || photo.media_url} alt={photo.caption} className="rounded-lg shadow-md" />
+              <Image
+                src={photo.thumbnail_url || photo.media_url}
+                alt={photo.caption}
+                width={300} // Set a reasonable width based on your layout
+                height={300} // Set a reasonable height based on your layout
+                layout="responsive"
+                className="rounded-lg shadow-md"
+              />
             </li>
           ))
         ) : (
@@ -55,7 +63,14 @@ const InstagramPhotos = () => {
             </button>
             {selectedPhoto && (
               <div className="instagram-photo-modal-content">
-                <img src={selectedPhoto.media_url} alt={selectedPhoto.caption} className="rounded-lg shadow-md w-full" />
+                <Image
+                  src={selectedPhoto.media_url}
+                  alt={selectedPhoto.caption}
+                  width={800} // Set a reasonable width based on your modal design
+                  height={800} // Set a reasonable height based on your modal design
+                  layout="responsive"
+                  className="rounded-lg shadow-md w-full"
+                />
                 {selectedPhoto.caption && <p className="mt-4">{selectedPhoto.caption}</p>}
               </div>
             )}

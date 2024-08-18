@@ -1,7 +1,17 @@
 import React from 'react';
 import { Range } from 'react-range';
+import { ArticleFiltersProps } from '../../types';
 
-const Filters = ({ categories, filters, handleFilterChange, handleSliderChange, dateRange, formatDate, minDate, maxDate }) => (
+const Filters: React.FC<ArticleFiltersProps> = ({
+  categories,
+  filters,
+  handleFilterChange,
+  handleSliderChange,
+  dateRange,
+  formatDate,
+  minDate,
+  maxDate
+}) => (
   <div className="bg-white p-4 shadow-md rounded mb-4">
     <div className="mb-4">
       <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="title">
@@ -39,11 +49,11 @@ const Filters = ({ categories, filters, handleFilterChange, handleSliderChange, 
         Datum vydání
       </label>
       <Range
-        values={filters.dateRange}
-        step={86400000} // Jeden den v milisekundách
+        values={dateRange}
+        step={86400000}
         min={minDate ? minDate.getTime() : 0}
         max={maxDate ? maxDate.getTime() : 100}
-        onChange={(values) => handleSliderChange(values)}
+        onChange={handleSliderChange}
         renderTrack={({ props, children }) => (
           <div
             {...props}
@@ -55,8 +65,8 @@ const Filters = ({ categories, filters, handleFilterChange, handleSliderChange, 
                 position: 'absolute',
                 height: '100%',
                 background: '#8e67ea',
-                left: `${((filters.dateRange[0] - (minDate ? minDate.getTime() : 0)) / ((maxDate ? maxDate.getTime() : 100) - (minDate ? minDate.getTime() : 0))) * 100}%`,
-                right: `${100 - ((filters.dateRange[1] - (minDate ? minDate.getTime() : 0)) / ((maxDate ? maxDate.getTime() : 100) - (minDate ? minDate.getTime() : 0))) * 100}%`,
+                left: `${((dateRange[0] - (minDate ? minDate.getTime() : 0)) / ((maxDate ? maxDate.getTime() : 100) - (minDate ? minDate.getTime() : 0))) * 100}%`,
+                right: `${100 - ((dateRange[1] - (minDate ? minDate.getTime() : 0)) / ((maxDate ? maxDate.getTime() : 100) - (minDate ? minDate.getTime() : 0))) * 100}%`,
               }}
             />
             {children}
@@ -70,8 +80,8 @@ const Filters = ({ categories, filters, handleFilterChange, handleSliderChange, 
         )}
       />
       <div className="flex justify-between text-gray-700 mt-2">
-        <span>Od: {formatDate(filters.dateRange[0])}</span>
-        <span>Do: {formatDate(filters.dateRange[1])}</span>
+        <span>Od: {formatDate(dateRange[0])}</span>
+        <span>Do: {formatDate(dateRange[1])}</span>
       </div>
     </div>
     <div className="mb-4">

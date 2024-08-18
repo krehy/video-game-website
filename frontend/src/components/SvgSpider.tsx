@@ -1,27 +1,29 @@
+// src/components/SvgSpider.tsx
 import React, { useEffect, useState } from 'react';
 import '../styles/SvgSpider.css';
+import { SvgSpiderProps } from '../types'; // Upravte cestu k souboru s typy
 
-const SvgSpider = ({ scores, aspects, isDarkMode }) => {
+const SvgSpider: React.FC<SvgSpiderProps> = ({ scores, aspects, isDarkMode }) => {
     const [positionsLoaded, setPositionsLoaded] = useState(false);
 
     useEffect(() => {
-        const updatePointPosition = (score, lineId, pointId) => {
+        const updatePointPosition = (score: number, lineId: string, pointId: string) => {
             const line = document.getElementById(lineId);
             const point = document.getElementById(pointId);
 
             if (!line || !point) return;
 
-            const x1 = parseFloat(line.getAttribute('x1'));
-            const y1 = parseFloat(line.getAttribute('y1'));
-            const x2 = parseFloat(line.getAttribute('x2'));
-            const y2 = parseFloat(line.getAttribute('y2'));
+            const x1 = parseFloat(line.getAttribute('x1') || '0');
+            const y1 = parseFloat(line.getAttribute('y1') || '0');
+            const x2 = parseFloat(line.getAttribute('x2') || '0');
+            const y2 = parseFloat(line.getAttribute('y2') || '0');
 
             const fraction = (score - 1) / 9;
             const newX = x1 + (x2 - x1) * fraction;
             const newY = y1 + (y2 - y1) * fraction;
 
-            point.setAttribute('cx', newX);
-            point.setAttribute('cy', newY);
+            point.setAttribute('cx', newX.toString());
+            point.setAttribute('cy', newY.toString());
         };
 
         scores.forEach((score, index) => {
@@ -37,10 +39,10 @@ const SvgSpider = ({ scores, aspects, isDarkMode }) => {
 
                 if (!point || !nextPoint || !line) return;
 
-                line.setAttribute('x1', point.getAttribute('cx'));
-                line.setAttribute('y1', point.getAttribute('cy'));
-                line.setAttribute('x2', nextPoint.getAttribute('cx'));
-                line.setAttribute('y2', nextPoint.getAttribute('cy'));
+                line.setAttribute('x1', point.getAttribute('cx') || '0');
+                line.setAttribute('y1', point.getAttribute('cy') || '0');
+                line.setAttribute('x2', nextPoint.getAttribute('cx') || '0');
+                line.setAttribute('y2', nextPoint.getAttribute('cy') || '0');
             });
         };
 
@@ -49,7 +51,7 @@ const SvgSpider = ({ scores, aspects, isDarkMode }) => {
             const pointsList = ['point1', 'point2', 'point3', 'point4', 'point5']
                 .map((pointId) => {
                     const point = document.getElementById(pointId);
-                    return point ? `${point.getAttribute('cx')},${point.getAttribute('cy')}` : '';
+                    return point ? `${point.getAttribute('cx') || '0'},${point.getAttribute('cy') || '0'}` : '';
                 })
                 .join(' ');
 
@@ -115,8 +117,8 @@ const SvgSpider = ({ scores, aspects, isDarkMode }) => {
             {positionsLoaded && aspects.map((aspect, index) => {
                 const line = document.getElementById(`line${index + 1}`);
                 if (!line) return null;
-                const x = parseFloat(line.getAttribute('x2'));
-                const y = parseFloat(line.getAttribute('y2'));
+                const x = parseFloat(line.getAttribute('x2') || '0');
+                const y = parseFloat(line.getAttribute('y2') || '0');
                 const position = positions[index];
                 return (
                     <text key={index} x={x} y={y} dx={position.dx} dy={position.dy} fill={isDarkMode ? 'white' : 'black'} fontSize="10" textAnchor="middle">

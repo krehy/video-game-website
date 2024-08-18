@@ -1,16 +1,15 @@
-// src/components/BackgroundIcons.tsx
 import { useEffect, useState, useRef } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faGamepad, faLaptop, faKeyboard, faHeadset, faMouse } from '@fortawesome/free-solid-svg-icons';
 
 const icons = [faGamepad, faLaptop, faHeadset, faMouse, faKeyboard];
 
-const getPosition = (row, col, iconSize) => ({
+const getPosition = (row: number, col: number, iconSize: number) => ({
   top: `${row * iconSize * 1.5}px`,
   left: `${col * iconSize * 1.5}px`,
 });
 
-const getRotation = () => `rotate(${Math.floor(Math.random() * 360)}deg)`;
+const getRotation = (): string => `rotate(${Math.floor(Math.random() * 360)}deg)`;
 
 const BackgroundIcons = () => {
   const [dimensions, setDimensions] = useState({ numRows: 0, numCols: 0 });

@@ -7,42 +7,54 @@ import SEO from '../../components/BlogPage/SEO';
 import LoadMoreButton from '../../components/BlogPage/LoadMoreButton';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faFilter } from '@fortawesome/free-solid-svg-icons';
+import { Article, Category, SEOData, ArticleFilters } from '../../types';
 
-const BlogIndex = ({ initialArticles, initialSeoData, initialCategories }) => {
-  const [articles, setArticles] = useState(initialArticles);
-  const [filteredArticles, setFilteredArticles] = useState(initialArticles);
-  const [seoData, setSeoData] = useState(initialSeoData);
+interface BlogIndexProps {
+  initialArticles: Article[];
+  initialSeoData: SEOData;
+  initialCategories: Category[];
+}
+
+const BlogIndex: React.FC<BlogIndexProps> = ({ initialArticles, initialSeoData, initialCategories }) => {
+  const [articles, setArticles] = useState<Article[]>(initialArticles);
+  const [filteredArticles, setFilteredArticles] = useState<Article[]>(initialArticles);
+  const [seoData, setSeoData] = useState<SEOData>(initialSeoData);
   const [showFilter, setShowFilter] = useState(false);
-  const [categories, setCategories] = useState(initialCategories);
-  const [filters, setFilters] = useState({
+  const [categories, setCategories] = useState<Category[]>(initialCategories);
+  const [filters, setFilters] = useState<ArticleFilters>({
     title: '',
-    dateRange: [0, 100],
+    dateRange: [0, 100] as [number, number],
     category: '',
     sortBy: 'newest'
   });
   const [visibleArticlesCount, setVisibleArticlesCount] = useState(9);
-  const [dateRange, setDateRange] = useState([0, 100]);
-  const [minDate, setMinDate] = useState(null);
-  const [maxDate, setMaxDate] = useState(null);
+  const [dateRange, setDateRange] = useState<[number, number]>([0, 100]);
+  const [minDate, setMinDate] = useState<Date | null>(null);
+  const [maxDate, setMaxDate] = useState<Date | null>(null);
 
   useEffect(() => {
     const dates = articles.map(article => new Date(article.first_published_at).getTime());
     if (dates.length > 0) {
-      setMinDate(new Date(Math.min(...dates)));
-      setMaxDate(new Date(Math.max(...dates)));
-      setFilters({
-        ...filters,
-        dateRange: [Math.min(...dates), Math.max(...dates)]
-      });
-      setDateRange([Math.min(...dates), Math.max(...dates)]);
+      const minDateValue = Math.min(...dates);
+      const maxDateValue = Math.max(...dates);
+
+      setMinDate(new Date(minDateValue));
+      setMaxDate(new Date(maxDateValue));
+
+      setFilters(prevFilters => ({
+        ...prevFilters,
+        dateRange: [minDateValue, maxDateValue] as [number, number]
+      }));
+
+      setDateRange([minDateValue, maxDateValue] as [number, number]);
     }
   }, [articles]);
 
   useEffect(() => {
     let filtered = articles.filter(article => {
       const matchesTitle = filters.title ? article.title.toLowerCase().includes(filters.title.toLowerCase()) : true;
-      const matchesCategory = filters.category ? article.category === filters.category : true;
-      const matchesDateRange = isDateInRange(article.first_published_at, filters.dateRange);
+      const matchesCategory = filters.category ? article.categories.some(cat => cat.name === filters.category) : true;
+      const matchesDateRange = isDateInRange(article.first_published_at, filters.dateRange as [number, number]);
       return matchesTitle && matchesCategory && matchesDateRange;
     });
 
@@ -50,33 +62,37 @@ const BlogIndex = ({ initialArticles, initialSeoData, initialCategories }) => {
     setFilteredArticles(filtered);
   }, [filters, articles]);
 
-  const handleFilterChange = (e) => {
+  const handleFilterChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    setFilters({
-      ...filters,
+    setFilters(prevFilters => ({
+      ...prevFilters,
       [name]: value
-    });
+    }));
   };
 
-  const handleSliderChange = (value) => {
-    setFilters({
-      ...filters,
-      dateRange: value
-    });
-    setDateRange(value);
+  const handleSliderChange = (values: number[]) => {
+    if (values.length === 2) {
+      setFilters(prevFilters => ({
+        ...prevFilters,
+        dateRange: [values[0], values[1]] as [number, number]
+      }));
+      setDateRange([values[0], values[1]] as [number, number]);
+    }
   };
+  
+  
 
-  const isDateInRange = (date, range) => {
+  const isDateInRange = (date: string, range: [number, number]) => {
     const articleDate = new Date(date).getTime();
     return articleDate >= range[0] && articleDate <= range[1];
   };
 
-  const sortArticles = (articles, sortBy) => {
+  const sortArticles = (articles: Article[], sortBy: string) => {
     switch (sortBy) {
       case 'newest':
-        return articles.sort((a, b) => new Date(b.first_published_at) - new Date(a.first_published_at));
+        return articles.sort((a, b) => new Date(b.first_published_at).getTime() - new Date(a.first_published_at).getTime());
       case 'oldest':
-        return articles.sort((a, b) => new Date(a.first_published_at) - new Date(b.first_published_at));
+        return articles.sort((a, b) => new Date(a.first_published_at).getTime() - new Date(b.first_published_at).getTime());
       case 'mostRead':
         return articles.sort((a, b) => b.read_count - a.read_count);
       case 'leastRead':
@@ -91,7 +107,7 @@ const BlogIndex = ({ initialArticles, initialSeoData, initialCategories }) => {
   };
 
   const loadMoreArticles = () => {
-    setVisibleArticlesCount((prevCount) => prevCount + 9);
+    setVisibleArticlesCount(prevCount => prevCount + 9);
   };
 
   const breadcrumbList = {
@@ -154,7 +170,7 @@ const BlogIndex = ({ initialArticles, initialSeoData, initialCategories }) => {
   );
 };
 
-const formatDate = (timestamp) => {
+const formatDate = (timestamp: number) => {
   return timestamp ? new Date(timestamp).toLocaleDateString() : '';
 };
 
@@ -165,9 +181,9 @@ export const getServerSideProps = async () => {
 
   return {
     props: {
-      initialArticles: initialArticles || null,
-      initialSeoData: initialSeoData || null,
-      initialCategories: initialCategories || null,
+      initialArticles: initialArticles || [],
+      initialSeoData: initialSeoData || {},
+      initialCategories: initialCategories || [],
     },
   };
 };

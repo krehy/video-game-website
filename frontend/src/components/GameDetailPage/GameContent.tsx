@@ -1,9 +1,11 @@
 import React from 'react';
 import parse from 'html-react-parser';
+import Image from 'next/image';
+import { GameContentProps } from '../../types';  // Import typu z types.tsx
 
-const GameContent = ({ game, isDarkMode }) => {
+const GameContent: React.FC<GameContentProps> = ({ game, isDarkMode }) => {
   const options = {
-    replace: (domNode) => {
+    replace: (domNode: any) => {
       if (domNode.name === 'embed' && domNode.attribs.embedtype === 'media') {
         return (
           <div key={domNode.attribs.url} className="video-container">
@@ -20,11 +22,17 @@ const GameContent = ({ game, isDarkMode }) => {
         );
       }
       if (domNode.name === 'embed' && domNode.attribs.embedtype === 'image') {
+        const imageUrl = `${process.env.NEXT_PUBLIC_INDEX_URL}/media/original_images/${domNode.attribs.alt}.jpg`;
+
         return (
-          <img
+          <Image
             key={domNode.attribs.id}
-            src={`${process.env.NEXT_PUBLIC_INDEX_URL}/media/original_images/${domNode.attribs.alt}.jpg`}
+            src={imageUrl}
             alt={domNode.attribs.alt}
+            width={800} // Set this to the appropriate value based on your design
+            height={600} // Set this to the appropriate value based on your design
+            layout="responsive"
+            objectFit="cover"
             className={`embedded-image ${domNode.attribs.format}`}
           />
         );

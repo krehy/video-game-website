@@ -1,7 +1,9 @@
 import React from 'react';
 import { Range } from 'react-range';
+import { ReviewFiltersProps } from '../../types';
 
-const reviewTypeTranslations = {
+// Add the reviewTypeTranslations object with a defined type
+const reviewTypeTranslations: { [key: string]: string } = {
   'Game': 'Hra',
   'Keyboard': 'Klávesnice',
   'Mouse': 'Myš',
@@ -14,18 +16,30 @@ const reviewTypeTranslations = {
   'Microphone': 'Mikrofon'
 };
 
-const ReviewFilters = ({
+const ReviewFilters: React.FC<ReviewFiltersProps> = ({
   filters,
-  setFilters,
-  reviewTypes,
-  minDate,
-  maxDate,
-  dateRange,
-  setDateRange,
-  formatDate,
   handleFilterChange,
-  handleSliderChange
+  handleSliderChange,
+  dateRange,
+  categories,
+  formatDate,
+  minDate,
+  maxDate
 }) => {
+  if (!filters) {
+    return null; // or handle this case appropriately
+  }
+
+  // Handle minDate and maxDate being null
+  const minTimestamp = minDate ? minDate.getTime() : 0;
+  const maxTimestamp = maxDate ? maxDate.getTime() : Date.now();
+
+  // Ensure dateRange values are within min and max bounds
+  const validDateRange = [
+    Math.max(minTimestamp, Math.min(dateRange[0], maxTimestamp)),
+    Math.max(minTimestamp, Math.min(dateRange[1], maxTimestamp))
+  ];
+
   return (
     <div className="bg-white p-4 shadow-md rounded mb-4">
       <div className="mb-4">
@@ -43,19 +57,21 @@ const ReviewFilters = ({
         />
       </div>
       <div className="mb-4">
-        <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="reviewType">
-          Recenze na
+        <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="category">
+          Kategorie
         </label>
         <select
-          name="reviewType"
-          id="reviewType"
-          value={filters.reviewType}
+          name="category"
+          id="category"
+          value={filters.category}
           onChange={handleFilterChange}
           className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
         >
-          <option value="">Všechny typy</option>
-          {reviewTypes.map((type, index) => (
-            <option key={index} value={type}>{reviewTypeTranslations[type]}</option>
+          <option value="">Všechny kategorie</option>
+          {categories.map((category) => (
+            <option key={category.id} value={category.name}>
+              {reviewTypeTranslations[category.name as keyof typeof reviewTypeTranslations] || category.name}
+            </option>
           ))}
         </select>
       </div>
@@ -64,15 +80,14 @@ const ReviewFilters = ({
           Datum vydání
         </label>
         <Range
-          values={filters.dateRange}
-          step={86400000} // Jeden den v milisekundách
-          min={minDate ? minDate.getTime() : 0}
-          max={maxDate ? maxDate.getTime() : 100}
+          values={validDateRange}
+          step={86400000} // One day in milliseconds
+          min={minTimestamp}
+          max={maxTimestamp}
           onChange={handleSliderChange}
           renderTrack={({ props, children }) => (
             <div
               {...props}
-              key={props.key} // Přidáno přímé přiřazení `key`
               className="w-full h-2 bg-[#ddd]"
               style={{ position: 'relative', background: '#ddd' }}
             >
@@ -81,8 +96,8 @@ const ReviewFilters = ({
                   position: 'absolute',
                   height: '100%',
                   background: '#8e67ea',
-                  left: `${((filters.dateRange[0] - (minDate ? minDate.getTime() : 0)) / ((maxDate ? maxDate.getTime() : 100) - (minDate ? minDate.getTime() : 0))) * 100}%`,
-                  right: `${100 - ((filters.dateRange[1] - (minDate ? minDate.getTime() : 0)) / ((maxDate ? maxDate.getTime() : 100) - (minDate ? minDate.getTime() : 0))) * 100}%`,
+                  left: `${((validDateRange[0] - minTimestamp) / (maxTimestamp - minTimestamp)) * 100}%`,
+                  right: `${100 - ((validDateRange[1] - minTimestamp) / (maxTimestamp - minTimestamp)) * 100}%`,
                 }}
               />
               {children}
@@ -91,14 +106,13 @@ const ReviewFilters = ({
           renderThumb={({ props, isDragged }) => (
             <div
               {...props}
-              key={props.key} // Přidáno přímé přiřazení `key`
               className={`h-4 w-4 rounded-full bg-[#8e67ea] shadow ${isDragged ? 'shadow-lg' : 'shadow'}`}
             />
           )}
         />
         <div className="flex justify-between text-gray-700 mt-2">
-          <span>Od: {formatDate(filters.dateRange[0])}</span>
-          <span>Do: {formatDate(filters.dateRange[1])}</span>
+          <span>Od: {formatDate(validDateRange[0])}</span>
+          <span>Do: {formatDate(validDateRange[1])}</span>
         </div>
       </div>
       <div className="mb-4">

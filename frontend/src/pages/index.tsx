@@ -4,37 +4,46 @@ import AktualityMarquee from '../components/IndexPage/AktualityMarquee';
 import ArticleCard from '../components/BlogPage/ArticleCard';
 import ReviewCard from '../components/ReviewsPage/ReviewCard';
 import GameCard from '../components/GameDPage/GameCard';
-import { fetchHomePageSEO, fetchAktuality, fetchArticles, fetchReviews, fetchGames, fetchTopMostRead, fetchMostSearchedGame } from '../services/api';
+import {
+  fetchHomePageSEO,
+  fetchAktuality,
+  fetchArticles,
+  fetchReviews,
+  fetchGames,
+  fetchTopMostRead,
+  fetchMostSearchedGame,
+} from '../services/api';
 import dayjs from 'dayjs';
 import InstagramPhotos from '../components/InstagramPhotos';
-import Slider from "react-slick";
-import "slick-carousel/slick/slick.css";
-import "slick-carousel/slick/slick-theme.css";
+import Slider from 'react-slick';
+import 'slick-carousel/slick/slick.css';
+import 'slick-carousel/slick/slick-theme.css';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
+import { Article, Review, Game } from '../types';
 
 const HomePage = () => {
   const [seoData, setSeoData] = useState<any>({});
   const [aktuality, setAktuality] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  const [newestArticle, setNewestArticle] = useState<any>(null);
-  const [newestReview, setNewestReview] = useState<any>(null);
-  const [mostReadArticle, setMostReadArticle] = useState<any>(null);
-  const [mostReadReview, setMostReadReview] = useState<any>(null);
-  const [mostLikedArticle, setMostLikedArticle] = useState<any>(null);
-  const [mostLikedReview, setMostLikedReview] = useState<any>(null);
+  const [newestArticle, setNewestArticle] = useState<Article | null>(null);
+  const [newestReview, setNewestReview] = useState<Review | null>(null);
+  const [mostReadArticle, setMostReadArticle] = useState<Article | null>(null);
+  const [mostReadReview, setMostReadReview] = useState<Review | null>(null);
+  const [mostLikedArticle, setMostLikedArticle] = useState<Article | null>(null);
+  const [mostLikedReview, setMostLikedReview] = useState<Review | null>(null);
 
-  const [upcomingGames, setUpcomingGames] = useState<any[]>([]);
-  const [todayGames, setTodayGames] = useState<any[]>([]);
-  const [mostSearchedGame, setMostSearchedGame] = useState<any>(null);
+  const [upcomingGames, setUpcomingGames] = useState<Game[]>([]);
+  const [todayGames, setTodayGames] = useState<Game[]>([]);
+  const [mostSearchedGame, setMostSearchedGame] = useState<Game | null>(null);
   const [topMostReadContent, setTopMostReadContent] = useState<any[]>([]);
 
   useEffect(() => {
     const getSeoData = async () => {
       try {
         const seo = await fetchHomePageSEO();
-        setSeoData(seo[0]);  // Assumes the first object in the array is the SEO data for the homepage
+        setSeoData(seo[0]); // Assumes the first object in the array is the SEO data for the homepage
       } catch (error) {
         console.error('Error fetching SEO data:', error);
       }
@@ -43,7 +52,7 @@ const HomePage = () => {
     const getAktuality = async () => {
       try {
         const aktualityData = await fetchAktuality();
-        const aktualityTexty = aktualityData.map(aktualita => aktualita.text);
+        const aktualityTexty = aktualityData.map((aktualita: { text: string }) => aktualita.text);
         setAktuality(aktualityTexty);
       } catch (error) {
         console.error('Error processing aktuality:', error);
@@ -54,21 +63,52 @@ const HomePage = () => {
 
     const getArticlesAndReviews = async () => {
       try {
-        const articles = await fetchArticles();
-        const reviews = await fetchReviews();
+        const articles = (await fetchArticles()).map(article => ({
+          ...article,
+          like_count: article.like_count ?? 0,  // Ensure like_count is a number
+        }));
+        const reviews: Review[] = await fetchReviews();
 
         if (articles.length > 0) {
-          const sortedArticles = articles.sort((a, b) => new Date(b.first_published_at || b.last_published_at) - new Date(a.first_published_at || a.last_published_at));
+          const sortedArticles = articles.sort(
+            (a, b) =>
+              new Date(b.first_published_at || b.last_published_at).getTime() -
+              new Date(a.first_published_at || a.last_published_at).getTime()
+          );
           setNewestArticle(sortedArticles[0]);
-          setMostReadArticle(sortedArticles.reduce((max, article) => (article.read_count > max.read_count ? article : max), sortedArticles[0]));
-          setMostLikedArticle(sortedArticles.reduce((max, article) => (article.like_count > max.like_count ? article : max), sortedArticles[0]));
+          setMostReadArticle(
+            sortedArticles.reduce(
+              (max, article) => (article.read_count > max.read_count ? article : max),
+              sortedArticles[0]
+            )
+          );
+          setMostLikedArticle(
+            sortedArticles.reduce(
+              (max, article) => (article.like_count > max.like_count ? article : max),
+              sortedArticles[0]
+            )
+          );
         }
 
         if (reviews.length > 0) {
-          const sortedReviews = reviews.sort((a, b) => new Date(b.first_published_at || b.last_published_at) - new Date(a.first_published_at || a.last_published_at));
+          const sortedReviews = reviews.sort(
+            (a, b) =>
+              new Date(b.first_published_at || b.last_published_at).getTime() -
+              new Date(a.first_published_at || a.last_published_at).getTime()
+          );
           setNewestReview(sortedReviews[0]);
-          setMostReadReview(sortedReviews.reduce((max, review) => (review.read_count > max.read_count ? review : max), sortedReviews[0]));
-          setMostLikedReview(sortedReviews.reduce((max, review) => (review.like_count > max.like_count ? review : max), sortedReviews[0]));
+          setMostReadReview(
+            sortedReviews.reduce(
+              (max, review) => (review.read_count > max.read_count ? review : max),
+              sortedReviews[0]
+            )
+          );
+          setMostLikedReview(
+            sortedReviews.reduce(
+              (max, review) => (review.like_count > max.like_count ? review : max),
+              sortedReviews[0]
+            )
+          );
         }
       } catch (error) {
         console.error('Error fetching articles and reviews:', error);
@@ -77,14 +117,18 @@ const HomePage = () => {
 
     const getUpcomingGames = async () => {
       try {
-        const games = await fetchGames();
+        const games: Game[] = await fetchGames();
         const today = dayjs().format('YYYY-MM-DD');
         const currentMonth = dayjs().month();
 
-        const gamesReleasedToday = games.filter(game => dayjs(game.release_date).format('YYYY-MM-DD') === today);
+        const gamesReleasedToday = games.filter(
+          (game) => dayjs(game.release_date).format('YYYY-MM-DD') === today
+        );
         setTodayGames(gamesReleasedToday);
 
-        const filteredGames = games.filter(game => dayjs(game.release_date).month() === currentMonth);
+        const filteredGames = games.filter(
+          (game) => dayjs(game.release_date).month() === currentMonth
+        );
         setUpcomingGames(filteredGames.slice(0, 4));
       } catch (error) {
         console.error('Error fetching games:', error);
@@ -106,7 +150,7 @@ const HomePage = () => {
         const reviews = await fetchTopMostRead('review');
 
         const combinedContent = [...articles, ...reviews]
-          .filter(content => content.active_users > 0)
+          .filter((content) => content.active_users > 0)
           .sort((a, b) => b.active_users - a.active_users)
           .slice(0, 3);
 
@@ -125,16 +169,16 @@ const HomePage = () => {
   }, []);
 
   const breadcrumbList = {
-    "@context": "https://schema.org",
-    "@type": "BreadcrumbList",
-    "itemListElement": [
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
       {
-        "@type": "ListItem",
-        "position": 1,
-        "name": "Home",
-        "item": `${process.env.NEXT_PUBLIC_SITE_URL}/`
-      }
-    ]
+        '@type': 'ListItem',
+        position: 1,
+        name: 'Home',
+        item: `${process.env.NEXT_PUBLIC_SITE_URL}/`,
+      },
+    ],
   };
 
   const sliderSettings = {
@@ -175,7 +219,7 @@ const HomePage = () => {
               <GameCard game={todayGames[0]} info={true} />
             ) : (
               <Slider {...sliderSettings}>
-                {todayGames.map(game => (
+                {todayGames.map((game) => (
                   <div key={game.slug}>
                     <GameCard game={game} info={true} />
                   </div>
@@ -196,14 +240,19 @@ const HomePage = () => {
 
         <div className="md:col-span-1 flex flex-col">
           <div className="bg-white p-4 h-full rounded-lg shadow-md">
-            <h2 className="text-xl font-semibold mb-4" style={{ color: 'black' }}>Nové hry tento měsíc:</h2>
+            <h2 className="text-xl font-semibold mb-4" style={{ color: 'black' }}>
+              Nové hry tento měsíc:
+            </h2>
             <ul className="space-y-2">
               {upcomingGames.length > 0 ? (
-                upcomingGames.map(game => (
+                upcomingGames.map((game) => (
                   <li key={game.id} className="text-gray-800">
                     <Link href={`/games/${game.slug}`}>
                       <span className="hover:underline">
-                        {game.title} - <span className="text-green-600">{dayjs(game.release_date).format('DD.MM.YYYY')}</span>
+                        {game.title} -{' '}
+                        <span className="text-green-600">
+                          {dayjs(game.release_date).format('DD.MM.YYYY')}
+                        </span>
                       </span>
                     </Link>
                   </li>
@@ -225,13 +274,16 @@ const HomePage = () => {
             </div>
             {todayGames.length > 0 && (
               <>
-                <h2 className="text-xl font-semibold mt-8" style={{ color: 'black' }}>Nejhledanější hra tento týden:</h2>
+                <h2 className="text-xl font-semibold mt-8" style={{ color: 'black' }}>
+                  Nejhledanější hra tento týden:
+                </h2>
                 {mostSearchedGame ? (
                   <div className="mt-2 text-gray-800">
                     <a
                       style={{ color: '#8e67ea' }}
                       href={`/games/${mostSearchedGame.slug}`}
-                      className="hover:underline">
+                      className="hover:underline"
+                    >
                       {mostSearchedGame.title}
                     </a>
                   </div>
@@ -271,15 +323,20 @@ const HomePage = () => {
 
         <div className="md:col-span-1 flex flex-col">
           <div className="bg-white p-4 h-full rounded-lg shadow-md">
-            <h2 className="text-xl font-semibold mb-4" style={{ color: 'black' }}>Aktuálně nejvíc čtěné:</h2>
+            <h2 className="text-xl font-semibold mb-4" style={{ color: 'black' }}>
+              Aktuálně nejvíc čtěné:
+            </h2>
             <ul className="space-y-2">
               {topMostReadContent.length > 0 ? (
-                topMostReadContent.map(content => (
+                topMostReadContent.map((content) => (
                   <li key={content.id} className="text-gray-800">
                     <a
                       style={{ color: '#8e67ea' }}
-                      href={`/${content.content_type === 'article' ? 'blog' : 'reviews'}/${content.slug}`}
-                      className="text-blue-600 hover:underline">
+                      href={`/${
+                        content.content_type === 'article' ? 'blog' : 'reviews'
+                      }/${content.slug}`}
+                      className="text-blue-600 hover:underline"
+                    >
                       {content.title}
                     </a>
                     <span className="text-sm text-gray-600"> ({content.active_users} čtenářů)</span>
@@ -293,7 +350,6 @@ const HomePage = () => {
             <div className="mt-8">
               <InstagramPhotos />
             </div>
-
           </div>
         </div>
       </div>

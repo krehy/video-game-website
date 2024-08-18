@@ -3,18 +3,24 @@ import Link from 'next/link';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUser, faBuilding, faCalendarAlt } from '@fortawesome/free-solid-svg-icons';
 import { motion } from 'framer-motion';
+import Image from 'next/image';
+import { Game } from '../../types'; // Adjust the import path as necessary
 
-const GameCard = ({ game, info }) => {
+interface GameCardProps {
+  game: Game;
+  info?: boolean; // Optional prop for info
+}
+
+const GameCard: React.FC<GameCardProps> = ({ game, info = false }) => {
   const [isHovered, setIsHovered] = useState(false);
 
   const truncatedDescription = game.description.length > 200 
     ? game.description.substring(0, 200) + "..."
     : game.description;
 
-  // Determine the image source, prioritize `main_image`, fallback to `main_image_url`
   const imageUrl = game.main_image 
     ? `${process.env.NEXT_PUBLIC_INDEX_URL}${game.main_image.url}` 
-    : `${process.env.NEXT_PUBLIC_INDEX_URL}${game.main_image_url}`; // Prepend the base URL here
+    : ''; // Use an empty string or a fallback URL if `main_image` is missing
 
   return (
     <motion.div 
@@ -25,13 +31,15 @@ const GameCard = ({ game, info }) => {
       onMouseLeave={() => setIsHovered(false)}
     >
       {imageUrl && (
-        <div className="relative w-full md:w-1/3">
+        <div className="relative w-full md:w-1/3 h-64 md:h-auto flex-shrink-0">
           <Link href={`/games/${game.slug}`} legacyBehavior>
-            <a>
-              <img
+            <a className="block h-full">
+              <Image
                 src={imageUrl} 
                 alt={game.title}
-                className="w-full h-48 md:h-full object-cover"
+                layout="fill"
+                objectFit="cover"
+                className="rounded-t md:rounded-t-none md:rounded-l"
               />
             </a>
           </Link>
@@ -96,7 +104,7 @@ const GameCard = ({ game, info }) => {
             </span>
           ))}
           {game.platforms && Array.isArray(game.platforms) && game.platforms.map((platform) => (
-            <span key={platform.id} className="bg-gray-200 rounded-full px-3 py-1 text-sm font-semibold text-gray-700 mr-2 mb-2">
+            <span key={platform.name} className="bg-gray-200 rounded-full px-3 py-1 text-sm font-semibold text-gray-700 mr-2 mb-2">
               {platform.name}
             </span>
           ))}

@@ -1,22 +1,24 @@
-// components/DarkModeToggle.js
+// src/components/CalendarPage/DarkModeToggle.tsx
+
 import React, { useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSun, faMoon } from '@fortawesome/free-solid-svg-icons';
+import { DarkModeToggleProps } from '../../types';
 
-const DarkModeToggle = ({ isDarkMode, toggleDarkMode }) => {
+const DarkModeToggle: React.FC<DarkModeToggleProps> = ({ isDarkMode, toggleDarkMode }) => {
 
   useEffect(() => {
     const savedMode = localStorage.getItem('darkMode');
     if (savedMode !== null) {
       toggleDarkMode(savedMode === 'true');
     }
-  }, []);
+  }, [toggleDarkMode]); // Added toggleDarkMode to the dependency array
 
   const handleToggle = () => {
     toggleDarkMode(!isDarkMode);
-    localStorage.setItem('darkMode', !isDarkMode);
+    localStorage.setItem('darkMode', (!isDarkMode).toString());
   };
-
+  
   return (
     <div className="absolute top-4 right-4 flex items-center">
       <FontAwesomeIcon icon={faSun} className={`mr-2 text-lg ${isDarkMode ? 'text-gray-400' : 'text-yellow-500'}`} />

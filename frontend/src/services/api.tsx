@@ -1,4 +1,5 @@
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
+import { Article, GameLinkedItem } from '../types'; // Adjust the import path as needed
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -13,19 +14,21 @@ export const fetchAktuality = async () => {
     return response.data;
   } catch (error) {
     console.error('Error fetching aktuality:', error);
+    console.log(`API: ${process.env.NEXT_PUBLIC_API_URL}`)
     return [];
   }
 };
 
-export const fetchArticles = async () => {
+export const fetchArticles = async (): Promise<Article[]> => {
   try {
     const response = await axiosInstance.get('/posts/');
-    return response.data;
+    return response.data as Article[]; // Type assertion
   } catch (error) {
     console.error('Error fetching articles:', error);
     throw error;
   }
 };
+
 
 export const fetchReviews = async () => {
   try {
@@ -57,15 +60,18 @@ export const fetchCategories = async () => {
   }
 };
 
-export const fetchGameById = async (id: string) => {
+export const fetchGameById = async (id: number): Promise<GameLinkedItem> => {
   try {
     const response = await axiosInstance.get(`/games/${id}/`);
-    return response.data;
+    console.log('Fetched game data:', response.data);  // Přidáno logování
+    return response.data as GameLinkedItem;
   } catch (error) {
-    console.error(`Error fetching game by id (${id}):`, error.response ? error.response.data : error.message);
-    return null; // Ujistěte se, že vrátíte null v případě chyby
+    console.error(`Error fetching game by ID ${id}:`, error);
+    throw error;
   }
 };
+
+
 
 
 export const fetchArticlesByGameId = async (gameId: number) => {
@@ -114,7 +120,8 @@ export const fetchReviewIndexSEO = async () => {
     const response = await axiosInstance.get('/reviewindex/');
     return response.data[0];  // Assuming there's only one ReviewIndexPage
   } catch (error) {
-    console.error('Error fetching review index SEO:', error.response?.data || error.message);
+    const axiosError = error as AxiosError;
+    console.error('Error fetching review index SEO:', axiosError.response?.data || axiosError.message);
     throw error;
   }
 };
@@ -124,30 +131,24 @@ export const fetchGameIndexSEO = async () => {
     const response = await axiosInstance.get('/gameindex/');
     return response.data[0];  // Assuming there's only one GameIndexPage
   } catch (error) {
-    console.error('Error fetching game index SEO:', error.response?.data || error.message);
+    const axiosError = error as AxiosError;
+    console.error('Error fetching game index SEO:', axiosError.response?.data || axiosError.message);
     throw error;
   }
 };
 
-export const fetchProductIndexSEO = async () => {
-  try {
-    const response = await axiosInstance.get('/productindex/');
-    return response.data[0];  // Assuming there's only one ProductIndexPage
-  } catch (error) {
-    console.error('Error fetching product index SEO:', error.response?.data || error.message);
-    throw error;
-  }
-};
 
 export const fetchHomePageSEO = async () => {
   try {
     const response = await axiosInstance.get('/homepage/');
-    return response.data;  // Vrátí celý objekt HomePage
+    return response.data;  // Returns the entire HomePage object
   } catch (error) {
-    console.error('Error fetching home page SEO:', error.response?.data || error.message);
+    const axiosError = error as AxiosError;
+    console.error('Error fetching home page SEO:', axiosError.response?.data || axiosError.message);
     throw error;
   }
 };
+
 
 export const fetchHomePageContent = async () => {
   try {
@@ -294,11 +295,12 @@ export const incrementReadCount = async (contentType: string, id: number) => {
 export const incrementActiveUsers = async (contentType: string, contentId: number) => {
   try {
     const response = await axios.post(`${API_URL}/increment-active-users/${contentType}/${contentId}/`, null, {
-      withCredentials: true,  // Pokud je potřeba zaslat credentials
+      withCredentials: true,  // Ensure credentials are sent with requests
     });
     return response.data.active_users;
   } catch (error) {
-    console.error(`Error incrementing active users for ${contentType} (${contentId}):`, error.response ? error.response.data : error.message);
+    const axiosError = error as AxiosError;
+    console.error(`Error incrementing active users for ${contentType} (${contentId}):`, axiosError.response ? axiosError.response.data : axiosError.message);
     throw error;
   }
 };
@@ -306,11 +308,12 @@ export const incrementActiveUsers = async (contentType: string, contentId: numbe
 export const decrementActiveUsers = async (contentType: string, contentId: number) => {
   try {
     const response = await axios.post(`${API_URL}/decrement-active-users/${contentType}/${contentId}/`, null, {
-      withCredentials: true,  // Pokud je potřeba zaslat credentials
+      withCredentials: true,  // Ensure credentials are sent with requests
     });
     return response.data.active_users;
   } catch (error) {
-    console.error(`Error decrementing active users for ${contentType} (${contentId}):`, error.response ? error.response.data : error.message);
+    const axiosError = error as AxiosError;
+    console.error(`Error decrementing active users for ${contentType} (${contentId}):`, axiosError.response ? axiosError.response.data : axiosError.message);
     throw error;
   }
 };
@@ -340,12 +343,12 @@ export const incrementSearchWeek = async (gameId: number) => {
       headers: {
         'Content-Type': 'application/json',
       },
-      withCredentials: true,  // Pokud je potřeba zaslat credentials
+      withCredentials: true,  // Ensure credentials are sent with requests
     });
-
     return response.data;
   } catch (error) {
-    console.error('Error incrementing search_week:', error.response ? error.response.data : error.message);
+    const axiosError = error as AxiosError;
+    console.error('Error incrementing search_week:', axiosError.response ? axiosError.response.data : axiosError.message);
     return null;
   }
 };
@@ -355,7 +358,8 @@ export const fetchMostSearchedGame = async () => {
     const response = await axiosInstance.get(`${API_URL}/most-searched-game-week/`);
     return response.data;
   } catch (error) {
-    console.error('Error fetching most searched game:', error.response ? error.response.data : error.message);
+    const axiosError = error as AxiosError;
+    console.error('Error fetching most searched game:', axiosError.response ? axiosError.response.data : axiosError.message);
     return null;
   }
 };

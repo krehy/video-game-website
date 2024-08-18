@@ -1,10 +1,14 @@
+// src/components/BlogPage/ArticleCard.tsx
+
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUser, faCalendarAlt, faEye } from '@fortawesome/free-solid-svg-icons';
 import { motion } from 'framer-motion';
+import Image from 'next/image';
+import { ArticleCardProps } from '../../types';
 
-const ArticleCard = ({ article, info }) => {
+const ArticleCard: React.FC<ArticleCardProps> = ({ article, info }) => {
   const [isHovered, setIsHovered] = useState(false);
 
   return (
@@ -18,10 +22,14 @@ const ArticleCard = ({ article, info }) => {
       {article.main_image && (
         <div className="relative">
           <Link href={`/blog/${article.slug}`}>
-            <img
+            <Image
               src={`${process.env.NEXT_PUBLIC_INDEX_URL}${article.main_image.url}`}
               alt={article.title}
-              className="w-full h-48 object-cover"
+              width={800} // Adjust the width according to your design
+              height={300} // Adjust the height according to your design
+              layout="responsive"
+              objectFit="cover"
+              className="rounded-t"
             />
           </Link>
           {info && (
@@ -57,7 +65,7 @@ const ArticleCard = ({ article, info }) => {
           <span className="mr-4">{article.owner.username}</span>
           <FontAwesomeIcon icon={faCalendarAlt} className="mr-1 text-[#8e67ea]" />
           <span>{new Date(article.first_published_at).toLocaleDateString()}</span>
-          <FontAwesomeIcon icon={faEye} className="ml-4 text-[#8e67ea]" />
+          <FontAwesomeIcon style={{marginRight:'7px'}} icon={faEye} className="ml-4 text-[#8e67ea]" />
           <span>{article.read_count}</span>
         </div>
         <p className="text-gray-700 mb-4">{article.intro}</p>

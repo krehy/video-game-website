@@ -37,14 +37,17 @@ INSTALLED_APPS = [
     'api',
     'wagtail_modeladmin',
     'wagtail.contrib.sitemaps',
+
 ]
 
 MIDDLEWARE = [
+
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     # 'django.middleware.csrf.CsrfViewMiddleware',
+
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -52,6 +55,14 @@ MIDDLEWARE = [
     'wagtail.contrib.redirects.middleware.RedirectMiddleware',
     'allauth.account.middleware.AccountMiddleware',
 ]
+
+WEBP_CONVERT = {
+    'ENABLED': True,
+    'FORCE_ON_REQUEST': True,
+    'ORIGINAL_EXTENSION_TO_WEBP_CONVERT': ['jpg', 'jpeg', 'png'],
+    'QUALITY': 80,  # kvalita komprese
+}
+
 
 AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',
