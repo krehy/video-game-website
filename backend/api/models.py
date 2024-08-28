@@ -1,20 +1,54 @@
 from wagtail.models import Page
 from wagtail.admin.panels import FieldPanel, InlinePanel
 from wagtail.snippets.models import register_snippet
-from wagtail.fields import RichTextField
+from wagtail.fields import RichTextField, StreamField
 from wagtail.search import index
 from modelcluster.fields import ParentalKey, ParentalManyToManyField
 from django import forms
 from django.db import models
 from slugify import slugify
 from django.core.files.storage import FileSystemStorage
+from wagtail import blocks
 from PIL import Image
 from io import BytesIO
 import os
 
-# Utility function to generate slugs
+class AdBlock(blocks.StructBlock):
+    zone_id = blocks.CharBlock(required=True, help_text="ID zóny pro reklamu")
+    ad_width = blocks.IntegerBlock(required=True, help_text="Maximální šířka reklamy")
+    ad_height = blocks.IntegerBlock(required=True, help_text="Maximální výška reklamy")
+
+    def render(self, value, context=None):
+        ad_html = f"""
+        <div id="ssp-zone-{value['zone_id']}"></div>
+        <script>
+        sssp.getAds([
+        {{
+            "zoneId": {value['zone_id']},
+            "id": "ssp-zone-{value['zone_id']}",
+            "width": {value['ad_width']},
+            "height": {value['ad_height']}
+        }}
+        ]);
+        </script>
+        """
+        return ad_html
+
+    class Meta:
+        template = "blocks/ad_block.html"
+        icon = "placeholder"
+        label = "Ad Block"
+
+
 def generate_slug(title):
-    return slugify(title)
+    # Překlad českých klíčových slov do angličtiny
+    translations = {
+        "recenze": "reviews",
+        "databaze-her": "games",
+        # Přidejte další překlady podle potřeby
+    }
+    slug = slugify(title)
+    return translations.get(slug, slug)
 
 # Custom storage to handle WebP conversion
 class WebPStorage(FileSystemStorage):
@@ -197,10 +231,30 @@ class GameIndexPage(Page, SEOFields, index.Indexed):
         self.slug = generate_slug(self.slug)
         super().save(*args, **kwargs)
 
+class SimpleAdvertisementBlock(blocks.StructBlock):
+    class Meta:
+        icon = "placeholder"
+        label = "Advertisement"
+
+    def get_context(self, value, parent_context=None):
+        context = super().get_context(value, parent_context)
+        # Přednastavené hodnoty
+        context.update({
+            'zone_id': 347254,
+            'element_id': 'ssp-zone-347254',
+            'width': 160,
+            'height': 600,
+        })
+        return context
+
+
 # Blog Post model
 class BlogPost(Page, SEOFields, index.Indexed):
     intro = models.CharField(max_length=250, default='')
-    body = RichTextField(default='')
+    body = StreamField([
+        ('paragraph', blocks.RichTextBlock(required=True)),
+        ('advertisement', SimpleAdvertisementBlock()),
+    ], use_json_field=True, default='')
     active_users_count = models.IntegerField(default=0)
     read_count = models.IntegerField(default=0)
     like_count = models.IntegerField(default=0)

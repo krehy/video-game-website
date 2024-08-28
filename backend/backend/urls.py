@@ -42,6 +42,7 @@ urlpatterns = [
 
     path('rss/blog/', BlogPostFeed(), name='blogpost_feed'),
     path('rss/reviews/', ReviewFeed(), name='review_feed'),
+    
     path('api/posts/<int:pk>/like/', like_article, name='like_article'),
     path('api/posts/<int:pk>/dislike/', dislike_article, name='dislike_article'),
     path('api/reviews/<int:pk>/like/', like_review, name='like_review'),

@@ -1,11 +1,8 @@
-// src/components/CalendarPage/GameCalendar.tsx
-
 import React, { useEffect, useState, useRef } from 'react';
 import FullCalendar from '@fullcalendar/react';
-import { EventClickArg, CalendarApi } from '@fullcalendar/core';
+import { EventClickArg } from '@fullcalendar/core';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import dayjs from 'dayjs';
-import DarkModeToggle from './DarkModeToggle';
 import csLocale from '@fullcalendar/core/locales/cs';
 import { fetchGames } from '../../services/api';
 import GameDetailModal from './GameDetailModal';
@@ -13,7 +10,6 @@ import { Game } from '../../types';
 
 const GameCalendar = () => {
     const [games, setGames] = useState<Game[]>([]);
-    const [isDarkMode, setIsDarkMode] = useState(false);
     const [selectedGame, setSelectedGame] = useState<Game | null>(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
@@ -47,14 +43,6 @@ const GameCalendar = () => {
             window.removeEventListener('resize', handleResize);
         };
     }, []);
-
-    useEffect(() => {
-        document.body.classList.toggle('dark-mode', isDarkMode);
-    }, [isDarkMode]);
-
-    const toggleDarkMode = (darkMode: boolean) => {
-        setIsDarkMode(darkMode);
-    };
 
     const handleEventClick = (info: EventClickArg) => {
         info.jsEvent.preventDefault();
@@ -97,8 +85,7 @@ const GameCalendar = () => {
         }));
 
     return (
-        <div className={`container ${isDarkMode ? 'dark' : ''}`}>
-            <DarkModeToggle isDarkMode={isDarkMode} toggleDarkMode={toggleDarkMode} />
+        <div className="container dark">
             <div className="mb-4 flex justify-center">
                 <input
                     type="text"
@@ -112,7 +99,7 @@ const GameCalendar = () => {
             {isLoading ? (
                 <div className="loading-spinner">Loading...</div>
             ) : (
-                <div className={`p-6 rounded-lg shadow-lg ${isDarkMode ? 'bg-transparent' : 'bg-white'}`}>
+                <div className="calendar-container p-6 rounded-lg shadow-lg bg-transparent">
                     <FullCalendar
                         ref={calendarRef}
                         plugins={[dayGridPlugin]}
@@ -166,6 +153,8 @@ const GameCalendar = () => {
                     color: white;
                     padding: 10px;
                     border-radius: 8px;
+                    display: flex;
+                    flex-wrap: wrap;
                 }
 
                 .fc-button {
@@ -174,16 +163,53 @@ const GameCalendar = () => {
                     padding: 5px 10px;
                     border-radius: 5px;
                     margin: 0 5px;
+                    white-space: nowrap;
                 }
 
                 .fc-button:hover {
                     background-color: #3c358f;
                 }
 
+                .calendar-container {
+                    overflow-x: auto;
+                }
+
+                @media (max-width: 768px) {
+                    .fc-toolbar {
+                        flex-direction: column;
+                        align-items: stretch;
+                    }
+
+                    .fc-button-group {
+                        display: flex;
+                        justify-content: center;
+                        margin-bottom: 10px;
+                    }
+
+                    .fc-button {
+                        flex: 1;
+                        margin: 5px 0;
+                    }
+
+                    .fc-toolbar-title {
+                        margin-bottom: 10px;
+                        text-align: center;
+                    }
+
+                    .calendar-container {
+                        padding: 10px;
+                    }
+                }
+
                 .loading-spinner {
                     text-align: center;
                     font-size: 1.5em;
                     margin-top: 20px;
+                }
+
+                .fc-col-header-cell-cushion,
+                .fc-daygrid-day-number {
+                    color: white;
                 }
             `}</style>
         </div>

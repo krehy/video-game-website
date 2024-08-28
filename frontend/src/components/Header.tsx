@@ -37,7 +37,9 @@ const Header = () => {
       <header className={`bg-gradient-to-b from-black via-black to-[#251f68] text-white fixed top-0 w-full z-50 transition-all duration-300 ${scrolled ? 'h-15' : 'h-77'}`}>
         <div className={`container mx-auto transition-all duration-300 ${scrolled ? 'py-2 flex flex-row items-center justify-between' : 'py-6 flex flex-col items-center'}`}>
           <div className={`flex ${scrolled ? 'items-center' : 'flex-col items-center'}`}>
+            <Link href='/'>
             <Image src="/logo.webp" alt="Logo" width={scrolled ? 48 : 160} height={scrolled ? 48 : 160} className={`transition-all duration-300 ${scrolled ? 'mr-4' : 'mb-1 mt-1'}`} />
+            </Link>
             <div className={`text-white ${scrolled ? 'text-2xl' : 'text-5xl'} font-bold uppercase transition-all duration-300`}>
               <Link href="/">Superpařmeni</Link>
             </div>
@@ -83,9 +85,12 @@ const Header = () => {
             <Link href="/games" passHref legacyBehavior>
               <a className={`block py-2 ${isActive('/games') ? 'active' : ''}`}>Databáze her</a>
             </Link>
-            <Link href="/eshop" passHref legacyBehavior>
-              <a className={`block py-2 ${isActive('/eshop') ? 'active' : ''}`}>Eshop</a>
+            <Link href="/calendar" passHref legacyBehavior>
+              <a className={`nav-link ${isActive('/calendar') ? 'active' : ''}`}>Herní kalendář</a>
             </Link>
+            {/* <Link href="/eshop" passHref legacyBehavior>
+              <a className={`block py-2 ${isActive('/eshop') ? 'active' : ''}`}>Eshop</a>
+            </Link> */}
           </nav>
         )}
       </header>

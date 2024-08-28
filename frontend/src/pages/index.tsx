@@ -193,7 +193,7 @@ const HomePage = () => {
     <div className="container mx-auto p-4">
       <SEOHead seoData={seoData} breadcrumbList={breadcrumbList} />
 
-      <h1 className="text-3xl font-bold">Hlavní stránka</h1>
+      <h1 className="text-3xl font-bold" style={{ color: 'white' }}>Hlavní stránka</h1>
 
       {!isLoading && aktuality.length > 0 ? (
         <AktualityMarquee aktuality={aktuality} />
@@ -229,7 +229,9 @@ const HomePage = () => {
           </div>
         ) : (
           <div className="md:col-span-2">
-            <h2 className="text-2xl font-bold text-white mb-4">Nejhledanější hra tento týden</h2>
+            <h2 className="text-2xl font-bold mb-4" style={{ color: 'white' }}>
+              Nejhledanější hra tento týden
+            </h2>
             {mostSearchedGame ? (
               <GameCard game={mostSearchedGame} info={true} />
             ) : (
@@ -299,59 +301,71 @@ const HomePage = () => {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-8">
         <div className="md:col-span-2 grid gap-4">
           <div>
-            <h2 className="text-2xl font-semibold mb-2">Nejnovější</h2>
+            <h2 className="text-2xl font-semibold mb-2" style={{ color: 'white' }}>Nejnovější</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {newestArticle && <ArticleCard info={true} article={newestArticle} />}
               {newestReview && <ReviewCard info={true} review={newestReview} />}
             </div>
           </div>
           <div>
-            <h2 className="text-2xl font-semibold mb-2">Nejčtenější</h2>
+            <h2 className="text-2xl font-semibold mb-2" style={{ color: 'white' }}>Nejčtenější</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {mostReadArticle && <ArticleCard info={true} article={mostReadArticle} />}
               {mostReadReview && <ReviewCard info={true} review={mostReadReview} />}
             </div>
           </div>
           <div>
-            <h2 className="text-2xl font-semibold mb-2">Nejoblíbenější</h2>
+            <h2 className="text-2xl font-semibold mb-2" style={{ color: 'white' }}>Nejoblíbenější</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {mostLikedArticle && <ArticleCard info={true} article={mostLikedArticle} />}
               {mostLikedReview && <ReviewCard info={true} review={mostLikedReview} />}
             </div>
           </div>
         </div>
-
         <div className="md:col-span-1 flex flex-col">
-          <div className="bg-white p-4 h-full rounded-lg shadow-md">
-            <h2 className="text-xl font-semibold mb-4" style={{ color: 'black' }}>
-              Aktuálně nejvíc čtěné:
-            </h2>
-            <ul className="space-y-2">
-              {topMostReadContent.length > 0 ? (
-                topMostReadContent.map((content) => (
-                  <li key={content.id} className="text-gray-800">
-                    <a
-                      style={{ color: '#8e67ea' }}
-                      href={`/${
-                        content.content_type === 'article' ? 'blog' : 'reviews'
-                      }/${content.slug}`}
-                      className="text-blue-600 hover:underline"
-                    >
-                      {content.title}
-                    </a>
-                    <span className="text-sm text-gray-600"> ({content.active_users} čtenářů)</span>
-                  </li>
-                ))
-              ) : (
-                <li className="text-gray-600">Je tu ticho 😢</li>
-              )}
-            </ul>
 
-            <div className="mt-8">
-              <InstagramPhotos />
-            </div>
-          </div>
-        </div>
+        <div className="bg-white p-4 h-full rounded-lg shadow-md">
+  <h2 className="text-xl font-semibold mb-4" style={{ color: 'black' }}>
+    Aktuálně nejvíc čtěné:
+  </h2>
+  <ul className="space-y-2">
+    {topMostReadContent.length > 0 ? (
+      topMostReadContent.map((content) => {
+        // Log the entire content object to see all available properties
+        console.log("Content Object:", content);
+
+        // Assuming that content_type might be different or missing
+        let linkPath = '/reviews';
+        if (content.content_type === 'article' || content.content_type === 'blog') {
+          linkPath = '/blog';
+        }
+
+        return (
+          <li key={content.id} className="text-gray-800">
+            <a
+              style={{ color: '#8e67ea' }}
+              href={`${linkPath}/${content.slug}`}
+              className="text-blue-600 hover:underline"
+            >
+              {content.title}
+            </a>
+            <span className="text-sm text-gray-600"> ({content.active_users} čtenářů)</span>
+          </li>
+        );
+      })
+    ) : (
+      <li className="text-gray-600">Je tu ticho 😢</li>
+    )}
+  </ul>
+
+  <div className="mt-8">
+    <InstagramPhotos />
+  </div>
+</div>
+
+
+</div>
+
       </div>
     </div>
   );

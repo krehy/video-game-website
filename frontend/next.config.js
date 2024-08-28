@@ -3,11 +3,11 @@ module.exports = {
     return [
       {
         source: '/api/:path*',
-        destination: 'http://10.0.0.193:8000/api/:path*' // Redirects API requests to your backend
+        destination: `${process.env.NEXT_PUBLIC_API_URL}:path*`, // Dynamické nastavení API URL
       }
     ]
   },
   images: {
-    domains: ['10.0.0.193'],  // Add the IP address or domain serving the images
+    domains: ['10.0.0.6'],  // Přidání domény do povolených
   },
 }
