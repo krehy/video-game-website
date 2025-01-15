@@ -192,7 +192,7 @@ const HomePage = () => {
         {isLeft && (
           <motion.div
             className="relative w-16 h-24 flex-shrink-0 overflow-hidden rounded-lg bg-gray-200 mr-4"
-            whileHover={{ scale: 1.05 }} // Add hover zoom effect
+            whileHover={{ scale: 1.05 }} // Add hover zoom effec
             transition={{ duration: 0.3 }}
           >
             <Link href={`/games/${game.slug}`} legacyBehavior>
