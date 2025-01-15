@@ -15,6 +15,23 @@ import logging
 
 import redis
 
+from wagtail.images.models import Image
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import AllowAny
+from rest_framework.response import Response
+from rest_framework import status
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def get_image_url(request, image_id):
+    """
+    API endpoint to fetch the URL of an image based on its ID.
+    """
+    try:
+        image = Image.objects.get(id=image_id)
+        return Response({'url': image.file.url}, status=status.HTTP_200_OK)
+    except Image.DoesNotExist:
+        return Response({'error': 'Image not found'}, status=status.HTTP_404_NOT_FOUND)
 
 
 # Connect to Redis
@@ -48,6 +65,8 @@ def get_top_most_read(request, content_type):
             'slug': content.slug,
             'read_count': content.read_count,
             'active_users': active_users_count,
+            'content_type': content_type,  # Add content_type to the response
+
         })
 
     # Seřadit obsah podle počtu aktivních uživatelů v sestupném pořadí
@@ -57,6 +76,7 @@ def get_top_most_read(request, content_type):
     top_three_content = content_data_sorted[:3]
 
     return JsonResponse(top_three_content, safe=False)
+
 
 def get_active_users(request, content_type, content_id):
     key = f"active_users:{content_type}:{content_id}"
@@ -164,8 +184,13 @@ class ContactMessageView(APIView):
 
 
 class BlogPostViewSet(viewsets.ModelViewSet):
-    queryset = BlogPost.objects.filter(live=True)
+    queryset = BlogPost.objects.all()
     serializer_class = BlogPostSerializer
+
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context['request'] = self.request
+        return context
 
 class ReviewViewSet(viewsets.ModelViewSet):
     queryset = Review.objects.prefetch_related('attributes').all()
@@ -299,6 +324,9 @@ def dislike_game(request, pk):
         return Response({'status': 'success', 'dislike_count': game.dislike_count}, status=status.HTTP_200_OK)
     except Game.DoesNotExist:
         return Response({'status': 'not_found'}, status=status.HTTP_404_NOT_FOUND)
+    
 
 def home_redirect(request):
     return redirect('/cms')
+
+

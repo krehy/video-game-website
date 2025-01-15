@@ -1,49 +1,38 @@
 import { useEffect, useState } from 'react';
 import SEOHead from '../components/IndexPage/SEOHead';
 import AktualityMarquee from '../components/IndexPage/AktualityMarquee';
-import ArticleCard from '../components/BlogPage/ArticleCard';
-import ReviewCard from '../components/ReviewsPage/ReviewCard';
-import GameCard from '../components/GameDPage/GameCard';
+import ArticleHorizontalCard from '../components/BlogPage/ArticleHorizontalCard';
+import SmallReviewCard from '../components/ReviewsPage/SmallReviewCard';
+import SmallArticleCard from '../components/BlogPage/SmallArticleCard';
 import {
   fetchHomePageSEO,
   fetchAktuality,
   fetchArticles,
   fetchReviews,
   fetchGames,
-  fetchTopMostRead,
-  fetchMostSearchedGame,
 } from '../services/api';
-import dayjs from 'dayjs';
-import InstagramPhotos from '../components/InstagramPhotos';
-import Slider from 'react-slick';
-import 'slick-carousel/slick/slick.css';
-import 'slick-carousel/slick/slick-theme.css';
-import { motion } from 'framer-motion';
+import { Article, Review } from '../types';
+import InstagramPhotos from '@/components/InstagramPhotos';
+import TwitchStream from '@/components/TwitchStream';
 import Link from 'next/link';
-import { Article, Review, Game } from '../types';
+import Image from 'next/image';
+import gamingFacts from '../constants/gamingFacts';
+import { motion } from 'framer-motion';
 
 const HomePage = () => {
   const [seoData, setSeoData] = useState<any>({});
   const [aktuality, setAktuality] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-
-  const [newestArticle, setNewestArticle] = useState<Article | null>(null);
-  const [newestReview, setNewestReview] = useState<Review | null>(null);
-  const [mostReadArticle, setMostReadArticle] = useState<Article | null>(null);
-  const [mostReadReview, setMostReadReview] = useState<Review | null>(null);
-  const [mostLikedArticle, setMostLikedArticle] = useState<Article | null>(null);
-  const [mostLikedReview, setMostLikedReview] = useState<Review | null>(null);
-
-  const [upcomingGames, setUpcomingGames] = useState<Game[]>([]);
-  const [todayGames, setTodayGames] = useState<Game[]>([]);
-  const [mostSearchedGame, setMostSearchedGame] = useState<Game | null>(null);
-  const [topMostReadContent, setTopMostReadContent] = useState<any[]>([]);
+  const [articles, setArticles] = useState<Article[]>([]);
+  const [reviews, setReviews] = useState<Review[]>([]);
+  const [upcomingGames, setUpcomingGames] = useState<any[]>([]);
+  const [randomFact, setRandomFact] = useState<string | null>(null);
 
   useEffect(() => {
     const getSeoData = async () => {
       try {
         const seo = await fetchHomePageSEO();
-        setSeoData(seo[0]); // Assumes the first object in the array is the SEO data for the homepage
+        setSeoData(seo[0]);
       } catch (error) {
         console.error('Error fetching SEO data:', error);
       }
@@ -61,111 +50,59 @@ const HomePage = () => {
       }
     };
 
-    const getArticlesAndReviews = async () => {
+    const getArticles = async () => {
       try {
-        const articles = (await fetchArticles()).map(article => ({
-          ...article,
-          like_count: article.like_count ?? 0,  // Ensure like_count is a number
-        }));
-        const reviews: Review[] = await fetchReviews();
-
-        if (articles.length > 0) {
-          const sortedArticles = articles.sort(
-            (a, b) =>
-              new Date(b.first_published_at || b.last_published_at).getTime() -
-              new Date(a.first_published_at || a.last_published_at).getTime()
-          );
-          setNewestArticle(sortedArticles[0]);
-          setMostReadArticle(
-            sortedArticles.reduce(
-              (max, article) => (article.read_count > max.read_count ? article : max),
-              sortedArticles[0]
-            )
-          );
-          setMostLikedArticle(
-            sortedArticles.reduce(
-              (max, article) => (article.like_count > max.like_count ? article : max),
-              sortedArticles[0]
-            )
-          );
-        }
-
-        if (reviews.length > 0) {
-          const sortedReviews = reviews.sort(
-            (a, b) =>
-              new Date(b.first_published_at || b.last_published_at).getTime() -
-              new Date(a.first_published_at || a.last_published_at).getTime()
-          );
-          setNewestReview(sortedReviews[0]);
-          setMostReadReview(
-            sortedReviews.reduce(
-              (max, review) => (review.read_count > max.read_count ? review : max),
-              sortedReviews[0]
-            )
-          );
-          setMostLikedReview(
-            sortedReviews.reduce(
-              (max, review) => (review.like_count > max.like_count ? review : max),
-              sortedReviews[0]
-            )
-          );
-        }
+        const articlesData = await fetchArticles();
+        const sortedArticles = articlesData.sort(
+          (a, b) =>
+            new Date(b.first_published_at || b.last_published_at).getTime() -
+            new Date(a.first_published_at || a.last_published_at).getTime()
+        );
+        setArticles(sortedArticles);
       } catch (error) {
-        console.error('Error fetching articles and reviews:', error);
+        console.error('Error fetching articles:', error);
+      }
+    };
+
+    const getReviews = async () => {
+      try {
+        const reviewsData = await fetchReviews();
+        setReviews(reviewsData);
+      } catch (error) {
+        console.error('Error fetching reviews:', error);
       }
     };
 
     const getUpcomingGames = async () => {
       try {
-        const games: Game[] = await fetchGames();
-        const today = dayjs().format('YYYY-MM-DD');
-        const currentMonth = dayjs().month();
+        const games = await fetchGames();
+        const now = new Date();
+        const oneMonthLater = new Date();
+        oneMonthLater.setMonth(now.getMonth() + 1);
 
-        const gamesReleasedToday = games.filter(
-          (game) => dayjs(game.release_date).format('YYYY-MM-DD') === today
-        );
-        setTodayGames(gamesReleasedToday);
+        const upcoming = games.filter((game: any) => {
+          const releaseDate = new Date(game.release_date);
+          return releaseDate >= now && releaseDate <= oneMonthLater;
+        });
 
-        const filteredGames = games.filter(
-          (game) => dayjs(game.release_date).month() === currentMonth
-        );
-        setUpcomingGames(filteredGames.slice(0, 4));
+        setUpcomingGames(upcoming.slice(0, 3)); // Only keep the first 3 games
       } catch (error) {
-        console.error('Error fetching games:', error);
+        console.error('Error fetching upcoming games:', error);
       }
     };
 
-    const getMostSearchedGame = async () => {
-      try {
-        const game = await fetchMostSearchedGame();
-        setMostSearchedGame(game);
-      } catch (error) {
-        console.error('Error fetching most searched game:', error);
-      }
-    };
-
-    const getTopMostReadContent = async () => {
-      try {
-        const articles = await fetchTopMostRead('article');
-        const reviews = await fetchTopMostRead('review');
-
-        const combinedContent = [...articles, ...reviews]
-          .filter((content) => content.active_users > 0)
-          .sort((a, b) => b.active_users - a.active_users)
-          .slice(0, 3);
-
-        setTopMostReadContent(combinedContent);
-      } catch (error) {
-        console.error('Error fetching top most-read content:', error);
-      }
-    };
+    // Nastavení náhodného faktu
+    const showRandomFact = Math.random() < 0.1; // 10% pravděpodobnost
+    if (showRandomFact) {
+      const fact = gamingFacts[Math.floor(Math.random() * gamingFacts.length)];
+      setRandomFact(fact);
+    }
 
     getSeoData();
     getAktuality();
-    getArticlesAndReviews();
+    getArticles();
+    getReviews();
     getUpcomingGames();
-    getMostSearchedGame();
-    getTopMostReadContent();
   }, []);
 
   const breadcrumbList = {
@@ -181,19 +118,17 @@ const HomePage = () => {
     ],
   };
 
-  const sliderSettings = {
-    dots: true,
-    infinite: true,
-    speed: 500,
-    slidesToShow: 1,
-    slidesToScroll: 1,
-  };
+  const mostLikedArticle = articles.reduce((prev, current) =>
+    current.like_count > (prev.like_count || 0) ? current : prev
+  , {} as Article);
 
   return (
     <div className="container mx-auto p-4">
       <SEOHead seoData={seoData} breadcrumbList={breadcrumbList} />
 
-      <h1 className="text-3xl font-bold">Hlavní stránka</h1>
+      <h1 className="text-3xl font-bold text-white">
+        {randomFact || "Hlavní stránka"}
+      </h1>
 
       {!isLoading && aktuality.length > 0 ? (
         <AktualityMarquee aktuality={aktuality} />
@@ -201,152 +136,124 @@ const HomePage = () => {
         <p className="text-center text-gray-600 mt-4">Žádné aktuality k zobrazení.</p>
       )}
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {todayGames.length > 0 ? (
-          <div className="md:col-span-2">
-            <div className="flex justify-center">
-              <motion.h2
-                className="text-2xl font-bold text-[#8e67ea] mb-4"
-                animate={{ scale: [1, 1.2, 1] }}
-                transition={{ duration: 1.5, repeat: Infinity, repeatType: 'loop' }}
-                style={{ transformOrigin: 'center' }}
-              >
-                Dnes vychází!
-              </motion.h2>
-            </div>
-
-            {todayGames.length === 1 ? (
-              <GameCard game={todayGames[0]} info={true} />
-            ) : (
-              <Slider {...sliderSettings}>
-                {todayGames.map((game) => (
-                  <div key={game.slug}>
-                    <GameCard game={game} info={true} />
-                  </div>
-                ))}
-              </Slider>
-            )}
-          </div>
-        ) : (
-          <div className="md:col-span-2">
-            <h2 className="text-2xl font-bold text-white mb-4">Nejhledanější hra tento týden</h2>
-            {mostSearchedGame ? (
-              <GameCard game={mostSearchedGame} info={true} />
-            ) : (
-              <p className="text-gray-600">Žádné hry k zobrazení.</p>
-            )}
-          </div>
-        )}
-
-        <div className="md:col-span-1 flex flex-col">
-          <div className="bg-white p-4 h-full rounded-lg shadow-md">
-            <h2 className="text-xl font-semibold mb-4" style={{ color: 'black' }}>
-              Nové hry tento měsíc:
-            </h2>
-            <ul className="space-y-2">
-              {upcomingGames.length > 0 ? (
-                upcomingGames.map((game) => (
-                  <li key={game.id} className="text-gray-800">
-                    <Link href={`/games/${game.slug}`}>
-                      <span className="hover:underline">
-                        {game.title} -{' '}
-                        <span className="text-green-600">
-                          {dayjs(game.release_date).format('DD.MM.YYYY')}
-                        </span>
-                      </span>
-                    </Link>
-                  </li>
-                ))
-              ) : (
-                <li className="text-gray-600">Žádné hry k zobrazení.</li>
-              )}
-            </ul>
-            <div className="mt-4 text-center">
-              <motion.a
-                href="/calendar"
-                className="text-purple-700 font-semibold"
-                style={{ color: '#8e67ea' }}
-                animate={{ rotate: [0, 10, -10, 0] }}
-                transition={{ duration: 0.6, repeat: Infinity, repeatType: 'loop', delay: 2 }}
-              >
-                Kdy vychází ta moje?
-              </motion.a>
-            </div>
-            {todayGames.length > 0 && (
-              <>
-                <h2 className="text-xl font-semibold mt-8" style={{ color: 'black' }}>
-                  Nejhledanější hra tento týden:
-                </h2>
-                {mostSearchedGame ? (
-                  <div className="mt-2 text-gray-800">
-                    <a
-                      style={{ color: '#8e67ea' }}
-                      href={`/games/${mostSearchedGame.slug}`}
-                      className="hover:underline"
-                    >
-                      {mostSearchedGame.title}
-                    </a>
-                  </div>
-                ) : (
-                  <p className="text-gray-600">Žádné hry k zobrazení.</p>
-                )}
-              </>
-            )}
-          </div>
-        </div>
-      </div>
+      {/* Twitch stream pod Aktualitami */}
+      <TwitchStream />
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-8">
-        <div className="md:col-span-2 grid gap-4">
-          <div>
-            <h2 className="text-2xl font-semibold mb-2">Nejnovější</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {newestArticle && <ArticleCard info={true} article={newestArticle} />}
-              {newestReview && <ReviewCard info={true} review={newestReview} />}
+        <div className="md:col-span-2 flex flex-col gap-4">
+          {articles.slice(0, 9).map((article) => (
+            <ArticleHorizontalCard key={article.id} article={article} />
+          ))}
+          {articles.length > 8 && (
+            <div className="text-center mt-4">
+              <Link href="/blog">
+                Zobrazit více
+              </Link>
             </div>
-          </div>
-          <div>
-            <h2 className="text-2xl font-semibold mb-2">Nejčtenější</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {mostReadArticle && <ArticleCard info={true} article={mostReadArticle} />}
-              {mostReadReview && <ReviewCard info={true} review={mostReadReview} />}
-            </div>
-          </div>
-          <div>
-            <h2 className="text-2xl font-semibold mb-2">Nejoblíbenější</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {mostLikedArticle && <ArticleCard info={true} article={mostLikedArticle} />}
-              {mostLikedReview && <ReviewCard info={true} review={mostLikedReview} />}
-            </div>
-          </div>
+          )}
         </div>
 
         <div className="md:col-span-1 flex flex-col">
           <div className="bg-white p-4 h-full rounded-lg shadow-md">
-            <h2 className="text-xl font-semibold mb-4" style={{ color: 'black' }}>
-              Aktuálně nejvíc čtěné:
-            </h2>
-            <ul className="space-y-2">
-              {topMostReadContent.length > 0 ? (
-                topMostReadContent.map((content) => (
-                  <li key={content.id} className="text-gray-800">
-                    <a
-                      style={{ color: '#8e67ea' }}
-                      href={`/${
-                        content.content_type === 'article' ? 'blog' : 'reviews'
-                      }/${content.slug}`}
-                      className="text-blue-600 hover:underline"
-                    >
-                      {content.title}
-                    </a>
-                    <span className="text-sm text-gray-600"> ({content.active_users} čtenářů)</span>
-                  </li>
-                ))
-              ) : (
-                <li className="text-gray-600">Je tu ticho 😢</li>
-              )}
-            </ul>
 
+
+            <h2 className="text-xl font-semibold mb-4 text-black">
+              Nejnovější Recenze:
+            </h2>
+            <div className="space-y-4">
+              {reviews.slice(0, 3).map((review) => (
+                <SmallReviewCard key={review.id} review={review} />
+              ))}
+            </div>
+            {mostLikedArticle && (
+              <div className="mt-8">
+                <h2 className="text-xl font-semibold mb-4 text-black">Nejoblíbenější článek:</h2>
+                <SmallArticleCard article={mostLikedArticle} />
+              </div>
+            )}
+                        {upcomingGames.length > 0 && (
+              <div className="mb-8">
+                <h2 className="text-xl font-semibold mb-4 text-black">Brzy vyjde:</h2>
+                <ul className="space-y-4">
+  {upcomingGames.map((game, index) => {
+    const imageUrl = game.main_image
+      ? `${process.env.NEXT_PUBLIC_INDEX_URL}${game.main_image.url}`
+      : '/default-game-image.jpg';
+
+    const isLeft = index % 2 === 0; // Alternating left/right positions
+
+    return (
+      <li
+        key={game.id}
+        className={`flex items-center ${
+          index === 1 ? 'justify-end' : 'space-x-4'
+        }`}
+      >
+        {isLeft && (
+          <motion.div
+            className="relative w-16 h-24 flex-shrink-0 overflow-hidden rounded-lg bg-gray-200 mr-4"
+            whileHover={{ scale: 1.05 }} // Add hover zoom effect
+            transition={{ duration: 0.3 }}
+          >
+            <Link href={`/games/${game.slug}`} legacyBehavior>
+              <a>
+                <Image
+                  src={imageUrl}
+                  alt={game.title}
+                  layout="fill"
+                  objectFit="cover"
+                  className="rounded-lg"
+                />
+              </a>
+            </Link>
+          </motion.div>
+        )}
+        <Link href={`/games/${game.slug}`} legacyBehavior>
+          <a
+            className={`text-[#8e67ea] text-sm font-semibold hover:underline ${
+              index === 1 ? 'ml-auto mr-4' : ''
+            }`}
+          >
+            {game.title}
+          </a>
+        </Link>
+        {!isLeft && (
+          <motion.div
+            className="relative w-16 h-24 flex-shrink-0 overflow-hidden rounded-lg bg-gray-200 ml-4"
+            whileHover={{ scale: 1.05 }} // Add hover zoom effect
+            transition={{ duration: 0.3 }}
+          >
+            <Link href={`/games/${game.slug}`} legacyBehavior>
+              <a>
+                <Image
+                  src={imageUrl}
+                  alt={game.title}
+                  layout="fill"
+                  objectFit="cover"
+                  className="rounded-lg"
+                />
+              </a>
+            </Link>
+          </motion.div>
+        )}
+      </li>
+    );
+  })}
+</ul>
+                <div className="mt-4 text-center">
+                <div className="mt-4 text-center">
+        <a
+          href="/calendar"
+          rel="noopener noreferrer"
+          className="inline-block bg-[#8e67ea] text-white px-4 py-2 rounded-lg shadow-md hover:bg-[#764bb5] transition"
+        >
+          Více nadcházejících her
+        </a>
+      </div>
+
+                </div>
+              </div>
+            )}
             <div className="mt-8">
               <InstagramPhotos />
             </div>

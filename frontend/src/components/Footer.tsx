@@ -1,12 +1,18 @@
 import React, { useEffect, useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faFacebook, faInstagram, faTiktok, faDiscord } from '@fortawesome/free-brands-svg-icons';
+import { faFacebook, faInstagram, faTiktok, faDiscord, faTwitch } from '@fortawesome/free-brands-svg-icons';
 import { faHandshake, faWrench, faQuestionCircle, faLock } from '@fortawesome/free-solid-svg-icons';
 import CooperationModal from './Footer/CooperationModal';
 import ReportProblemModal from './Footer/ReportProblemModal';
 import OtherInquiryModal from './Footer/OtherInquiryModal';
 import PrivacyPolicyModal from './Footer/PrivacyPolicyModal';
 import { fetchHomePageContent } from '../services/api';
+
+interface Partner {
+  name: string;
+  logo: string;
+  url: string;
+}
 
 interface Settings {
   secondaryColor?: string;
@@ -17,6 +23,7 @@ interface Settings {
   discordInvite?: string;
   footer_text?: string;
   privacy_policy?: string;
+  partners?: Partner[];
 }
 
 const Footer = () => {
@@ -43,6 +50,7 @@ const Footer = () => {
 
   return (
     <div>
+
       <div className="bg-gradient-to-t from-black to-gray-800 h-20" style={{ background: 'linear-gradient(to top, black, #251f68)', height: '100px' }}></div>
       <footer className="bg-black text-white py-10">
         <div className="container mx-auto flex flex-col md:flex-row justify-center space-y-8 md:space-y-0 md:space-x-16 text-center md:text-left">
@@ -76,16 +84,19 @@ const Footer = () => {
           <div className="w-full md:w-1/3">
             <h2 className="text-xl font-bold mb-4" style={{ color: highlightColor }}>Sleduj nás</h2>
             <div className="flex justify-center md:justify-start space-x-4">
-              <a title='Instagram' href={settings.instagramUrl || "https://instagram.com/superparmeni"} className="text-white hover:text-highlight transition duration-300">
+              <a target='__blank' title='Instagram' href={settings.instagramUrl || "https://instagram.com/superparmeni"} className="text-white hover:text-highlight transition duration-300">
                 <FontAwesomeIcon icon={faInstagram} size="2x" style={{ color: 'white' }} />
               </a>
-              <a title='Facebook' href={settings.facebookUrl || "https://facebook.com/superparmeni"} className="text-white hover:text-highlight transition duration-300">
+              <a target='__blank' title='Facebook' href={settings.facebookUrl || "https://facebook.com/superparmeni"} className="text-white hover:text-highlight transition duration-300">
                 <FontAwesomeIcon icon={faFacebook} size="2x" style={{ color: 'white' }} />
               </a>
-              <a title='TikTok' href={settings.tiktokUrl || "https://tiktok.com/superparmeni"} className="text-white hover:text-highlight transition duration-300">
+              <a target='__blank' title='TikTok' href={settings.tiktokUrl || "https://tiktok.com/@superparmeni"} className="text-white hover:text-highlight transition duration-300">
                 <FontAwesomeIcon icon={faTiktok} size="2x" style={{ color: 'white' }} />
               </a>
-              <a title='Discord' href={settings.discordInvite || "https://discord.com"} className="text-white hover:text-highlight transition duration-300">
+              <a target='__blank' title='Twitch' href={"https://www.twitch.tv/superparmeni"} className="text-white hover:text-highlight transition duration-300">
+                <FontAwesomeIcon icon={faTwitch} size="2x" style={{ color: 'white' }} />
+              </a>
+              <a target='__blank' title='Discord' href={settings.discordInvite || "https://discord.com/invite/jDEVpHR9Wq"} className="text-white hover:text-highlight transition duration-300">
                 <FontAwesomeIcon icon={faDiscord} size="2x" style={{ color: 'white' }} />
               </a>
             </div>

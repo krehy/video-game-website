@@ -210,7 +210,7 @@ const CommentShareLike: React.FC<CommentShareLikeProps> = ({ pageId, shareUrl, t
         </form>
       )}
       <div className="mt-6 text-center">
-        <p className="text-xl font-bold">Hej hráči! Jak se ti to líbilo? Ohodnoť to!</p>
+        <p className="text-xl font-bold">Tak co? Jak se ti líbil příspěvek? Zanech nám tvou reakci!</p>
         <div className="flex justify-center space-x-4 mt-2">
           <button
             onClick={() => handleRating('like')}

@@ -1,20 +1,93 @@
 from wagtail.models import Page
 from wagtail.admin.panels import FieldPanel, InlinePanel
 from wagtail.snippets.models import register_snippet
-from wagtail.fields import RichTextField
+from wagtail.fields import RichTextField, StreamField
 from wagtail.search import index
 from modelcluster.fields import ParentalKey, ParentalManyToManyField
+from wagtail.embeds.blocks import EmbedBlock
+from wagtail.blocks import StructBlock, URLBlock
 from django import forms
 from django.db import models
 from slugify import slugify
 from django.core.files.storage import FileSystemStorage
+from wagtail import blocks
 from PIL import Image
 from io import BytesIO
 import os
 
-# Utility function to generate slugs
+@register_snippet
+class Partner(models.Model):
+    name = models.CharField(max_length=255, help_text="Název partnera")
+    logo = models.ImageField(upload_to='partners/logos', help_text="Logo partnera")
+    url = models.URLField(help_text="URL partnera")
+
+    panels = [
+        FieldPanel('name'),
+        FieldPanel('logo'),
+        FieldPanel('url'),
+    ]
+
+    def __str__(self):
+        return self.name
+
+
+class TwitterEmbedBlock(StructBlock):
+    url = URLBlock(
+        required=True,
+        help_text="Vlož URL příspěvku z Twitteru/X (např. https://x.com/...)."
+    )
+
+    def get_tweet_id(self, url):
+        # Extrahujeme tweet ID z URL
+        if "twitter.com" in url or "x.com" in url:
+            return url.split("/")[-1].split("?")[0]
+        return None
+
+    def get_api_representation(self, value, context=None):
+        # Při exportu do JSON extrahujeme pouze tweet ID
+        return {"tweet_id": self.get_tweet_id(value["url"])}
+
+    class Meta:
+        icon = "link"
+        label = "Twitter Embed"
+
+
+class AdBlock(blocks.StructBlock):
+    zone_id = blocks.CharBlock(required=True, help_text="ID zóny pro reklamu")
+    ad_width = blocks.IntegerBlock(required=True, help_text="Maximální šířka reklamy")
+    ad_height = blocks.IntegerBlock(required=True, help_text="Maximální výška reklamy")
+
+    def render(self, value, context=None):
+        ad_html = f"""
+        <div id="ssp-zone-{value['zone_id']}"></div>
+        <script>
+        sssp.getAds([
+        {{
+            "zoneId": {value['zone_id']},
+            "id": "ssp-zone-{value['zone_id']}",
+            "width": {value['ad_width']},
+            "height": {value['ad_height']}
+        }}
+        ]);
+        </script>
+        """
+        return ad_html
+
+    class Meta:
+        template = "blocks/ad_block.html"
+        icon = "placeholder"
+        label = "Ad Block"
+
+
 def generate_slug(title):
-    return slugify(title)
+    # Překlad českých klíčových slov do angličtiny
+    translations = {
+        "recenze": "reviews",
+        "databaze-her": "games",
+        # Přidejte další překlady podle potřeby
+    }
+    slug = slugify(title)
+    return translations.get(slug, slug)
 
 # Custom storage to handle WebP conversion
 class WebPStorage(FileSystemStorage):
@@ -49,6 +122,7 @@ class HomePage(Page):
     terms_conditions = RichTextField(blank=True, help_text="Obchodní podmínky")
     about_us = RichTextField(blank=True, help_text="O nás")
     footer_text = RichTextField(blank=True, help_text="Text ve footeru")
+    partners = ParentalManyToManyField('Partner', blank=True, related_name='homepages')
 
     content_panels = Page.content_panels + [
         FieldPanel('intro'),
@@ -57,6 +131,8 @@ class HomePage(Page):
         FieldPanel('terms_conditions'),
         FieldPanel('about_us'),
         FieldPanel('footer_text'),
+        FieldPanel('partners', widget=forms.CheckboxSelectMultiple),
+
     ]
 
     promote_panels = [
@@ -197,10 +273,30 @@ class GameIndexPage(Page, SEOFields, index.Indexed):
         self.slug = generate_slug(self.slug)
         super().save(*args, **kwargs)
 
-# Blog Post model
+class SimpleAdvertisementBlock(blocks.StructBlock):
+    class Meta:
+        icon = "placeholder"
+        label = "Advertisement"
+
+    def get_context(self, value, parent_context=None):
+        context = super().get_context(value, parent_context)
+        # Přednastavené hodnoty
+        context.update({
+            'zone_id': 347254,
+            'element_id': 'ssp-zone-347254',
+            'width': 160,
+            'height': 600,
+        })
+        return context
+
+
 class BlogPost(Page, SEOFields, index.Indexed):
     intro = models.CharField(max_length=250, default='')
-    body = RichTextField(default='')
+    body = StreamField([
+        ('paragraph', blocks.RichTextBlock(required=True)),
+        ('advertisement', SimpleAdvertisementBlock()),
+
+    ], use_json_field=True, default='')
     active_users_count = models.IntegerField(default=0)
     read_count = models.IntegerField(default=0)
     like_count = models.IntegerField(default=0)
@@ -236,9 +332,8 @@ class BlogPost(Page, SEOFields, index.Indexed):
 
     parent_page_types = ['BlogIndexPage']
 
-    def save(self, *args, **kwargs):
-        self.slug = generate_slug(self.slug)
-        super().save(*args, **kwargs)
+    class Meta:
+        ordering = ['-first_published_at']
 
 class Game(Page, SEOFields, index.Indexed):
     description = RichTextField(default='')
@@ -293,7 +388,12 @@ class Game(Page, SEOFields, index.Indexed):
 class ReviewAttribute(models.Model):
     name = models.CharField(max_length=50)
     score = models.IntegerField(default=0)
-    text = models.TextField(blank=True, null=True)
+    text = RichTextField(
+        blank=True,
+        null=True,
+        features=['bold', 'italic', 'link', 'image', 'embed'],  # Povolené funkce, včetně obrázků
+        help_text="Popis atributu s možností formátování a přidání obrázků"
+    )
     review = ParentalKey('Review', on_delete=models.CASCADE, related_name='attributes')
 
     panels = [

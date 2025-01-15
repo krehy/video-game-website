@@ -3,11 +3,17 @@ module.exports = {
     return [
       {
         source: '/api/:path*',
-        destination: 'http://10.0.0.193:8000/api/:path*' // Redirects API requests to your backend
-      }
-    ]
+        destination: `${process.env.NEXT_PUBLIC_API_URL}/:path*`, // Dynamické nastavení API URL
+      },
+    ];
   },
   images: {
-    domains: ['10.0.0.193'],  // Add the IP address or domain serving the images
+    domains: ['127.0.0.1', 'scontent.cdninstagram.com', 'instagram.fprg1-1.fna.fbcdn.net'], // Přidání domén do povolených
   },
-}
+  env: {
+    // Přidání dalších proměnných prostředí, pokud je potřeba
+    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000',
+  },
+  reactStrictMode: true, // Povolení přísného režimu Reactu
+  trailingSlash: true,
+};

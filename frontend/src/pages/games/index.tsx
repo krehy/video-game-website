@@ -158,7 +158,7 @@ const GameIndex = () => {
       <SEO seoData={seoData} breadcrumbList={breadcrumbList} />
       <Breadcrumbs />
       <div className="flex justify-between items-center mb-4">
-        <h1 className="text-3xl font-bold">Databáze Her</h1>
+        <h1 style={{color:'white'}} className="text-3xl font-bold">Databáze Her</h1>
         <button
           onClick={toggleFilter}
           className="relative flex items-center text-[#8e67ea] focus:outline-none group"

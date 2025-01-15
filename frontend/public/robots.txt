@@ -1,0 +1,6 @@
+User-agent: *
+Disallow: /private/
+Allow: /
+
+Sitemap: https://superparmeni.eu/sitemap.xml
+

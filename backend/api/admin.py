@@ -1,5 +1,7 @@
 from wagtail_modeladmin.options import ModelAdmin, ModelAdminGroup, modeladmin_register
-from .models import Aktualita, ContactMessage, Developer, Publisher, Genre, Platform, BlogPost, Game, Review, ArticleCategory, Comment
+from wagtail.snippets.views.snippets import SnippetViewSet
+
+from .models import Partner, Aktualita, ContactMessage, Developer, Publisher, Genre, Platform, BlogPost, Game, Review, ArticleCategory, Comment
 
 class AktualitaAdmin(ModelAdmin):
     model = Aktualita
@@ -66,11 +68,18 @@ class CommentAdmin(ModelAdmin):
     list_display = ('author', 'text', 'page', 'created_at', 'is_approved')
     search_fields = ('author', 'text')
     list_filter = ('is_approved',)
+    
+class PartnerAdmin(ModelAdmin):
+    model = Partner
+    menu_label = "Partneři"
+    menu_icon = "group"  # Ikona pro partnery
+    list_display = ("name", "url")  # Zobrazí se sloupce jméno a URL
+    search_fields = ("name",)
 
 class ContentAdminGroup(ModelAdminGroup):
-    menu_label = 'Obsah webu'
-    menu_icon = 'folder-open-inverse'
-    items = (AktualitaAdmin, BlogPostAdmin, GameAdmin, ReviewAdmin, CommentAdmin)
+    menu_label = "Obsah webu"
+    menu_icon = "folder-open-inverse"
+    items = (AktualitaAdmin, BlogPostAdmin, GameAdmin, ReviewAdmin, CommentAdmin, PartnerAdmin)
 
 modeladmin_register(ContentAdminGroup)
 
@@ -83,6 +92,14 @@ class ContactMessageAdmin(ModelAdmin):
     exclude_from_explorer = False
     list_display = ("message_type", "name", "email", "created_at")
     search_fields = ("name", "email", "message")
+
+class PartnerViewSet(SnippetViewSet):
+    model = Partner
+    menu_label = "Partneři"
+    icon = "group"  # Ikona pro partnery
+    add_to_admin_menu = True  # Zobrazit v menu adminu
+    menu_order = 200  # Pořadí v menu
+
 
 modeladmin_register(ContactMessageAdmin)
 

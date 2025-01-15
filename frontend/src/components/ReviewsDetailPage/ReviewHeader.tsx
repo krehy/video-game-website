@@ -28,7 +28,7 @@ const ReviewHeader: React.FC<ReviewHeaderProps> = ({ review, readCount }) => {
 
   return (
     <>
-      <h1 className="text-3xl font-bold mb-4 break-words">{review.title}</h1>
+      <h1 style={{color:'white'}} className="text-3xl font-bold mb-4 break-words">{review.title}</h1>
       {review.main_image && (
         <div className="relative mb-4">
           <Image

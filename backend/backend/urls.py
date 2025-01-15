@@ -7,8 +7,9 @@ from api.views import ( get_top_most_read, increment_search_week, most_searched_
     BlogPostViewSet, ReviewViewSet, GameViewSet,
     BlogIndexPageViewSet, ReviewIndexPageViewSet, GameIndexPageViewSet, CommentViewSet,
     ProductIndexPageViewSet, HomePageViewSet, ArticleCategoryViewSet, AktualitaViewSet,
-    like_article, dislike_article, like_review, dislike_review, like_game, dislike_game
+    like_article, dislike_article, like_review, dislike_review, like_game, dislike_game, get_image_url
 )
+
 from wagtail.contrib.sitemaps.views import sitemap
 from django.shortcuts import redirect
 from api.feeds import BlogPostFeed, ReviewFeed
@@ -57,6 +58,7 @@ urlpatterns = [
     path('api/decrement-active-users/<str:content_type>/<int:content_id>/', decrement_active_users, name='decrement_active_users'),
     path('api/top-most-read/<str:content_type>/', get_top_most_read, name='top_most_read'),
     path('api/increment-search-week/<int:game_id>/', increment_search_week, name='increment_search_week'),
+    path('api/get-image-url/<int:image_id>/', get_image_url, name='get_image_url'),
 
     path('', include('wagtail.urls')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

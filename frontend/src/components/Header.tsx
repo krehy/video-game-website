@@ -83,9 +83,12 @@ const Header = () => {
             <Link href="/games" passHref legacyBehavior>
               <a className={`block py-2 ${isActive('/games') ? 'active' : ''}`}>Databáze her</a>
             </Link>
-            <Link href="/eshop" passHref legacyBehavior>
-              <a className={`block py-2 ${isActive('/eshop') ? 'active' : ''}`}>Eshop</a>
+            <Link href="/calendar" passHref legacyBehavior>
+              <a className={`nav-link ${isActive('/calendar') ? 'active' : ''}`}>Herní kalendář</a>
             </Link>
+            {/* <Link href="/eshop" passHref legacyBehavior>
+              <a className={`block py-2 ${isActive('/eshop') ? 'active' : ''}`}>Eshop</a>
+            </Link> */}
           </nav>
         )}
       </header>

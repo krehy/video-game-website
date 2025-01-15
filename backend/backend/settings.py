@@ -7,6 +7,10 @@ SECRET_KEY = 'django-insecure-kgyyh_=4=@fehjvz0vpgk2_#^z^lm66vj)ydmso_b-f-&ykvip
 
 DEBUG = True
 
+
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+STATIC_URL = '/static/'
+
 INSTALLED_APPS = [
     'corsheaders',
     'django.contrib.admin',
@@ -34,8 +38,8 @@ INSTALLED_APPS = [
     'allauth.socialaccount',
     'allauth.socialaccount.providers.google',
     'wagtail.contrib.settings',
-    'api',
     'wagtail_modeladmin',
+    'api',
     'wagtail.contrib.sitemaps',
 
 ]
@@ -70,32 +74,34 @@ AUTHENTICATION_BACKENDS = (
 )
 
 ALLOWED_HOSTS = [
-    'localhost',
+    'admin.superparmeni.eu',
+    'www.superparmeni.eu',
+    'superparmeni.eu',
     '127.0.0.1',
-    '10.0.0.182',
-    '192.168.0.129',
-    '10.0.0.193',
-    
+    'localhost',
+    'localhost:8000',  # Přidáno pro ladění
 ]
 
 CSRF_TRUSTED_ORIGINS = [
-    "http://localhost:3000",
+    "https://www.superparmeni.eu",
+    "https://superparmeni.eu",
+    "http://127.0.0.1:8000",
     "http://127.0.0.1:3000",
-    "http://10.0.0.176:3000",
-    "http://10.0.0.193:3000",
 ]
 
 CORS_ALLOWED_ORIGINS = [
+    "https://superparmeni.eu",
+    "https://www.superparmeni.eu",
+    "http://127.0.0.1:3000",
     "http://localhost:3000",
-    "http://10.0.0.176:3000",
-    "http://10.0.0.193:3000",
+    "http://127.0.0.1:8000",
 ]
 
 CSRF_COOKIE_HTTPONLY = False
 CSRF_COOKIE_SAMESITE = None
-CSRF_COOKIE_SECURE = False  # True v produkci
+CSRF_COOKIE_SECURE = True  # True v produkci
 
-CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOW_CREDENTIALS = False
 
 APPEND_SLASH = False
 
@@ -125,13 +131,33 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'video_game_website',
-        'USER': 'new_admin',
-        'PASSWORD': 'Hostinger123;',
-        'HOST': 'localhost',
+        'NAME': 'development_db',
+        'USER': 'admin',
+        'PASSWORD': 'Hostinger123:',
+        'HOST': '185.170.196.118',
         'PORT': '5432',
     }
 }
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'file': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': os.path.join(BASE_DIR, 'django_debug.log'),
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['file'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+    },
+}
+
 
 CACHES = {
     'default': {

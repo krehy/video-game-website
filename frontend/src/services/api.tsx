@@ -5,19 +5,19 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
 const axiosInstance = axios.create({
   baseURL: API_URL,
-  withCredentials: true, // Ensure credentials are sent with requests
+  withCredentials: false, // Ensure credentials are sent with requests
 });
 
 export const fetchAktuality = async () => {
   try {
-    const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/aktuality/`);
+    const response = await axiosInstance.get('/aktuality/');
     return response.data;
   } catch (error) {
     console.error('Error fetching aktuality:', error);
-    console.log(`API: ${process.env.NEXT_PUBLIC_API_URL}`)
     return [];
   }
 };
+
 
 export const fetchArticles = async (): Promise<Article[]> => {
   try {
@@ -63,7 +63,6 @@ export const fetchCategories = async () => {
 export const fetchGameById = async (id: number): Promise<GameLinkedItem> => {
   try {
     const response = await axiosInstance.get(`/games/${id}/`);
-    console.log('Fetched game data:', response.data);  // Přidáno logování
     return response.data as GameLinkedItem;
   } catch (error) {
     console.error(`Error fetching game by ID ${id}:`, error);
@@ -117,12 +116,11 @@ export const fetchBlogIndexSEO = async () => {
 
 export const fetchReviewIndexSEO = async () => {
   try {
-    const response = await axiosInstance.get('/reviewindex/');
-    return response.data[0];  // Assuming there's only one ReviewIndexPage
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/reviewindex/`);
+      return response.data[0];
   } catch (error) {
-    const axiosError = error as AxiosError;
-    console.error('Error fetching review index SEO:', axiosError.response?.data || axiosError.message);
-    throw error;
+      console.error('Error fetching review index SEO:', error);
+      throw error;
   }
 };
 
@@ -183,7 +181,7 @@ export const submitComment = async (comment: any) => {
 export const likeArticle = async (articleId: number) => {
   try {
     const response = await axios.post(`${API_URL}/posts/${articleId}/like/`, null, {
-      withCredentials: true,  // Ensure credentials are sent with requests
+      withCredentials: false,  // Ensure credentials are sent with requests
     });
     return response.data;
   } catch (error) {
@@ -195,7 +193,7 @@ export const likeArticle = async (articleId: number) => {
 export const dislikeArticle = async (articleId: number) => {
   try {
     const response = await axios.post(`${API_URL}/posts/${articleId}/dislike/`, null, {
-      withCredentials: true,  // Ensure credentials are sent with requests
+      withCredentials: false,  // Ensure credentials are sent with requests
     });
     return response.data;
   } catch (error) {
@@ -207,7 +205,7 @@ export const dislikeArticle = async (articleId: number) => {
 export const likeReview = async (reviewId: number) => {
   try {
     const response = await axios.post(`${API_URL}/reviews/${reviewId}/like/`, null, {
-      withCredentials: true,  // Ensure credentials are sent with requests
+      withCredentials: false,  // Ensure credentials are sent with requests
     });
     return response.data;
   } catch (error) {
@@ -219,7 +217,7 @@ export const likeReview = async (reviewId: number) => {
 export const dislikeReview = async (reviewId: number) => {
   try {
     const response = await axios.post(`${API_URL}/reviews/${reviewId}/dislike/`, null, {
-      withCredentials: true,  // Ensure credentials are sent with requests
+      withCredentials: false,  // Ensure credentials are sent with requests
     });
     return response.data;
   } catch (error) {
@@ -231,7 +229,7 @@ export const dislikeReview = async (reviewId: number) => {
 export const likeProduct = async (productId: number) => {
   try {
     const response = await axios.post(`${API_URL}/products/${productId}/like/`, null, {
-      withCredentials: true,  // Ensure credentials are sent with requests
+      withCredentials: false,  // Ensure credentials are sent with requests
     });
     return response.data;
   } catch (error) {
@@ -243,7 +241,7 @@ export const likeProduct = async (productId: number) => {
 export const dislikeProduct = async (productId: number) => {
   try {
     const response = await axios.post(`${API_URL}/products/${productId}/dislike/`, null, {
-      withCredentials: true,  // Ensure credentials are sent with requests
+      withCredentials: false,  // Ensure credentials are sent with requests
     });
     return response.data;
   } catch (error) {
@@ -255,7 +253,7 @@ export const dislikeProduct = async (productId: number) => {
 export const likeGame = async (gameId: number) => {
   try {
     const response = await axios.post(`${API_URL}/games/${gameId}/like/`, null, {
-      withCredentials: true,  // Ensure credentials are sent with requests
+      withCredentials: false,  // Ensure credentials are sent with requests
     });
     return response.data;
   } catch (error) {
@@ -267,7 +265,7 @@ export const likeGame = async (gameId: number) => {
 export const dislikeGame = async (gameId: number) => {
   try {
     const response = await axios.post(`${API_URL}/games/${gameId}/dislike/`, null, {
-      withCredentials: true,  // Ensure credentials are sent with requests
+      withCredentials: false,  // Ensure credentials are sent with requests
     });
     return response.data;
   } catch (error) {
@@ -295,7 +293,7 @@ export const incrementReadCount = async (contentType: string, id: number) => {
 export const incrementActiveUsers = async (contentType: string, contentId: number) => {
   try {
     const response = await axios.post(`${API_URL}/increment-active-users/${contentType}/${contentId}/`, null, {
-      withCredentials: true,  // Ensure credentials are sent with requests
+      withCredentials: false,  // Ensure credentials are sent with requests
     });
     return response.data.active_users;
   } catch (error) {
@@ -308,7 +306,7 @@ export const incrementActiveUsers = async (contentType: string, contentId: numbe
 export const decrementActiveUsers = async (contentType: string, contentId: number) => {
   try {
     const response = await axios.post(`${API_URL}/decrement-active-users/${contentType}/${contentId}/`, null, {
-      withCredentials: true,  // Ensure credentials are sent with requests
+      withCredentials: false,  // Ensure credentials are sent with requests
     });
     return response.data.active_users;
   } catch (error) {
@@ -343,7 +341,7 @@ export const incrementSearchWeek = async (gameId: number) => {
       headers: {
         'Content-Type': 'application/json',
       },
-      withCredentials: true,  // Ensure credentials are sent with requests
+      withCredentials: false,  // Ensure credentials are sent with requests
     });
     return response.data;
   } catch (error) {

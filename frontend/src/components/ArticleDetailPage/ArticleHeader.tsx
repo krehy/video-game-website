@@ -6,7 +6,8 @@ import { ArticleHeaderProps } from '../../types';
 
 const ArticleHeader: React.FC<ArticleHeaderProps> = ({ article, readCount, isDarkMode }) => (
   <>
-    <h1 className="text-3xl font-bold mb-4">{article.title}</h1>
+    <h1 style={{color:'white'}} className="text-3xl font-bold mb-4">{article.title}</h1>
+
     {article.main_image && (
       <div className="relative mb-4">
         <Image

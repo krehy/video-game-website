@@ -158,7 +158,7 @@ const ReviewIndex: React.FC = () => {
     <div className="container mx-auto p-4">
       <ReviewSEO seoData={seoData} breadcrumbList={breadcrumbList} />
       <div className="flex justify-between items-center mb-4">
-        <h1 className="text-3xl font-bold">Recenze</h1>
+        <h1 style={{color:'white'}} className="text-3xl font-bold">Recenze</h1>
         <button onClick={toggleFilter} className="relative flex items-center text-[#8e67ea] focus:outline-none group">
           <span className="filter-text text-white transition-transform duration-300 transform translate-x-full opacity-0 group-hover:translate-x-0 group-hover:opacity-100">Filtrovat</span>
           <FontAwesomeIcon icon={faFilter} className="text-2xl ml-2" />

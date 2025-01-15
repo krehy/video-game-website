@@ -11,7 +11,8 @@ import ReviewMetaTags from '../../components/ReviewsDetailPage/ReviewMetaTags';
 import CommentShareLike from '../../components/CommentShareLike';
 import ActiveUsers from '../../components/ActiveUsers'; 
 import DarkModeToggle from '../../components/ArticleDetailPage/DarkModeToggle';
-import { Review, GameLinkedItem, ProCon } from '../../types'; // Adjust import paths if needed
+import { Review, GameLinkedItem } from '../../types';
+import TwitchStream from '@/components/TwitchStream';
 
 interface ReviewDetailProps {
   review: Review;
@@ -46,10 +47,9 @@ const ReviewDetail: React.FC<ReviewDetailProps> = ({ review, linkedGame }) => {
     return <div>Recenze nenalezena</div>;
   }
 
-  const cleanedUrlPath = review.url_path ? review.url_path.replace('/placeholder', '') : '';
+  const cleanedUrlPath = review.url_path ? review.url_path.replace('/superparmeni', '') : '';
   const averageScore = (review.attributes ?? []).reduce((acc, attribute) => acc + attribute.score, 0) / (review.attributes?.length || 1);
 
-  // Use review.pros and review.cons directly
   const reviewPros = review.pros ?? [];
   const reviewCons = review.cons ?? [];
 
@@ -57,7 +57,8 @@ const ReviewDetail: React.FC<ReviewDetailProps> = ({ review, linkedGame }) => {
     <div className="container mx-auto p-4">
       <ReviewMetaTags review={review} cleanedUrlPath={cleanedUrlPath} />
       <ReviewHeader review={review} readCount={readCount} />
-
+      <TwitchStream></TwitchStream>
+      <br></br>
       <div className={`p-4 rounded relative ${isDarkMode ? 'bg-transparent text-white' : 'bg-white text-black'}`}>
         <DarkModeToggle isDarkMode={isDarkMode} toggleDarkMode={toggleDarkMode} />
         
@@ -67,7 +68,7 @@ const ReviewDetail: React.FC<ReviewDetailProps> = ({ review, linkedGame }) => {
         <ReviewConclusion review={review} averageScore={averageScore} isDarkMode={isDarkMode} />
         <ReviewProsCons pros={reviewPros} cons={reviewCons} />
         <ReviewPinnedContent linkedGame={linkedGame ?? undefined} />
-        <ReviewSchema review={review} cleanedUrlPath={cleanedUrlPath} />
+        <ReviewSchema review={review} cleanedUrlPath={cleanedUrlPath} averageScore={averageScore} />
         <CommentShareLike
           pageId={review.id}
           shareUrl={`${process.env.NEXT_PUBLIC_SITE_URL}${cleanedUrlPath}`}
@@ -81,41 +82,28 @@ const ReviewDetail: React.FC<ReviewDetailProps> = ({ review, linkedGame }) => {
 
 export const getStaticPaths: GetStaticPaths = async () => {
   try {
-    // Fetch reviews and assert their type
-    const reviews: Review[] = await fetchReviews(); // Ensure fetchReviews returns `Review[]`
+    const reviews: Review[] = await fetchReviews();
 
-    // Map over reviews with type inference for `review`
     const paths = reviews.map((review: Review) => ({
       params: { slug: review.slug },
     }));
 
-    return { paths, fallback: false };
+    return { paths, fallback: 'blocking' };
   } catch (error) {
     console.error('Error fetching reviews for paths:', error);
-    return { paths: [], fallback: false };
+    return { paths: [], fallback: 'blocking' };
   }
 };
-
-
-interface GetStaticPropsParams {
-  params: {
-    slug: string;
-  };
-}
 
 export const getStaticProps: GetStaticProps = async (context: GetStaticPropsContext) => {
   const { params } = context;
 
-  // Ensure params is defined and has a slug
   if (!params?.slug || typeof params.slug !== 'string') {
     return { notFound: true };
   }
 
   try {
-    // Fetch reviews and assert their type
     const reviews: Review[] = await fetchReviews();
-
-    // Explicitly type the parameter in the `find` method
     const review = reviews.find((r: Review) => r.slug === params.slug);
 
     if (!review) {
@@ -124,7 +112,7 @@ export const getStaticProps: GetStaticProps = async (context: GetStaticPropsCont
       };
     }
 
-    const linkedGame: GameLinkedItem | null = review.linked_game ? await fetchGameById(review.linked_game) : null;
+    const linkedGame: GameLinkedItem | null = review.linked_game ? await fetchGameById(review.linked_game).catch(() => null) : null;
 
     return {
       props: {
@@ -135,6 +123,7 @@ export const getStaticProps: GetStaticProps = async (context: GetStaticPropsCont
         },
         linkedGame,
       },
+      revalidate: 10, // Stránka se znovu generuje každých 10 sekund
     };
   } catch (error) {
     console.error('Error fetching review for static props:', error);

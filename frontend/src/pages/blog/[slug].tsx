@@ -1,10 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { GetStaticPaths, GetStaticProps } from 'next';
-import { 
-  fetchArticles, 
-  fetchGameById, 
-  incrementReadCount 
-} from '../../services/api';
+import { fetchArticles, fetchGameById, incrementReadCount } from '../../services/api';
 import ArticleHeader from '../../components/ArticleDetailPage/ArticleHeader';
 import ArticleBody from '../../components/ArticleDetailPage/ArticleBody';
 import ArticleSchema from '../../components/ArticleDetailPage/ArticleSchema';
@@ -14,10 +10,11 @@ import CommentShareLike from '../../components/CommentShareLike';
 import ActiveUsers from '../../components/ActiveUsers';
 import Image from 'next/image';
 import { Article, GameLinkedItem } from '../../types';
+import TwitchStream from '@/components/TwitchStream';
 
 interface ArticleDetailProps {
   article: Article;
-  linkedGame?: GameLinkedItem | null;  // Upraveno na `null` jako možnou hodnotu
+  linkedGame?: GameLinkedItem | null;
 }
 
 const ArticleDetail: React.FC<ArticleDetailProps> = ({ article, linkedGame }) => {
@@ -52,10 +49,10 @@ const ArticleDetail: React.FC<ArticleDetailProps> = ({ article, linkedGame }) =>
     return <div>Článek nenalezen</div>;
   }
 
-  const cleanedUrlPath = article.url_path?.replace('/placeholder', '') || '';
+  const cleanedUrlPath = article.url_path?.replace('/superparmeni', '') || '';
 
   const options = {
-    replace: (domNode: any) => {  // Typ `any` může být nahrazen konkrétním typem podle potřeby
+    replace: (domNode: any) => {
       if (domNode.name === 'embed' && domNode.attribs.embedtype === 'media') {
         return (
           <div key={domNode.attribs.url} className="video-container">
@@ -79,8 +76,8 @@ const ArticleDetail: React.FC<ArticleDetailProps> = ({ article, linkedGame }) =>
             key={domNode.attribs.id}
             src={imageUrl}
             alt={domNode.attribs.alt}
-            width={800} // Adjust according to your layout
-            height={600} // Adjust according to your layout
+            width={800} 
+            height={600} 
             layout="responsive"
             objectFit="cover"
             className={`embedded-image ${domNode.attribs.format}`}
@@ -92,12 +89,15 @@ const ArticleDetail: React.FC<ArticleDetailProps> = ({ article, linkedGame }) =>
 
   return (
     <div className="container mx-auto p-4">
-      <ArticleSchema article={article} cleanedUrlPath={cleanedUrlPath} />
-      <ArticleHeader article={article} readCount={readCount} isDarkMode={isDarkMode} />
+      <ArticleSchema article={article} cleanedUrlPath={cleanedUrlPath}/>
+      <ArticleHeader article={article} readCount={readCount} isDarkMode={isDarkMode}/>
+      
+      <TwitchStream />
+      <br></br>
       <div className={`p-4 rounded relative ${isDarkMode ? 'bg-transparent text-white' : 'bg-white text-black'}`}>
-        <DarkModeToggle isDarkMode={isDarkMode} toggleDarkMode={toggleDarkMode} />
-        <ActiveUsers contentType="article" contentId={article.id} />
-        <ArticleBody body={article.body || ''} isDarkMode={isDarkMode} options={options} />
+        <DarkModeToggle isDarkMode={isDarkMode} toggleDarkMode={toggleDarkMode}/>
+        <ActiveUsers contentType="article" contentId={article.id}/>
+        <ArticleBody enriched_body={article.enriched_body || []} isDarkMode={isDarkMode} options={options}/>
         <PinnedContent linkedGame={linkedGame} />
         <CommentShareLike
           pageId={article.id}
@@ -116,10 +116,10 @@ export const getStaticPaths: GetStaticPaths = async () => {
     const paths = articles.map((article: Article) => ({
       params: { slug: article.slug },
     }));
-    return { paths, fallback: false };
+    return { paths, fallback: 'blocking' };
   } catch (error) {
     console.error('Error fetching articles for paths:', error);
-    return { paths: [], fallback: false };
+    return { paths: [], fallback: 'blocking' };
   }
 };
 
@@ -134,7 +134,6 @@ export const getStaticProps: GetStaticProps<ArticleDetailProps> = async ({ param
       };
     }
 
-    // Ujistěte se, že `linkedGame` je `GameLinkedItem | null`
     const linkedGame = article.linked_game ? await fetchGameById(article.linked_game).catch(() => null) : null;
 
     return {
@@ -144,9 +143,9 @@ export const getStaticProps: GetStaticProps<ArticleDetailProps> = async ({ param
           like_count: article.like_count || 0,
           dislike_count: article.dislike_count || 0,
         },
-        linkedGame,  // Ensure `linkedGame` is either an object or null
+        linkedGame,
       },
-      revalidate: 5, // Regenerate the page every 5 seconds
+      revalidate: 10, // Stránka se znovu generuje každých 10 sekund
     };
   } catch (error) {
     console.error('Error fetching article for static props:', error);

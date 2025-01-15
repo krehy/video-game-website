@@ -1,13 +1,13 @@
 import React from 'react';
-import { Review } from '../../types'; // Adjust the import path if necessary
+import { Review } from '../../types'; // Upravte cestu k importu, pokud je to nutné
 
-// Define the props interface
 interface ReviewSchemaProps {
   review: Review;
   cleanedUrlPath: string;
+  averageScore: number;
 }
 
-const ReviewSchema: React.FC<ReviewSchemaProps> = ({ review, cleanedUrlPath }) => {
+const ReviewSchema: React.FC<ReviewSchemaProps> = ({ review, cleanedUrlPath, averageScore }) => {
   const reviewTypeMap: { [key: string]: string } = {
     Game: 'VideoGame',
     Keyboard: 'Product',
@@ -23,22 +23,34 @@ const ReviewSchema: React.FC<ReviewSchemaProps> = ({ review, cleanedUrlPath }) =
 
   const reviewItemType = reviewTypeMap[review.review_type] || 'Product';
 
+  // Zastropování averageScore na hodnotu 5
+  const cappedAverageScore = Math.min(averageScore, 5);
+
   const schemaData = {
     '@context': 'https://schema.org',
     '@type': 'Review',
     itemReviewed: {
       '@type': reviewItemType,
-      name: review.title,
+      name: review.title || 'Unnamed Product', // Fallback in case title is missing
       image: review.main_image ? `${process.env.NEXT_PUBLIC_INDEX_URL}${review.main_image.url}` : '',
+      aggregateRating: {
+        '@type': 'AggregateRating',
+        ratingValue: cappedAverageScore,
+        bestRating: 5,
+        worstRating: 1,
+        ratingCount: 1,
+      },
     },
     author: {
       '@type': 'Person',
       name: review.owner.username,
     },
-    reviewBody: review.intro, // Change `review.body` to an existing property like `intro`
+    reviewBody: review.intro,
     reviewRating: {
       '@type': 'Rating',
-      ratingValue: review.rating, // Ensure `rating` exists in the Review interface
+      ratingValue: cappedAverageScore,
+      bestRating: 5,
+      worstRating: 1,
     },
     datePublished: review.first_published_at,
     dateModified: review.last_published_at,

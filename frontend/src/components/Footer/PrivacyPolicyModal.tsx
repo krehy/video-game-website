@@ -17,7 +17,7 @@ const PrivacyPolicyModal: React.FC<PrivacyPolicyModalProps> = ({ isOpen, onClose
       onClick={onClose}  // Zavřít modal při kliknutí mimo něj
     >
       <div
-        className="bg-white p-6 rounded shadow-lg w-full max-w-lg relative"
+        className="bg-white p-6 rounded shadow-lg w-full max-w-lg relative overflow-y-auto max-h-[80vh]"
         onClick={(e) => e.stopPropagation()}  // Zabránit zavření modalu při kliknutí dovnitř
       >
         <button className="absolute top-2 right-2 text-gray-600" onClick={onClose}>

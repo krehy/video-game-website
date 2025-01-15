@@ -8,7 +8,8 @@ import GameContent from '../../components/GameDetailPage/GameContent';
 import GamePinnedContent from '../../components/GameDetailPage/GamePinnedContent';
 import GameSchema from '../../components/GameDetailPage/GameSchema';
 import BreadcrumbList from '../../components/GameDetailPage/BreadcrumbList';
-import { Game } from '../../types';  // Import Game from types file
+import { Game } from '../../types'; 
+import TwitchStream from '@/components/TwitchStream';
 
 interface GameDetailProps {
   game: Game;
@@ -56,13 +57,17 @@ const GameDetail: React.FC<GameDetailProps> = ({ game }) => {
         {game.keywords && <meta name="keywords" content={game.keywords} />}
         <GameSchema game={game} />
         <BreadcrumbList game={{ ...game, url_path: game.url_path ?? '' }} />
-        </Head>
-      <h1 className="text-3xl font-bold mb-4">{game.title}</h1>
+      </Head>
+      <h1 style={{color:'white'}} className="text-3xl font-bold mb-4">{game.title}</h1>
       {game.main_image && <GameHeader game={game} />}
+      
+      <TwitchStream></TwitchStream>
+      <br></br>
       <div className={`p-4 rounded relative ${isDarkMode ? 'bg-transparent text-white' : 'bg-white text-black'}`}>
         <div className="absolute top-4 right-4 flex items-center">
           {/* Dark mode toggle */}
         </div>
+        
         <GameContent game={game} isDarkMode={isDarkMode} />
         {game.trailer_url && (
           <div className="mt-4">
@@ -77,6 +82,7 @@ const GameDetail: React.FC<GameDetailProps> = ({ game }) => {
             ></iframe>
           </div>
         )}
+        
         <GamePinnedContent game={game} />
         <CommentShareLike
           pageId={game.id}
@@ -91,14 +97,14 @@ const GameDetail: React.FC<GameDetailProps> = ({ game }) => {
 
 export const getStaticPaths: GetStaticPaths = async () => {
   try {
-    const games: Game[] = await fetchGames(); // Ensure fetchGames returns an array of Game
+    const games: Game[] = await fetchGames(); 
     const paths = games.map((game: Game) => ({
       params: { slug: game.slug },
     }));
-    return { paths, fallback: false };
+    return { paths, fallback: 'blocking' };
   } catch (error) {
     console.error('Error fetching games for paths:', error);
-    return { paths: [], fallback: false };
+    return { paths: [], fallback: 'blocking' };
   }
 };
 
@@ -125,6 +131,7 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
         relatedArticles,
         relatedReviews,
       },
+      revalidate: 10, // Stránka se znovu generuje každých 10 sekund
     };
   } catch (error) {
     console.error('Error fetching game for static props:', error);
