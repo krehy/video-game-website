@@ -16,13 +16,15 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   useEffect(() => {
     socket.current = socketInstance;
 
-    socket.current.on('connect', () => {
-      console.log('WebSocket připojen:', socket.current?.id);
-    });
+    if (socket.current) {
+      socket.current.on('connect', () => {
+        console.log('WebSocket připojen:', socket.current?.id);
+      });
 
-    socket.current.on('disconnect', () => {
-      console.log('WebSocket odpojen:', socket.current?.id);
-    });
+      socket.current.on('disconnect', () => {
+        console.log('WebSocket odpojen:', socket.current?.id);
+      });
+    }
 
     return () => {
       console.log('WebSocket odpojován');

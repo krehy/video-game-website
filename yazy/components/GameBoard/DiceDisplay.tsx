@@ -1,6 +1,11 @@
 import React from 'react';
 
-const DiceDisplay = ({ title, dice }) => (
+interface DiceDisplayProps {
+  title: string;
+  dice: number[]; // Pole čísel reprezentujících kostky
+}
+
+const DiceDisplay: React.FC<DiceDisplayProps> = ({ title, dice }) => (
   <div className="mb-6">
     <h3 className="text-lg font-bold mb-2">{title}</h3>
     <div className="flex space-x-2">

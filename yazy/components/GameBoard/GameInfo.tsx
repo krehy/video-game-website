@@ -1,6 +1,14 @@
 import React from 'react';
 
-const GameInfo = ({ currentTurn, nickname, opponent, score, opponentScore }) => (
+interface GameInfoProps {
+  currentTurn: string;
+  nickname: string;
+  opponent: string;
+  score: number;
+  opponentScore: number;
+}
+
+const GameInfo: React.FC<GameInfoProps> = ({ currentTurn, nickname, opponent, score, opponentScore }) => (
   <div className="mb-6">
     <h2 className="text-xl font-bold mb-4">
       Na tahu: {currentTurn === nickname ? 'Ty' : opponent}

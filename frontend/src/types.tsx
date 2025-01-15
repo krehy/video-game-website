@@ -35,10 +35,17 @@ export interface BlogIndexProps {
   }
   
   export interface ArticleBodyProps {
-    body: string;
-    isDarkMode: boolean;
-    options?: any; // You may replace 'any' with a more specific type depending on what html-react-parser expects
+    enriched_body?: any; // Přidána vlastnost enriched_body (volitelná)
+    isDarkMode: boolean;   // Indikátor pro tmavý režim
+    options?: any;         // Volitelné možnosti (nahraďte 'any', pokud víte přesný typ)
+    body: string;          // Hlavní obsah článku
   }
+  
+  export interface Partner {
+    name: string; // Název partnera
+    url: string;  // URL adresa partnera
+    logo?: string; // Volitelný atribut pro logo partnera
+  }  
   
   export interface Category {
     id: string;
@@ -68,6 +75,7 @@ export interface BlogIndexProps {
     keywords?: string;
     categories: Category[];
     body?: string; // Ensure body is included if used
+    enriched_body?: string;
     url_path?: string; // Ensure url_path is included if used
     linked_game?: number; // Assuming linked_game is an ID of type number
     like_count?: number; // Add this line
@@ -230,6 +238,7 @@ export interface BlogIndexProps {
     title: string;
     seo_title?: string;
     search_description?: string;
+    enriched_description?: string; // Přidána tato vlastnost
     keywords?: string;
     main_image: {
       url: string;
@@ -284,6 +293,7 @@ export interface BlogIndexProps {
     name: string;
     score: number;
     text: string;
+    enriched_text?: string;
   }
   
   export type ReviewType = 'Game' | 'Keyboard' | 'Mouse' | 'Monitor' | 'Computer' | 'Headphones' | 'Console' | 'Mobile' | 'Notebook' | 'Microphone';
@@ -305,6 +315,7 @@ export interface BlogIndexProps {
     owner: {
       username: string;
     };
+    enriched_body?: string;
     first_published_at: string;
     last_published_at: string;
     read_count: number;

@@ -17,6 +17,10 @@ const GameBoard = () => {
   const [opponentDice, setOpponentDice] = useState<number[]>([1, 1, 1, 1, 1]);
   const [currentTurn, setCurrentTurn] = useState<string | null>(null);
   const [rollCount, setRollCount] = useState(0);
+  const [usedCombinations, setUsedCombinations] = useState<boolean[]>([]);
+  const [opponentUsedCombinations, setOpponentUsedCombinations] = useState<boolean[]>([]);
+  const [playerScores, setPlayerScores] = useState<(number | null)[]>([]);
+  const [opponentScores, setOpponentScores] = useState<(number | null)[]>([]);
 
   useEffect(() => {
     if (!socket) return;
@@ -36,12 +40,28 @@ const GameBoard = () => {
       setOpponentDice(dice);
     });
 
+    socket.on('update-score', ({ playerScore, opponentScore, usedComb, opponentUsedComb }) => {
+      setPlayerScores(playerScore);
+      setOpponentScores(opponentScore);
+      setUsedCombinations(usedComb);
+      setOpponentUsedCombinations(opponentUsedComb);
+    });
+
     return () => {
       socket.off('start-game-ready');
       socket.off('switch-turn');
       socket.off('opponent-roll');
+      socket.off('update-score');
     };
   }, [socket]);
+
+  const totalPlayerScore = (playerScores || [])
+  .filter((score): score is number => score !== null) // Odstraníme null hodnoty
+  .reduce((a, b) => a + b, 0);
+
+  const totalOpponentScore = (opponentScores || [])
+  .filter((score): score is number => score !== null) // Odstraníme null hodnoty
+  .reduce((a, b) => a + b, 0);
 
   const handleRollDice = () => {
     if (rollCount < 3 && currentTurn === nickname) {
@@ -54,15 +74,41 @@ const GameBoard = () => {
 
   return (
     <div className="min-h-screen bg-[#1a1a1a] text-white flex flex-col items-center p-4">
-      <GameInfo
-        currentTurn={currentTurn || 'Načítám...'}
-        nickname={nickname}
-        opponent={opponent || 'Soupeř'}
-      />
+<GameInfo
+  currentTurn={currentTurn || ''} // Přidání currentTurn s výchozí hodnotou
+  nickname={nickname}
+  opponent={opponent || 'Soupeř'}
+  score={totalPlayerScore}
+  opponentScore={totalOpponentScore}
+/>
+
       <DiceDisplay title={`Kostky soupeře (${opponent}):`} dice={opponentDice} />
-      <ScoreTable dice={myDice} isTurn={currentTurn === nickname} />
+      <ScoreTable
+        dice={myDice}
+        opponentDice={opponentDice}
+        usedCombinations={usedCombinations}
+        opponentUsedCombinations={opponentUsedCombinations}
+        playerScores={playerScores}
+        opponentScores={opponentScores}
+        onSelectScore={(index) => {
+          const newUsedCombinations = [...usedCombinations];
+          newUsedCombinations[index] = true;
+          setUsedCombinations(newUsedCombinations);
+
+          const newPlayerScores = [...playerScores];
+          newPlayerScores[index] = Math.floor(Math.random() * 30); // Dummy calculation
+          setPlayerScores(newPlayerScores);
+
+          socket.emit('select-score', { nickname, index });
+        }}
+        isTurn={currentTurn === nickname}
+      />
       <DiceDisplay title={`Tvoje kostky (${nickname}):`} dice={myDice} />
-      <RollButton onRoll={handleRollDice} disabled={currentTurn !== nickname || rollCount >= 3} />
+      <RollButton
+  onRoll={handleRollDice}
+  disabled={currentTurn !== nickname || rollCount >= 3}
+  rollCount={rollCount} // Přidání chybějícího prop
+/>
     </div>
   );
 };

@@ -1,6 +1,10 @@
 import React from 'react';
 
-const RollButton = ({ onRoll, disabled, rollCount }) => (
+const RollButton: React.FC<{
+  onRoll: () => void;
+  disabled: boolean;
+  rollCount: number;
+}> = ({ onRoll, disabled, rollCount }) => (
   <button
     onClick={onRoll}
     disabled={disabled}

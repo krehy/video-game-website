@@ -20,11 +20,11 @@ interface ArticleDetailProps {
 const ArticleDetail: React.FC<ArticleDetailProps> = ({ article, linkedGame }) => {
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [readCount, setReadCount] = useState(article.read_count);
-  
+
   useEffect(() => {
     const darkMode = localStorage.getItem('darkMode') === 'true';
     setIsDarkMode(darkMode);
-  
+
     const incrementReadCountForArticle = async () => {
       try {
         const count = await incrementReadCount('article', article.id);
@@ -38,7 +38,7 @@ const ArticleDetail: React.FC<ArticleDetailProps> = ({ article, linkedGame }) =>
 
     incrementReadCountForArticle();
   }, [article.id]);
-  
+
   const toggleDarkMode = () => {
     const newMode = !isDarkMode;
     setIsDarkMode(newMode);
@@ -91,13 +91,13 @@ const ArticleDetail: React.FC<ArticleDetailProps> = ({ article, linkedGame }) =>
     <div className="container mx-auto p-4">
       <ArticleSchema article={article} cleanedUrlPath={cleanedUrlPath}/>
       <ArticleHeader article={article} readCount={readCount} isDarkMode={isDarkMode}/>
-      
+
       <TwitchStream />
       <br></br>
       <div className={`p-4 rounded relative ${isDarkMode ? 'bg-transparent text-white' : 'bg-white text-black'}`}>
         <DarkModeToggle isDarkMode={isDarkMode} toggleDarkMode={toggleDarkMode}/>
         <ActiveUsers contentType="article" contentId={article.id}/>
-        <ArticleBody enriched_body={article.enriched_body || []} isDarkMode={isDarkMode} options={options}/>
+        <ArticleBody enriched_body={article.enriched_body || []} isDarkMode={isDarkMode} options={options} body={article.body || ""}/>
         <PinnedContent linkedGame={linkedGame} />
         <CommentShareLike
           pageId={article.id}

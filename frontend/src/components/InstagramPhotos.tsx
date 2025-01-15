@@ -4,6 +4,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faInstagram } from '@fortawesome/free-brands-svg-icons';
 import { faSearch, faTimes as faClose } from '@fortawesome/free-solid-svg-icons';
 import Image from 'next/image';
+import Link from 'next/link';
 import { motion } from 'framer-motion';
 
 const InstagramPhotos = () => {
@@ -49,13 +50,9 @@ const InstagramPhotos = () => {
   return (
     <div className="instagram-photos">
       <h3 className="text-lg font-semibold mb-4 flex items-center text-black">
-        <a
-          target="__blank"
-          href="https://www.instagram.com/superparmeni"
-          className="mr-2"
-        >
+        <Link href="https://www.instagram.com/superparmeni" target="_blank" className="mr-2">
           <FontAwesomeIcon icon={faInstagram} size="lg" style={{ color: '#8e67ea' }} />
-        </a>
+        </Link>
         Novinky z IG
       </h3>
       <ul className="grid grid-cols-2 gap-4 mb-8">
@@ -144,14 +141,13 @@ const InstagramPhotos = () => {
                   <p className="mt-4 text-black">{highlightHashtags(selectedItem.caption)}</p>
                 )}
                 <div className="mt-4 text-center">
-                  <a
+                  <Link
                     href="https://www.instagram.com/superparmeni"
                     target="_blank"
-                    rel="noopener noreferrer"
                     className="inline-block bg-[#8e67ea] text-white px-4 py-2 rounded-lg shadow-md hover:bg-[#764bb5] transition"
                   >
                     Navštívit náš Instagram
-                  </a>
+                  </Link>
                 </div>
               </div>
             )}

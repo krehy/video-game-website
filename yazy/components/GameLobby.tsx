@@ -7,32 +7,32 @@ const GameLobby = () => {
   const router = useRouter();
   const { nickname, setNickname, setOpponent } = useGameContext();
   const socket = useSocket();
-  const [localNickname, setLocalNickname] = useState('');
-  const [isLogged, setIsLogged] = useState(false);
-  const [rooms, setRooms] = useState([]);
-  const [isRoomOwner, setIsRoomOwner] = useState(false);
-  const [joinRequest, setJoinRequest] = useState(null);
+  const [localNickname, setLocalNickname] = useState<string>('');
+  const [isLogged, setIsLogged] = useState<boolean>(false);
+  const [rooms, setRooms] = useState<{ id: string; nickname: string }[]>([]);
+  const [isRoomOwner, setIsRoomOwner] = useState<boolean>(false);
+  const [joinRequest, setJoinRequest] = useState<{ id: string; nickname: string } | null>(null);
 
   useEffect(() => {
     if (!socket) {
       console.error('Socket není inicializován!');
       return;
     }
-  
-    socket.on('update-rooms', (rooms) => setRooms(rooms));
-    socket.on('join-request', (data) => setJoinRequest(data));
-    socket.on('join-accepted', ({ hostNickname, playerNickname }) => {
+
+    socket.on('update-rooms', (rooms: { id: string; nickname: string }[]) => setRooms(rooms));
+    socket.on('join-request', (data: { id: string; nickname: string }) => setJoinRequest(data));
+    socket.on('join-accepted', ({ hostNickname, playerNickname }: { hostNickname: string; playerNickname: string }) => {
       setNickname(playerNickname);
       setOpponent(hostNickname);
       router.push('/yazy/game');
     });
-    socket.on('start-game-ready', ({ hostNickname, playerNickname }) => {
+    socket.on('start-game-ready', ({ hostNickname, playerNickname }: { hostNickname: string; playerNickname: string }) => {
       setNickname(hostNickname);
       setOpponent(playerNickname);
       router.push('/yazy/game');
     });
     socket.on('join-declined', () => alert('Tvoje žádost byla odmítnuta.'));
-  
+
     return () => {
       socket.off('update-rooms');
       socket.off('join-request');
@@ -58,7 +58,7 @@ const GameLobby = () => {
     }
   };
 
-  const handleJoinRoom = (roomId) => {
+  const handleJoinRoom = (roomId: string) => {
     if (socket) {
       socket.emit('join-room', { roomId, nickname });
     }
@@ -84,7 +84,6 @@ const GameLobby = () => {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-[#1a1a1a] text-white">
-      {/* Display nickname if logged in */}
       {isLogged && (
         <div className="absolute top-4 left-4 text-lg font-bold">
           Přihlášen jako: {nickname}
@@ -149,7 +148,6 @@ const GameLobby = () => {
         )}
       </div>
 
-      {/* Modal for join requests */}
       {joinRequest && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-75">
           <div className="bg-[#2a2a2a] p-6 rounded-lg shadow-lg text-center">

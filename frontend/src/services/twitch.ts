@@ -18,8 +18,14 @@ const getAccessToken = async () => {
     });
     accessToken = response.data.access_token;
     console.log('New access token fetched:', accessToken);
-  } catch (error) {
-    console.error('Error getting access token:', error.response?.data || error.message);
+  } catch (error: unknown) {
+    if (axios.isAxiosError(error)) {
+      console.error('Error getting access token:', error.response?.data || error.message);
+    } else if (error instanceof Error) {
+      console.error('Error getting access token:', error.message);
+    } else {
+      console.error('Unknown error occurred while getting access token.');
+    }
     console.error('Client ID:', TWITCH_CLIENT_ID);
     console.error('Client Secret:', TWITCH_CLIENT_SECRET ? '***hidden***' : 'Not provided');
     throw new Error('Failed to fetch Twitch access token');
@@ -63,15 +69,20 @@ const isUserLive = async () => {
     });
 
     return streamResponse.data.data.length > 0 ? streamResponse.data.data[0] : null;
-  } catch (error) {
+  } catch (error: unknown) {
     // Handle 401 errors by refreshing the token
-    if (error.response?.status === 401) {
-      console.warn('Access token expired. Fetching a new one.');
-      await getAccessToken();
-      return await isUserLive(); // Retry the request after refreshing the token
+    if (axios.isAxiosError(error)) {
+      if (error.response?.status === 401) {
+        console.warn('Access token expired. Fetching a new one.');
+        await getAccessToken();
+        return await isUserLive(); // Retry the request after refreshing the token
+      }
+      console.error('Error checking live status:', error.response?.data || error.message);
+    } else if (error instanceof Error) {
+      console.error('Error checking live status:', error.message);
+    } else {
+      console.error('Unknown error occurred while checking live status.');
     }
-
-    console.error('Error checking live status:', error.response?.data || error.message);
     return null;
   }
 };

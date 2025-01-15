@@ -118,10 +118,12 @@ const HomePage = () => {
     ],
   };
 
-  const mostLikedArticle = articles.reduce((prev, current) =>
-    current.like_count > (prev.like_count || 0) ? current : prev
-  , {} as Article);
-
+  const mostLikedArticle = articles.reduce((prev, current) => {
+    const currentLikes = current.like_count || 0;
+    const prevLikes = prev.like_count || 0;
+    return currentLikes > prevLikes ? current : prev;
+  }, {} as Article);
+  
   return (
     <div className="container mx-auto p-4">
       <SEOHead seoData={seoData} breadcrumbList={breadcrumbList} />
@@ -196,7 +198,6 @@ const HomePage = () => {
             transition={{ duration: 0.3 }}
           >
             <Link href={`/games/${game.slug}`} legacyBehavior>
-              <a>
                 <Image
                   src={imageUrl}
                   alt={game.title}
@@ -204,7 +205,6 @@ const HomePage = () => {
                   objectFit="cover"
                   className="rounded-lg"
                 />
-              </a>
             </Link>
           </motion.div>
         )}
@@ -224,7 +224,6 @@ const HomePage = () => {
             transition={{ duration: 0.3 }}
           >
             <Link href={`/games/${game.slug}`} legacyBehavior>
-              <a>
                 <Image
                   src={imageUrl}
                   alt={game.title}
@@ -232,7 +231,6 @@ const HomePage = () => {
                   objectFit="cover"
                   className="rounded-lg"
                 />
-              </a>
             </Link>
           </motion.div>
         )}
@@ -242,13 +240,13 @@ const HomePage = () => {
 </ul>
                 <div className="mt-4 text-center">
                 <div className="mt-4 text-center">
-        <a
-          href="/calendar"
-          rel="noopener noreferrer"
-          className="inline-block bg-[#8e67ea] text-white px-4 py-2 rounded-lg shadow-md hover:bg-[#764bb5] transition"
-        >
-          Více nadcházejících her
-        </a>
+                <Link
+  href="/calendar"
+  className="inline-block bg-[#8e67ea] text-white px-4 py-2 rounded-lg shadow-md hover:bg-[#764bb5] transition"
+>
+  Více nadcházejících her
+</Link>
+
       </div>
 
                 </div>

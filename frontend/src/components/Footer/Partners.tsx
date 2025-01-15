@@ -1,9 +1,17 @@
 import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 import { fetchHomePageContent } from '../../services/api';
 
-const Partners = () => {
-  const [partners, setPartners] = useState([]);
+// Typ pro jednoho partnera
+interface Partner {
+  name: string;
+  url: string;
+  logo: string;
+}
+
+const Partners: React.FC = () => {
+  const [partners, setPartners] = useState<Partner[]>([]);
 
   useEffect(() => {
     const fetchPartners = async () => {
@@ -27,7 +35,7 @@ const Partners = () => {
       <h2 className="text-2xl font-bold text-center mb-6 text-white">Naši Partneři</h2>
       <div className="flex justify-center items-center flex-wrap gap-8">
         {partners.map((partner) => (
-          <a
+          <Link
             key={partner.name}
             href={partner.url}
             target="_blank"
@@ -37,12 +45,12 @@ const Partners = () => {
             <Image
               src={`${process.env.NEXT_PUBLIC_INDEX_URL}${partner.logo}`}
               alt={partner.name}
-              width={200} // Zvýšena šířka loga
-              height={200} // Zvýšena výška loga
+              width={200}
+              height={200}
               className="object-contain transition transform hover:scale-105"
             />
-            <span className="text-center text-lg font-medium text-white">{partner.name}</span>
-          </a>
+            <span className="text-center text-lg font-medium text-white mt-2">{partner.name}</span>
+          </Link>
         ))}
       </div>
     </div>
