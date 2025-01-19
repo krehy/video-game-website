@@ -51,7 +51,7 @@ const ReviewCard: React.FC<ReviewCardProps> = ({ review, info }) => {
                 width={800} // Adjust the width according to your design
                 height={300} // Adjust the height according to your design
                 layout="responsive"
-                objectFit="cover"
+                className="object-cover"
               />
             </a>
           </Link>

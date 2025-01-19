@@ -1,13 +1,16 @@
-// src/components/ReviewsPage/ReviewSEO.tsx
 import React from 'react';
 import Head from 'next/head';
-import { ReviewSEOProps } from '../../types'; // Upravte cestu k souboru s typy
+import { ReviewSEOProps } from '../../types';
 
 const ReviewSEO: React.FC<ReviewSEOProps> = ({ seoData, breadcrumbList }) => {
-  const seoTitle = seoData?.seo_title || 'Recenze';
-  const seoDescription = seoData?.search_description || 'Recenze page description';
-  const seoKeywords = seoData?.keywords || '';
-  const seoImage = seoData?.main_image?.url ? `${process.env.NEXT_PUBLIC_INDEX_URL}${seoData.main_image.url}` : '';
+  const seoTitle = seoData?.seo_title || 'Recenze - Superpařmeni';
+  const seoDescription =
+    seoData?.search_description ||
+    'Recenze na hry, hardware a příslušenství. Nejnovější názory od hráčů pro hráče.';
+  const seoKeywords = seoData?.keywords || 'recenze, hry, hardware, Superpařmeni';
+  const seoImage = seoData?.main_image?.url
+    ? `${process.env.NEXT_PUBLIC_INDEX_URL}${seoData.main_image.url}`
+    : '/default-review-image.jpg';
 
   return (
     <Head>

@@ -3,6 +3,7 @@
 @tailwind components;
 @tailwind utilities;
 
+
 :root {
   --foreground-rgb: 0, 0, 0;
   --background-start-rgb: 214, 219, 220;
@@ -135,4 +136,80 @@ html, body, #__next {
 .nav-link:hover,
 .nav-link.active {
   border-bottom: 4px solid #8e67ea;
+  
+}
+
+/* Container for the table */
+.overflow-auto {
+  max-width: 800px;
+  margin: auto;
+  border-radius: 8px;
+  
+}
+
+/* Table styling */
+.table-auto {
+  width: 100%;
+  border-collapse: collapse;
+  border-radius: 8px;
+  overflow: hidden;
+  
+}
+
+/* Header styling */
+.table-auto th {
+  background-color: #4CAF50; /* Green background */
+  color: white; /* White text */
+  font-weight: bold;
+  padding: 15px;
+  text-align: left;
+  
+  border-bottom: 2px solid #ddd;
+}
+
+/* Cell styling */
+.table-auto td {
+  padding: 15px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+  color: black; /* Black text */
+  background-color: #f9f9f9; /* Light gray background */
+  
+}
+
+/* Alternate row coloring */
+.table-auto tr:nth-child(even) td {
+  background-color: #f1f1f1;
+  
+}
+
+/* Hover effect for rows */
+.table-auto tr:hover td {
+  background-color: #ddd;
+  transition: background-color 0.3s ease;
+  
+}
+
+/* Borders between cells */
+.table-auto th,
+.table-auto td {
+  border-left: 1px solid #ddd;
+  
+}
+
+.table-auto td:last-child,
+.table-auto th:last-child {
+  border-right: 1px solid #ddd;
+}
+
+
+/* Remove top border for the first row */
+.table-auto tr:first-child th {
+  border-top: none;
+}
+
+/* Rounded corners */
+.table-auto {
+  border-radius: 8px;
+  overflow: hidden;
 }

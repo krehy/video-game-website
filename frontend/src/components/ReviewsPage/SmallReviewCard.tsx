@@ -5,7 +5,6 @@ import { faCalendarAlt } from '@fortawesome/free-solid-svg-icons';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { Review } from '../../types';
-import AnimatedNumber from './AnimatedNumber';
 
 interface SmallReviewCardProps {
   review: Review;
@@ -20,26 +19,26 @@ const SmallReviewCard: React.FC<SmallReviewCardProps> = ({ review }) => {
 
   return (
     <motion.div
-      className="bg-gray-200 shadow-md rounded-lg overflow-hidden flex items-center justify-between mb-4 p-4 relative"
+      className="bg-gray-200 shadow-md rounded-lg overflow-hidden flex items-stretch mb-4 relative"
       whileHover={{ scale: 1.05 }}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      {review.main_image && (
-        <div className="w-1/3 relative">
+      {review.main_image && review.main_image.url && (
+        <div className="relative w-1/3 h-40 md:h-auto">
           <Link href={`/reviews/${review.slug}`}>
-            <Image
-              src={`${process.env.NEXT_PUBLIC_INDEX_URL}${review.main_image.url}`}
-              alt={review.title}
-              width={100}
-              height={100}
-              objectFit="cover"
-              className="rounded-lg"
-            />
+            <div className="relative w-full h-full">
+              <Image
+                src={`${process.env.NEXT_PUBLIC_INDEX_URL}${review.main_image.url}`}
+                alt={review.title || 'Review Image'}
+                fill
+                className="rounded-none object-cover"
+              />
+            </div>
           </Link>
         </div>
       )}
-      <div className="w-2/3 flex flex-col justify-between px-4">
+      <div className="w-2/3 flex flex-col justify-between p-4">
         <Link href={`/reviews/${review.slug}`}>
           <h3 className="text-sm font-bold text-black mb-2 truncate">{review.title}</h3>
         </Link>
@@ -52,7 +51,6 @@ const SmallReviewCard: React.FC<SmallReviewCardProps> = ({ review }) => {
         title="Získané scóré"
         className="flex items-center justify-center text-black rounded-lg b-12 h-12 text-lg font-bold"
       >
-        <AnimatedNumber number={averageScore} inView={true} />
       </div>
     </motion.div>
   );

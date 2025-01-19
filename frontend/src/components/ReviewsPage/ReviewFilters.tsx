@@ -2,7 +2,6 @@ import React from 'react';
 import { Range } from 'react-range';
 import { ReviewFiltersProps } from '../../types';
 
-// Add the reviewTypeTranslations object with a defined type
 const reviewTypeTranslations: { [key: string]: string } = {
   'Game': 'Hra',
   'Keyboard': 'Klávesnice',
@@ -27,14 +26,12 @@ const ReviewFilters: React.FC<ReviewFiltersProps> = ({
   maxDate
 }) => {
   if (!filters) {
-    return null; // or handle this case appropriately
+    return null;
   }
 
-  // Handle minDate and maxDate being null
   const minTimestamp = minDate ? minDate.getTime() : 0;
   const maxTimestamp = maxDate ? maxDate.getTime() : Date.now();
 
-  // Ensure dateRange values are within min and max bounds
   const validDateRange = [
     Math.max(minTimestamp, Math.min(dateRange[0], maxTimestamp)),
     Math.max(minTimestamp, Math.min(dateRange[1], maxTimestamp))
@@ -57,13 +54,13 @@ const ReviewFilters: React.FC<ReviewFiltersProps> = ({
         />
       </div>
       <div className="mb-4">
-        <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="category">
+        <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="reviewType">
           Kategorie
         </label>
         <select
-          name="category"
-          id="category"
-          value={filters.category}
+          name="reviewType"
+          id="reviewType"
+          value={filters.reviewType}
           onChange={handleFilterChange}
           className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
         >
@@ -81,7 +78,7 @@ const ReviewFilters: React.FC<ReviewFiltersProps> = ({
         </label>
         <Range
           values={validDateRange}
-          step={86400000} // One day in milliseconds
+          step={86400000} // Jeden den v milisekundách
           min={minTimestamp}
           max={maxTimestamp}
           onChange={handleSliderChange}

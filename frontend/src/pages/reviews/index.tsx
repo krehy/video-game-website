@@ -8,6 +8,42 @@ import ReviewList from '../../components/ReviewsPage/ReviewList';
 import ReviewSEO from '../../components/ReviewsPage/ReviewSEO';
 import { Review, ReviewFilters as ReviewFiltersType } from '../../types';
 
+const reviewTypeTranslations: { [key: string]: string } = {
+  'Game': 'Hra',
+  'Keyboard': 'Klávesnice',
+  'Mouse': 'Myš',
+  'Monitor': 'Monitor',
+  'Computer': 'Počítač',
+  'Headphones': 'Sluchátka',
+  'Console': 'Konzole',
+  'Mobile': 'Mobil',
+  'Notebook': 'Notebook',
+  'Microphone': 'Mikrofon'
+};
+
+export async function getServerSideProps() {
+  try {
+    const seoData = await fetchReviewIndexSEO();
+    const reviews = await fetchReviews();
+
+    return {
+      props: {
+        seoData: seoData || {},
+        reviews: reviews || [],
+      },
+    };
+  } catch (error) {
+    console.error('Error fetching SEO or reviews data:', error);
+    return {
+      props: {
+        seoData: {},
+        reviews: [],
+      },
+    };
+  }
+}
+
+
 const ReviewIndex: React.FC = () => {
   const [reviews, setReviews] = useState<Review[]>([]);
   const [filteredReviews, setFilteredReviews] = useState<Review[]>([]);
@@ -29,11 +65,23 @@ const ReviewIndex: React.FC = () => {
   useEffect(() => {
     const getReviews = async () => {
       const reviewData: Review[] = await fetchReviews();
-      setReviews(reviewData);
-      setFilteredReviews(reviewData);
+      console.log('API Data:', reviewData); // Debug API data
 
-      if (reviewData.length > 0) {
-        const dates = reviewData.map((review: Review) => new Date(review.first_published_at).getTime());
+      const processedReviews = reviewData.map(review => ({
+        ...review,
+        categories: review.review_type ? [{ id: review.review_type, name: review.review_type }] : []
+      }));
+
+      setReviews(processedReviews);
+      setFilteredReviews(processedReviews);
+
+      const types = processedReviews
+        .map(review => review.review_type)
+        .filter((value, index, self) => self.indexOf(value) === index);
+      setReviewTypes(types);
+
+      if (processedReviews.length > 0) {
+        const dates = processedReviews.map((review: Review) => new Date(review.first_published_at).getTime());
         const minDateValue = new Date(Math.min(...dates));
         const maxDateValue = new Date(Math.max(...dates));
         setMinDate(minDateValue);
@@ -43,11 +91,6 @@ const ReviewIndex: React.FC = () => {
           dateRange: [minDateValue.getTime(), maxDateValue.getTime()] as [number, number]
         }));
         setDateRange([minDateValue.getTime(), maxDateValue.getTime()] as [number, number]);
-
-        const types = reviewData
-          .map(review => review.review_type || '')
-          .filter((value, index, self) => self.indexOf(value) === index);
-        setReviewTypes(types);
       }
     };
 
@@ -62,17 +105,30 @@ const ReviewIndex: React.FC = () => {
 
   useEffect(() => {
     let filtered = reviews.filter((review: Review) => {
-      const matchesTitle = filters.title ? review.title.toLowerCase().includes(filters.title.toLowerCase()) : true;
-      const matchesReviewType = filters.reviewType ? review.review_type === filters.reviewType : true;
-      const matchesDateRange = filters.dateRange.length === 2 ? isDateInRange(review.first_published_at, filters.dateRange) : true;
-      const matchesCategory = filters.category ? review.categories.some(cat => cat.name === filters.category) : true;
-      return matchesTitle && matchesDateRange && matchesReviewType && matchesCategory;
+      const matchesTitle = filters.title
+        ? review.title.toLowerCase().includes(filters.title.toLowerCase())
+        : true;
+  
+      // Překlad hodnoty `review_type` pro porovnání
+      const translatedReviewType = reviewTypeTranslations[review.review_type] || review.review_type;
+  
+      const matchesReviewType = filters.reviewType
+        ? translatedReviewType === filters.reviewType
+        : true;
+  
+      const matchesDateRange = filters.dateRange.length === 2
+        ? isDateInRange(review.first_published_at, filters.dateRange)
+        : true;
+  
+  
+      return matchesTitle && matchesDateRange && matchesReviewType;
     });
-
+  
     filtered = sortReviews(filtered, filters.sortBy);
-
+  
     setFilteredReviews(filtered);
   }, [filters, reviews]);
+  
 
   const handleFilterChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -158,7 +214,7 @@ const ReviewIndex: React.FC = () => {
     <div className="container mx-auto p-4">
       <ReviewSEO seoData={seoData} breadcrumbList={breadcrumbList} />
       <div className="flex justify-between items-center mb-4">
-        <h1 style={{color:'white'}} className="text-3xl font-bold">Recenze</h1>
+        <h1 style={{ color: 'white' }} className="text-3xl font-bold">Recenze</h1>
         <button onClick={toggleFilter} className="relative flex items-center text-[#8e67ea] focus:outline-none group">
           <span className="filter-text text-white transition-transform duration-300 transform translate-x-full opacity-0 group-hover:translate-x-0 group-hover:opacity-100">Filtrovat</span>
           <FontAwesomeIcon icon={faFilter} className="text-2xl ml-2" />
@@ -175,10 +231,10 @@ const ReviewIndex: React.FC = () => {
           handleFilterChange={handleFilterChange}
           handleSliderChange={handleSliderChange}
           dateRange={dateRange}
-          categories={reviewTypes.map(type => ({ id: type, name: type }))}
+          categories={reviewTypes.map(type => ({ id: type, name: reviewTypeTranslations[type] || type }))}
           formatDate={formatDate}
-          minDate={minDate ?? undefined}  // Handle null by passing undefined
-          maxDate={maxDate ?? undefined}  // Handle null by passing undefined
+          minDate={minDate ?? undefined}
+          maxDate={maxDate ?? undefined}
         />
       </motion.div>
       <ReviewList

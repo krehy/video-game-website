@@ -19,6 +19,24 @@ import Image from 'next/image';
 import gamingFacts from '../constants/gamingFacts';
 import { motion } from 'framer-motion';
 
+export async function getServerSideProps() {
+  try {
+    const seo = await fetchHomePageSEO();
+    return {
+      props: {
+        seoData: seo[0] || {},
+      },
+    };
+  } catch (error) {
+    console.error('Error fetching SEO data:', error);
+    return {
+      props: {
+        seoData: {},
+      },
+    };
+  }
+}
+
 const HomePage = () => {
   const [seoData, setSeoData] = useState<any>({});
   const [aktuality, setAktuality] = useState<string[]>([]);
@@ -133,7 +151,7 @@ const HomePage = () => {
       </h1>
 
       {!isLoading && aktuality.length > 0 ? (
-        <AktualityMarquee aktuality={aktuality} />
+        <AktualityMarquee aktuality={aktuality}/>
       ) : (
         <p className="text-center text-gray-600 mt-4">Žádné aktuality k zobrazení.</p>
       )}
@@ -173,85 +191,86 @@ const HomePage = () => {
                 <SmallArticleCard article={mostLikedArticle} />
               </div>
             )}
-                        {upcomingGames.length > 0 && (
-              <div className="mb-8">
-                <h2 className="text-xl font-semibold mb-4 text-black">Brzy vyjde:</h2>
-                <ul className="space-y-4">
-  {upcomingGames.map((game, index) => {
-    const imageUrl = game.main_image
-      ? `${process.env.NEXT_PUBLIC_INDEX_URL}${game.main_image.url}`
-      : '/default-game-image.jpg';
+{upcomingGames.length > 0 && (
+  <div className="mb-8">
+    <h2 className="text-xl font-semibold mb-4 text-black">Brzy vyjde:</h2>
+    <ul className="space-y-4">
+      {upcomingGames.map((game, index) => {
+        const imageUrl = game.main_image
+          ? `${process.env.NEXT_PUBLIC_INDEX_URL}${game.main_image.url}`
+          : '/default-game-image.jpg';
 
-    const isLeft = index % 2 === 0; // Alternating left/right positions
+        const isLeft = index % 2 === 0; // Alternating left/right positions
 
-    return (
-      <li
-        key={game.id}
-        className={`flex items-center ${
-          index === 1 ? 'justify-end' : 'space-x-4'
-        }`}
-      >
-        {isLeft && (
-          <motion.div
-            className="relative w-16 h-24 flex-shrink-0 overflow-hidden rounded-lg bg-gray-200 mr-4"
-            whileHover={{ scale: 1.05 }} // Add hover zoom effec
-            transition={{ duration: 0.3 }}
+        // Naformátování data do DD.MM.YYYY
+        const formattedDate = new Date(game.release_date).toLocaleDateString('cs-CZ', {
+          day: '2-digit',
+          month: '2-digit',
+          year: 'numeric',
+        });
+
+        return (
+          <li
+            key={game.id}
+            className="flex items-center space-x-4 bg-gray-200 p-4 rounded-lg"
           >
-            <Link href={`/games/${game.slug}`} legacyBehavior>
-                <Image
-                  src={imageUrl}
-                  alt={game.title}
-                  layout="fill"
-                  objectFit="cover"
-                  className="rounded-lg"
-                />
-            </Link>
-          </motion.div>
-        )}
-        <Link href={`/games/${game.slug}`} legacyBehavior>
-          <a
-            className={`text-[#8e67ea] text-sm font-semibold hover:underline ${
-              index === 1 ? 'ml-auto mr-4' : ''
-            }`}
-          >
-            {game.title}
-          </a>
-        </Link>
-        {!isLeft && (
-          <motion.div
-            className="relative w-16 h-24 flex-shrink-0 overflow-hidden rounded-lg bg-gray-200 ml-4"
-            whileHover={{ scale: 1.05 }} // Add hover zoom effect
-            transition={{ duration: 0.3 }}
-          >
-            <Link href={`/games/${game.slug}`} legacyBehavior>
-                <Image
-                  src={imageUrl}
-                  alt={game.title}
-                  layout="fill"
-                  objectFit="cover"
-                  className="rounded-lg"
-                />
-            </Link>
-          </motion.div>
-        )}
-      </li>
-    );
-  })}
-</ul>
-                <div className="mt-4 text-center">
-                <div className="mt-4 text-center">
-                <Link
-  href="/calendar"
-  className="inline-block bg-[#8e67ea] text-white px-4 py-2 rounded-lg shadow-md hover:bg-[#764bb5] transition"
->
-  Více nadcházejících her
-</Link>
-
-      </div>
-
-                </div>
-              </div>
+            {isLeft && (
+              <motion.div
+                className="relative w-16 h-24 flex-shrink-0 overflow-hidden rounded-lg bg-gray-200 mr-4"
+                whileHover={{ scale: 1.05 }} // Add hover zoom effect
+                transition={{ duration: 0.3 }}
+              >
+                <Link href={`/games/${game.slug}`} legacyBehavior>
+                  <Image
+                    src={imageUrl}
+                    alt={game.title}
+                    fill
+                    className="rounded-lg cursor-pointer object-cover"
+                  />
+                </Link>
+              </motion.div>
             )}
+            <div className="flex flex-col">
+              <Link href={`/games/${game.slug}`} legacyBehavior>
+                <a
+                  className="text-[#8e67ea] text-sm font-semibold hover:underline"
+                >
+                  {game.title}
+                </a>
+              </Link>
+              <span className="text-sm text-gray-600">({formattedDate})</span>
+            </div>
+            {!isLeft && (
+              <motion.div
+                className="relative w-16 h-24 flex-shrink-0 overflow-hidden rounded-lg bg-gray-200 ml-4"
+                whileHover={{ scale: 1.05 }} // Add hover zoom effect
+                transition={{ duration: 0.3 }}
+              >
+                <Link href={`/games/${game.slug}`} legacyBehavior>
+                  <Image
+                    src={imageUrl}
+                    alt={game.title}
+                    fill
+                    className="rounded-lg cursor-pointer object-cover"
+                  />
+                </Link>
+              </motion.div>
+            )}
+          </li>
+        );
+      })}
+    </ul>
+    <div className="mt-4 text-center">
+      <Link
+        href="/calendar"
+        className="inline-block bg-[#8e67ea] text-white px-4 py-2 rounded-lg shadow-md hover:bg-[#764bb5] transition"
+      >
+        Více nadcházejících her
+      </Link>
+    </div>
+  </div>
+)}
+
             <div className="mt-8">
               <InstagramPhotos />
             </div>

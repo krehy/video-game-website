@@ -165,8 +165,9 @@ export interface BlogIndexProps {
     publishers: string[];
     genres: string[];
     platforms: string[];
+    setFilters: React.Dispatch<React.SetStateAction<GameFilters>>; // Přidáno
   }
-  
+    
   export interface ReviewFiltersProps extends FiltersProps<ReviewFilters> {
     categories: Category[];
   }

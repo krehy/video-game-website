@@ -17,26 +17,23 @@ const ArticleHorizontalCard: React.FC<ArticleCardProps> = ({ article }) => {
       onMouseLeave={() => setIsHovered(false)}
     >
       {article.main_image && (
-        <div className="relative w-full md:w-1/2 overflow-hidden">
+        <div className="relative w-full h-48 md:h-auto md:w-1/2 overflow-hidden order-1 md:order-none">
           <Link href={`/blog/${article.slug}`}>
-              <div className="w-full h-full group">
-                <Image
-                  src={`${process.env.NEXT_PUBLIC_INDEX_URL}${article.main_image.url}`}
-                  alt={article.title}
-                  layout="fill"
-                  objectFit="cover"
-                  className="group-hover:scale-110 transition-transform duration-500"
-                />
-              </div>
+            <div className="w-full h-full group">
+              <Image
+                src={`${process.env.NEXT_PUBLIC_INDEX_URL}${article.main_image.url}`}
+                alt={article.title}
+                fill
+                className="group-hover:scale-110 transition-transform duration-500 object-cover"
+              />
+            </div>
           </Link>
         </div>
       )}
-      <div className="flex flex-col justify-between p-4 w-full md:w-1/2">
+      <div className="flex flex-col justify-between p-4 w-full md:w-1/2 order-2 md:order-none">
         <div>
           <h2 className="text-2xl font-bold mb-2 text-gray-800">
-            <Link href={`/blog/${article.slug}`}>
-              {article.title}
-            </Link>
+            <Link href={`/blog/${article.slug}`}>{article.title}</Link>
           </h2>
           <div className="flex items-center text-gray-500 text-sm mb-4">
             <FontAwesomeIcon icon={faUser} className="mr-1 text-[#8e67ea]" />

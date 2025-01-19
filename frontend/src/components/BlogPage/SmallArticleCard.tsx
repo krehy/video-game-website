@@ -15,27 +15,26 @@ const SmallArticleCard: React.FC<SmallArticleCardProps> = ({ article }) => {
 
   return (
     <motion.div
-      className="bg-gray-200 shadow-md rounded-lg overflow-hidden flex items-center justify-between mb-4 p-4 relative"
+      className="bg-gray-200 shadow-md rounded-lg overflow-hidden flex items-stretch mb-4 relative"
       whileHover={{ scale: 1.05 }}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      {article.main_image && (
-        <div className="w-1/3 relative">
+      {article.main_image && article.main_image.url && (
+        <div className="relative w-1/3 h-40 md:h-auto">
           <Link href={`/blog/${article.slug}`}>
-            <Image
-              src={`${process.env.NEXT_PUBLIC_INDEX_URL}${article.main_image.url}`}
-              alt={article.title}
-              width={100}
-              height={100}
-              objectFit="cover"
-              className="rounded-lg"
-            />
+            <div className="relative w-full h-full">
+              <Image
+                src={`${process.env.NEXT_PUBLIC_INDEX_URL}${article.main_image.url}`}
+                alt={article.title || 'Article Image'}
+                fill
+                className="rounded-none object-cover"
+              />
+            </div>
           </Link>
-
         </div>
       )}
-      <div className="w-2/3 flex flex-col justify-between px-4">
+      <div className="w-2/3 flex flex-col justify-between p-4">
         <Link href={`/blog/${article.slug}`}>
           <h3 className="text-sm font-bold text-black mb-2 truncate">{article.title}</h3>
         </Link>

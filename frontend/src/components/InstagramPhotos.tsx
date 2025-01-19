@@ -68,7 +68,6 @@ const InstagramPhotos = () => {
               alt={photo.caption}
               width={300}
               height={300}
-              layout="responsive"
               className="rounded-lg shadow-md"
             />
             <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-lg">
@@ -95,7 +94,6 @@ const InstagramPhotos = () => {
               alt={reel.caption}
               width={300}
               height={300}
-              layout="responsive"
               className="rounded-lg shadow-md"
             />
             <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-lg">
@@ -128,15 +126,13 @@ const InstagramPhotos = () => {
                     controlsList="nodownload noplaybackrate nofullscreen"
                   />
                 ) : (
-                  <Image
-                    src={selectedItem.media_url}
-                    alt={selectedItem.caption}
-                    width={800}
-                    height={800}
-                    layout="responsive"
-                    className="rounded-lg shadow-md w-full"
-                  />
-                )}
+<Image
+  src={selectedItem.media_url}
+  alt={selectedItem.caption}
+  width={800}
+  height={800}
+  className="rounded-lg shadow-md w-full"
+/>                )}
                 {selectedItem.caption && (
                   <p className="mt-4 text-black">{highlightHashtags(selectedItem.caption)}</p>
                 )}

@@ -31,11 +31,11 @@ const ReviewSchema: React.FC<ReviewSchemaProps> = ({ review, cleanedUrlPath, ave
     '@type': 'Review',
     itemReviewed: {
       '@type': reviewItemType,
-      name: review.title || 'Unnamed Product', // Fallback in case title is missing
+      name: review.title || 'Unnamed Product',
       image: review.main_image ? `${process.env.NEXT_PUBLIC_INDEX_URL}${review.main_image.url}` : '',
       aggregateRating: {
         '@type': 'AggregateRating',
-        ratingValue: cappedAverageScore,
+        ratingValue: averageScore, // Používáme průměrné skóre přímo
         bestRating: 5,
         worstRating: 1,
         ratingCount: 1,
@@ -48,7 +48,7 @@ const ReviewSchema: React.FC<ReviewSchemaProps> = ({ review, cleanedUrlPath, ave
     reviewBody: review.intro,
     reviewRating: {
       '@type': 'Rating',
-      ratingValue: cappedAverageScore,
+      ratingValue: averageScore, // Používáme průměrné skóre přímo
       bestRating: 5,
       worstRating: 1,
     },

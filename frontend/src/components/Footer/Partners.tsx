@@ -42,13 +42,14 @@ const Partners: React.FC = () => {
             rel="noopener noreferrer"
             className="flex flex-col items-center transition"
           >
-            <Image
-              src={`${process.env.NEXT_PUBLIC_INDEX_URL}${partner.logo}`}
-              alt={partner.name}
-              width={200}
-              height={200}
-              className="object-contain transition transform hover:scale-105"
-            />
+<Image
+  src={`${process.env.NEXT_PUBLIC_INDEX_URL}${partner.logo}`}
+  alt={partner.name}
+  width={200}
+  height={200}
+  style={{ height: 'auto', width: '100%' }} // Zachování poměru stran
+  className="object-contain transition transform hover:scale-105"
+/>
             <span className="text-center text-lg font-medium text-white mt-2">{partner.name}</span>
           </Link>
         ))}

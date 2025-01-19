@@ -6,6 +6,43 @@ const ArticleBody: React.FC<ArticleBodyProps> = ({ enriched_body, isDarkMode }) 
   const [parsedContent, setParsedContent] = useState<JSX.Element[] | null>(null);
 
   useEffect(() => {
+    const loadAds = () => {
+      if (window.sssp) {
+        const adContainers = document.querySelectorAll('.ssp-ad-container');
+        const adConfigs = Array.from(adContainers).map((container, index) => ({
+          zoneId: 347254,
+          id: container.id,
+          width: 728,
+          height: 90,
+        }));
+
+        window.sssp.getAds(adConfigs);
+      } else {
+        console.error('sssp is not available.');
+      }
+    };
+
+    if (!window.sssp) {
+      const script = document.createElement('script');
+      script.src = 'https://ssp.seznam.cz/static/js/ssp.js';
+      script.async = true;
+      script.onload = () => {
+        loadAds();
+      };
+      document.body.appendChild(script);
+    } else {
+      loadAds();
+    }
+
+    return () => {
+      const script = document.querySelector('script[src="https://ssp.seznam.cz/static/js/ssp.js"]');
+      if (script) {
+        script.remove();
+      }
+    };
+  }, []);
+
+  useEffect(() => {
     if (Array.isArray(enriched_body)) {
       const content = enriched_body.map((htmlBlock, index) => {
         if (!htmlBlock || typeof htmlBlock !== 'string') {
@@ -13,7 +50,74 @@ const ArticleBody: React.FC<ArticleBodyProps> = ({ enriched_body, isDarkMode }) 
           return null;
         }
 
-        // Dekódování HTML entit
+        if (htmlBlock.includes('table_caption')) {
+          try {
+            const normalizedHtmlBlock = htmlBlock
+              .replace(/'/g, '"')
+              .replace(/None/g, 'null')
+              .replace(/True/g, 'true')
+              .replace(/False/g, 'false');
+
+            const tableData = JSON.parse(normalizedHtmlBlock);
+            const { data, table_caption, first_row_is_table_header, first_col_is_header } = tableData;
+
+            if (!Array.isArray(data) || data.length === 0) {
+              return <p key={`table-${index}`}>No table data available</p>;
+            }
+
+            const filteredRows = data.filter((row: (string | null)[]) => 
+              row.some((cell: string | null) => cell !== null && cell !== '')
+            );
+            
+            const columnCount = filteredRows[0]?.length || 0;
+            const nonEmptyColumnIndices = Array.from({ length: columnCount }, (_, colIndex) =>
+              filteredRows.some((row: (string | null)[]) => row[colIndex] !== null && row[colIndex] !== '') ? colIndex : null
+            ).filter((index): index is number => index !== null);
+            
+            const rows = filteredRows.map((row: (string | null)[], rowIndex: number) => (
+              <tr key={`row-${rowIndex}`}>
+                {nonEmptyColumnIndices.map((colIndex) => {
+                  const cellContent = row[colIndex] || '';
+                  const isHeaderRow = first_row_is_table_header && rowIndex === 0;
+                  const isHeaderCol = first_col_is_header && colIndex === 0;
+            
+                  if (isHeaderRow || isHeaderCol) {
+                    return (
+                      <th
+                        key={`cell-${rowIndex}-${colIndex}`}
+                        className="border px-4 py-2 bg-gray-200 font-bold"
+                      >
+                        {cellContent}
+                      </th>
+                    );
+                  }
+            
+                  return (
+                    <td
+                      key={`cell-${rowIndex}-${colIndex}`}
+                      className="border px-4 py-2"
+                    >
+                      {cellContent}
+                    </td>
+                  );
+                })}
+              </tr>
+            ));
+            
+            return (
+              <div key={`table-${index}`} className="overflow-auto mb-4">
+                {table_caption && <div className="font-semibold mb-2 text-center">{table_caption}</div>}
+                <table className="table-auto border-collapse border border-gray-500 w-full">
+                  <tbody>{rows}</tbody>
+                </table>
+              </div>
+            );
+          } catch (error) {
+            console.error('Error parsing table data:', error);
+            return <p key={`table-${index}`}>Error rendering table</p>;
+          }
+        }
+
         const decodeHtmlEntities = (text: string) => {
           const textarea = document.createElement('textarea');
           textarea.innerHTML = text;
@@ -22,11 +126,9 @@ const ArticleBody: React.FC<ArticleBodyProps> = ({ enriched_body, isDarkMode }) 
 
         const decodedHtml = decodeHtmlEntities(htmlBlock);
 
-        // Analýza HTML obsahu
         const parser = new DOMParser();
         const doc = parser.parseFromString(decodedHtml, 'text/html');
 
-        // Zpracování každého elementu v HTML
         const elements: JSX.Element[] = Array.from(doc.body.childNodes)
           .map((node, childIndex) => {
             if (node.nodeName === 'IMG') {
@@ -43,8 +145,7 @@ const ArticleBody: React.FC<ArticleBodyProps> = ({ enriched_body, isDarkMode }) 
                     layout="responsive"
                     width={800}
                     height={450}
-                    className="rounded"
-                    objectFit="cover"
+                    className="rounded object-cover"
                   />
                 );
               }
@@ -53,6 +154,18 @@ const ArticleBody: React.FC<ArticleBodyProps> = ({ enriched_body, isDarkMode }) 
                 <h2 key={`${index}-${childIndex}`} className="text-xl font-bold mt-4">
                   {node.textContent}
                 </h2>
+              );
+            } else if (node.nodeName === 'H3') {
+              return (
+                <h3 key={`${index}-${childIndex}`} className="text-lg font-semibold mt-3">
+                  {node.textContent}
+                </h3>
+              );
+            } else if (node.nodeName === 'H4') {
+              return (
+                <h4 key={`${index}-${childIndex}`} className="text-md font-medium mt-2">
+                  {node.textContent}
+                </h4>
               );
             } else if (node.nodeName === 'P') {
               return (
@@ -67,12 +180,35 @@ const ArticleBody: React.FC<ArticleBodyProps> = ({ enriched_body, isDarkMode }) 
                           {child.textContent}
                         </strong>
                       );
+                    } else if (child.nodeName === 'I' || child.nodeName === 'EM') {
+                      return (
+                        <em
+                          key={`${index}-${childIndex}-${inlineIndex}`}
+                          className={`italic ${isDarkMode ? 'text-white' : 'text-black'}`}
+                        >
+                          {child.textContent}
+                        </em>
+                      );
+                    } else if (child.nodeName === 'A') {
+                      const anchor = child as HTMLAnchorElement;
+                      return (
+                        <a
+                          key={`${index}-${childIndex}-${inlineIndex}`}
+                          href={anchor.href}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-blue-500 underline"
+                        >
+                          {anchor.textContent}
+                        </a>
+                      );
                     }
                     return child.textContent;
                   })}
                 </p>
               );
-            } else if (node.nodeName === 'UL') {
+            } else if (node.nodeName === 'UL' || node.nodeName === 'OL') {
+              const isOrdered = node.nodeName === 'OL';
               const items = Array.from(node.childNodes)
                 .filter((li) => li.nodeName === 'LI')
                 .map((li, liIndex) => (
@@ -80,10 +216,46 @@ const ArticleBody: React.FC<ArticleBodyProps> = ({ enriched_body, isDarkMode }) 
                     {li.textContent}
                   </li>
                 ));
-              return <ul key={`${index}-${childIndex}`} className="list-disc mb-4">{items}</ul>;
+              return isOrdered ? (
+                <ol key={`${index}-${childIndex}`} className="list-decimal mb-4">
+                  {items}
+                </ol>
+              ) : (
+                <ul key={`${index}-${childIndex}`} className="list-disc mb-4">
+                  {items}
+                </ul>
+              );
+            } else if (node.nodeName === 'EMBED') {
+              const embed = node as HTMLElement;
+              const embedType = embed.getAttribute('embedtype');
+              const url = embed.getAttribute('url');
+              if (embedType === 'media' && url) {
+                const isYouTube = url.includes('youtube.com') || url.includes('youtu.be');
+                const iframeSrc = isYouTube
+                  ? url.replace('/watch?v=', '/embed/')
+                  : url;
+
+                return (
+                  <iframe
+                    key={`iframe-${index}`}
+                    width="560"
+                    height="315"
+                    src={iframeSrc}
+                    frameBorder="0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                  ></iframe>
+                );
+              }
+            } else if (htmlBlock.includes('advertisement')) {
+              const adId = `ssp-zone-347254-${index}`;
+              return (
+                <div key={`ad-${index}`} className="text-center my-4">
+                  <div id={adId} className="ssp-ad-container"></div>
+                </div>
+              );
             }
 
-            // Fallback pro neznámé elementy
             if (node.textContent && node.textContent.trim() !== 'StructValue()') {
               return (
                 <div
@@ -95,14 +267,15 @@ const ArticleBody: React.FC<ArticleBodyProps> = ({ enriched_body, isDarkMode }) 
 
             return null;
           })
-          .filter((element): element is JSX.Element => element !== null); // Filtrovat null hodnoty
+          .filter((element): element is JSX.Element => element !== null);
 
         return <div key={index}>{elements}</div>;
       });
 
       setParsedContent(
-        content.filter((item): item is JSX.Element => item !== null) // Zajistí, že vrácený typ je JSX.Element[]
-      );    } else {
+        content.filter((item): item is JSX.Element => item !== null)
+      );
+    } else {
       console.error('enriched_body is not an array or is missing:', enriched_body);
     }
   }, [enriched_body, isDarkMode]);

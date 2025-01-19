@@ -1,23 +1,52 @@
-// src/components/GamePage/GameFilters.tsx
-
-import React from 'react';
+import React, { useState } from 'react';
 import { Range } from 'react-range';
 import { GameFiltersProps } from '../../types';
 
 const GameFilters: React.FC<GameFiltersProps> = ({
   filters,
-  handleFilterChange,
-  handleCheckboxChange,
-  handleSliderChange,
+  setFilters,
   developers,
   publishers,
   genres,
   platforms,
-  dateRange,
   minDate,
   maxDate,
   formatDate
 }) => {
+  const handleFilterChange = (event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value } = event.target;
+    setFilters((prevFilters) => ({
+      ...prevFilters,
+      [name]: value,
+    }));
+  };
+
+  const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value, checked } = event.target;
+  
+    setFilters((prevFilters) => {
+      const key = name as keyof typeof filters; // Typování klíče
+      const updatedValues = checked
+        ? [...(prevFilters[key] as string[]), value] // Přidat hodnotu
+        : (prevFilters[key] as string[]).filter((item) => item !== value); // Odebrat hodnotu
+  
+      return {
+        ...prevFilters,
+        [key]: updatedValues,
+      };
+    });
+  };
+  
+  
+  const handleSliderChange = (values: number[]) => {
+    if (values.length === 2) {
+      setFilters((prevFilters) => ({
+        ...prevFilters,
+        dateRange: values as [number, number], // Přesně definujeme tuple
+      }));
+    }
+  };
+  
   return (
     <div className="bg-white p-4 shadow-md rounded mb-4">
       <div className="mb-4">
@@ -70,49 +99,46 @@ const GameFilters: React.FC<GameFiltersProps> = ({
         </select>
       </div>
       <div className="mb-4">
-        <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="genre">
-          Žánr
-        </label>
-        <div className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-          {genres.map((genre, index) => (
-            <div key={index} className="mb-2">
-              <label className="inline-flex items-center">
-                <input
-                  type="checkbox"
-                  name="genres"
-                  value={genre}
-                  checked={filters.genres.includes(genre)}
-                  onChange={handleCheckboxChange}
-                  className="form-checkbox h-4 w-4 text-indigo-600 transition duration-150 ease-in-out"
-                />
-                <span className="ml-2 text-gray-700">{genre}</span>
-              </label>
-            </div>
-          ))}
-        </div>
-      </div>
-      <div className="mb-4">
-        <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="platforms">
-          Platforma
-        </label>
-        <div className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-          {platforms.map((platform, index) => (
-            <div key={index} className="mb-2">
-              <label className="inline-flex items-center">
-                <input
-                  type="checkbox"
-                  name="platforms"
-                  value={platform}
-                  checked={filters.platforms.includes(platform)}
-                  onChange={handleCheckboxChange}
-                  className="form-checkbox h-4 w-4 text-indigo-600 transition duration-150 ease-in-out"
-                />
-                <span className="ml-2 text-gray-700">{platform}</span>
-              </label>
-            </div>
-          ))}
-        </div>
-      </div>
+  <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="genre">
+    Žánr
+  </label>
+  <div className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline flex flex-wrap gap-2">
+    {genres.map((genre, index) => (
+      <label key={index} className="inline-flex items-center">
+        <input
+          type="checkbox"
+          name="genres"
+          value={genre}
+          checked={filters.genres.includes(genre)}
+          onChange={handleCheckboxChange}
+          className="form-checkbox h-4 w-4 text-indigo-600 transition duration-150 ease-in-out"
+        />
+        <span className="ml-2 text-gray-700">{genre}</span>
+      </label>
+    ))}
+  </div>
+</div>
+
+<div className="mb-4">
+  <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="platforms">
+    Platforma
+  </label>
+  <div className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline flex flex-wrap gap-2">
+    {platforms.map((platform, index) => (
+      <label key={index} className="inline-flex items-center">
+        <input
+          type="checkbox"
+          name="platforms"
+          value={platform}
+          checked={filters.platforms.includes(platform)}
+          onChange={handleCheckboxChange}
+          className="form-checkbox h-4 w-4 text-indigo-600 transition duration-150 ease-in-out"
+        />
+        <span className="ml-2 text-gray-700">{platform}</span>
+      </label>
+    ))}
+  </div>
+</div>
       <div className="mb-4">
         <label className="block text-gray-700 text-sm font-bold mb-2">
           Datum vydání

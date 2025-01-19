@@ -126,7 +126,7 @@ const ReviewBody: React.FC<ReviewBodyProps> = ({ review, isDarkMode }) => {
                     className="inline-block float-right ml-4 text-center bg-[#8e67ea] text-white rounded-full font-normal text-2xl leading-10 whitespace-nowrap"
                     style={{ width: '4.5rem' }}
                   >
-                    {attribute.score}/10
+                    {attribute.score}/5
                   </div>
                   <div className="font-sans font-normal break-words mr-20">
                     {/* Render enriched_text */}

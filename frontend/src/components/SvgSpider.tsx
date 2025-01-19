@@ -8,28 +8,28 @@ const SvgSpider: React.FC<SvgSpiderProps> = ({ scores, aspects, isDarkMode }) =>
 
     useEffect(() => {
         const updatePointPosition = (score: number, lineId: string, pointId: string) => {
-            const line = document.getElementById(lineId);
-            const point = document.getElementById(pointId);
-
-            if (!line || !point) return;
-
-            const x1 = parseFloat(line.getAttribute('x1') || '0');
-            const y1 = parseFloat(line.getAttribute('y1') || '0');
-            const x2 = parseFloat(line.getAttribute('x2') || '0');
-            const y2 = parseFloat(line.getAttribute('y2') || '0');
-
-            const fraction = (score - 1) / 9;
-            const newX = x1 + (x2 - x1) * fraction;
-            const newY = y1 + (y2 - y1) * fraction;
-
-            point.setAttribute('cx', newX.toString());
-            point.setAttribute('cy', newY.toString());
+          const line = document.getElementById(lineId);
+          const point = document.getElementById(pointId);
+      
+          if (!line || !point) return;
+      
+          const x1 = parseFloat(line.getAttribute('x1') || '0');
+          const y1 = parseFloat(line.getAttribute('y1') || '0');
+          const x2 = parseFloat(line.getAttribute('x2') || '0');
+          const y2 = parseFloat(line.getAttribute('y2') || '0');
+      
+          // Přepočet pozice bodu pro rozsah 1-5
+          const fraction = (score - 1) / 4;
+          const newX = x1 + (x2 - x1) * fraction;
+          const newY = y1 + (y2 - y1) * fraction;
+      
+          point.setAttribute('cx', newX.toString());
+          point.setAttribute('cy', newY.toString());
         };
-
+      
         scores.forEach((score, index) => {
-            updatePointPosition(score, `line${index + 1}`, `point${index + 1}`);
+          updatePointPosition(score, `line${index + 1}`, `point${index + 1}`);
         });
-
         const updateConnectingLines = () => {
             const points = ['point1', 'point2', 'point3', 'point4', 'point5'];
             points.forEach((pointId, index) => {

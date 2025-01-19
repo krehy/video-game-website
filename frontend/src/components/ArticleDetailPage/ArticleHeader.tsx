@@ -10,15 +10,15 @@ const ArticleHeader: React.FC<ArticleHeaderProps> = ({ article, readCount, isDar
 
     {article.main_image && (
       <div className="relative mb-4">
-        <Image
-          src={`${process.env.NEXT_PUBLIC_INDEX_URL}${article.main_image.url}`}
-          alt={article.title}
-          layout="responsive"
-          width={800} // Adjust the width according to your design
-          height={450} // Adjust the height according to your design
-          className="rounded"
-          objectFit="cover"
-        />
+  <Image
+    src={`${process.env.NEXT_PUBLIC_INDEX_URL}${article.main_image.url}`}
+    alt={article.title}
+    width={1920} // Vyšší šířka pro lepší rozlišení
+    height={1080} // Poměr stran 16:9
+    className="rounded object-cover w-full h-auto"
+    priority
+  />
+
         <div className="absolute bottom-0 left-0 w-full bg-black bg-opacity-50 text-white p-4 rounded hidden md:block">
           <p className="mb-2">{article.intro}</p>
           <div className="flex items-center text-sm mb-2">

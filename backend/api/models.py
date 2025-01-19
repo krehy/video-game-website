@@ -6,6 +6,8 @@ from wagtail.search import index
 from modelcluster.fields import ParentalKey, ParentalManyToManyField
 from wagtail.embeds.blocks import EmbedBlock
 from wagtail.blocks import StructBlock, URLBlock
+from wagtail.contrib.table_block.blocks import TableBlock
+
 from django import forms
 from django.db import models
 from slugify import slugify
@@ -295,6 +297,12 @@ class BlogPost(Page, SEOFields, index.Indexed):
     body = StreamField([
         ('paragraph', blocks.RichTextBlock(required=True)),
         ('advertisement', SimpleAdvertisementBlock()),
+    ('table', TableBlock(table_options={
+        'minSpareRows': 1,  # Povolit přidávání řádků
+        'minSpareCols': 1,  # Povolit přidávání sloupců
+        'startRows': 3,  # Počáteční počet řádků
+        'startCols': 3,  # Počáteční počet sloupců
+    })),  # Přidání nastavení pro tabulky
 
     ], use_json_field=True, default='')
     active_users_count = models.IntegerField(default=0)

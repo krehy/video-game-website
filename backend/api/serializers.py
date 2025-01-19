@@ -68,10 +68,15 @@ class BlogPostSerializer(serializers.ModelSerializer):
     main_image = serializers.SerializerMethodField()  # Přidáme vlastní pole pro `main_image`
     categories = serializers.SerializerMethodField()  # Přidáme vlastní pole pro kategorie
     owner = serializers.SerializerMethodField()  # Přidáme vlastní pole pro owner
+    url_path = serializers.SerializerMethodField()  # Přidáme vlastní pole pro úpravu url_path
 
     class Meta:
         model = BlogPost
-        fields = '__all__'  # Zachová všechna pole z modelu BlogPost + enriched_body, main_image, categories a owner
+        fields = '__all__'  # Zachová všechna pole z modelu BlogPost + enriched_body, main_image, categories, owner a url_path
+
+    def get_url_path(self, obj):
+        # Úprava url_path odstraněním slova "superpařmeni"
+        return obj.url_path.replace('/superpařmeni', '')
 
     def get_enriched_body(self, obj):
         # Implementace funkce get_enriched_body
@@ -173,13 +178,18 @@ class ReviewSerializer(serializers.ModelSerializer):
     attributes = ReviewAttributeSerializer(many=True, read_only=True)
     pros = ProSerializer(many=True, read_only=True)
     cons = ConSerializer(many=True, read_only=True)
+    url_path = serializers.SerializerMethodField()  # Přidáme vlastní pole pro úpravu url_path
+    owner = serializers.SerializerMethodField()  # Přidáme vlastní pole pro owner
 
     class Meta:
         model = Review
         fields = '__all__'
 
+    def get_url_path(self, obj):
+        # Úprava url_path odstraněním slova "superpařmeni"
+        return obj.url_path.replace('/superpařmeni', '')
+
     def get_main_image(self, obj):
-        # Zpracování hlavního obrázku
         if obj.main_image:
             return {
                 "id": obj.main_image.id,
@@ -188,7 +198,6 @@ class ReviewSerializer(serializers.ModelSerializer):
         return None
 
     def get_enriched_body(self, obj):
-        # Zpracování obohaceného těla recenze
         if hasattr(obj.body, 'source'):
             body_content = obj.body.source
         else:
@@ -196,7 +205,6 @@ class ReviewSerializer(serializers.ModelSerializer):
         return self.enrich_text(body_content)
 
     def enrich_text(self, value):
-        # Zpracování HTML obsahu a náhrada embed tagů
         soup = BeautifulSoup(value, 'html.parser')
         for embed_tag in soup.find_all('embed', {'embedtype': 'image'}):
             image_id = embed_tag.get('id')
@@ -215,6 +223,19 @@ class ReviewSerializer(serializers.ModelSerializer):
                 )
         return str(soup)
 
+    def get_owner(self, obj):
+        # Vrací informace o ownerovi stejným způsobem jako v BlogPostSerializer
+        owner = obj.owner
+        if owner:
+            return {
+                "id": owner.id,
+                "username": owner.username,
+                "first_name": owner.first_name,
+                "last_name": owner.last_name,
+            }
+        return None
+
+
 class GameSerializer(serializers.ModelSerializer):
     main_image = ImageSerializer(read_only=True)
     genres = GenreSerializer(many=True, read_only=True)
@@ -224,19 +245,19 @@ class GameSerializer(serializers.ModelSerializer):
     linked_blog_posts = BlogPostSerializer(many=True, read_only=True)
     linked_reviews = ReviewSerializer(many=True, read_only=True)
     enriched_description = serializers.SerializerMethodField()
+    url_path = serializers.SerializerMethodField()  # Přidáme vlastní pole pro úpravu url_path
 
     class Meta:
         model = Game
         fields = '__all__'
 
+    def get_url_path(self, obj):
+        # Úprava url_path odstraněním slova "superpařmeni"
+        return obj.url_path.replace('/superpařmeni', '')
+
     def get_enriched_description(self, obj):
-        """
-        Processes the description to replace embed tags for images and media with enriched HTML tags.
-        """
         def process_embed_tags(value):
             soup = BeautifulSoup(value, 'html.parser')
-
-            # Process image embeds
             for embed_tag in soup.find_all('embed', {'embedtype': 'image'}):
                 image_id = embed_tag.get('id')
                 try:
@@ -245,18 +266,14 @@ class GameSerializer(serializers.ModelSerializer):
                     embed_tag.replace_with(img_tag)
                 except Image.DoesNotExist:
                     embed_tag.replace_with('[Image not found]')
-
-            # Process media embeds (e.g., YouTube)
             for embed_tag in soup.find_all('embed', {'embedtype': 'media'}):
                 media_url = embed_tag.get('url')
                 if media_url:
                     if "youtube.com" in media_url or "youtu.be" in media_url:
-                        # Handle YouTube URL to extract video ID
                         if "youtube.com" in media_url:
                             video_id = media_url.split('v=')[-1].split('&')[0]
                         elif "youtu.be" in media_url:
                             video_id = media_url.split('/')[-1]
-                        
                         iframe_tag = soup.new_tag('iframe', src=f'https://www.youtube.com/embed/{video_id}')
                         iframe_tag.attrs = {
                             'width': '560',
@@ -267,9 +284,7 @@ class GameSerializer(serializers.ModelSerializer):
                         }
                         embed_tag.replace_with(iframe_tag)
                     else:
-                        # Unsupported media type
                         embed_tag.replace_with(f'[Unsupported media: {media_url}]')
-
             return str(soup)
 
         return process_embed_tags(obj.description) if obj.description else None

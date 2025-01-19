@@ -37,6 +37,8 @@ INSTALLED_APPS = [
     'allauth.account',
     'allauth.socialaccount',
     'allauth.socialaccount.providers.google',
+    'wagtail.contrib.table_block',
+
     'wagtail.contrib.settings',
     'wagtail_modeladmin',
     'api',
@@ -106,7 +108,7 @@ CORS_ALLOW_CREDENTIALS = False
 APPEND_SLASH = False
 
 WAGTAILADMIN_BASE_URL = 'http://localhost:8000/cms'
-WAGTAIL_SITE_NAME = 'Superjugadores'
+WAGTAIL_SITE_NAME = 'SuperJugadores'
 
 ROOT_URLCONF = 'backend.urls'
 
@@ -189,8 +191,18 @@ LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'UTC'
 USE_I18N = True
 USE_TZ = True
+WAGTAIL_ENABLE_UPDATE_CHECK = False
 
-STATIC_URL = 'static/'
+# Správné nastavení:
+STATIC_URL = '/static/'  # URL cesta ke statickým souborům
+
+# Složky obsahující zdrojové statické soubory (pouze ve vývoji):
+STATICFILES_DIRS = [
+    BASE_DIR / "static",  # Složka pro vlastní statické soubory
+]
+
+# Cílová složka pro příkaz collectstatic (pouze pro produkci):
+STATIC_ROOT = BASE_DIR / "staticfiles"
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 

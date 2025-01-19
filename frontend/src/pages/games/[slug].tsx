@@ -60,7 +60,6 @@ const GameDetail: React.FC<GameDetailProps> = ({ game }) => {
       </Head>
       <h1 style={{color:'white'}} className="text-3xl font-bold mb-4">{game.title}</h1>
       {game.main_image && <GameHeader game={game} />}
-      
       <TwitchStream></TwitchStream>
       <br></br>
       <div className={`p-4 rounded relative ${isDarkMode ? 'bg-transparent text-white' : 'bg-white text-black'}`}>
@@ -72,7 +71,7 @@ const GameDetail: React.FC<GameDetailProps> = ({ game }) => {
         {game.trailer_url && (
           <div className="mt-4">
             <iframe
-              width="100%"
+              width="560"
               height="315"
               src={game.trailer_url.replace('watch?v=', 'embed/')}
               title="YouTube video player"

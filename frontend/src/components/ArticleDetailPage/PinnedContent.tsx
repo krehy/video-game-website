@@ -7,7 +7,6 @@ import { faThumbtack, faGamepad, faTag } from '@fortawesome/free-solid-svg-icons
 import { PinnedContentProps } from '../../types';
 
 const PinnedContent: React.FC<PinnedContentProps> = ({ linkedGame }) => {
-  console.log('Rendering PinnedContent with linkedGame:', linkedGame);  // Přidáno logování
   
   return (
     <div className="mt-6">
