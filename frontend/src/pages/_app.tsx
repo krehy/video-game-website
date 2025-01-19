@@ -124,7 +124,7 @@ function MyApp({ Component, pageProps }: AppProps) {
       
       <Footer />
 
-      {/* Reklama pevně připevněná ke spodní části obrazovky */}
+      {/* Reklama pevně připevněná ke spodní části obrazoky */}
       <div
         id="ssp-zone-347257"
         style={{
