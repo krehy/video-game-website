@@ -1,4 +1,4 @@
-from django.contrib.syndication.views import Feed
+from django.contrib.syndication.views import Feed # type: ignore
 from .models import BlogPost, Review
 
 class BlogPostFeed(Feed):

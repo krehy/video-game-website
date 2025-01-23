@@ -18,6 +18,16 @@ export const fetchAktuality = async () => {
   }
 };
 
+export const fetchMostLikedArticle = async (): Promise<Article> => {
+  try {
+    const response = await axiosInstance.get('/posts/?page_size=1&ordering=-like_count');
+    return response.data[0] as Article;
+  } catch (error) {
+    console.error('Error fetching most liked article:', error);
+    throw error;
+  }
+};
+
 
 export const fetchArticles = async (): Promise<Article[]> => {
   try {
@@ -25,6 +35,16 @@ export const fetchArticles = async (): Promise<Article[]> => {
     return response.data as Article[]; // Type assertion
   } catch (error) {
     console.error('Error fetching articles:', error);
+    throw error;
+  }
+};
+
+export const fetchLatestArticles = async (): Promise<Article[]> => {
+  try {
+    const response = await axiosInstance.get('/posts/?limit=10&ordering=-published_date');
+    return response.data as Article[]; // Type assertion
+  } catch (error) {
+    console.error('Error fetching latest articles:', error);
     throw error;
   }
 };

@@ -1,6 +1,6 @@
-from django.contrib import admin
-from django.urls import path, include
-from rest_framework.routers import DefaultRouter
+from django.contrib import admin # type: ignore
+from django.urls import path, include # type: ignore
+from rest_framework.routers import DefaultRouter # type: ignore
 from api.views import ( get_top_most_read, increment_search_week, most_searched_game_of_week,
     increment_active_users, decrement_active_users, get_active_users,
     increment_read_count, ContactMessageView, HomePageContentView,
@@ -10,11 +10,11 @@ from api.views import ( get_top_most_read, increment_search_week, most_searched_
     like_article, dislike_article, like_review, dislike_review, like_game, dislike_game, get_image_url
 )
 
-from wagtail.contrib.sitemaps.views import sitemap
-from django.shortcuts import redirect
+from wagtail.contrib.sitemaps.views import sitemap # type: ignore
+from django.shortcuts import redirect # type: ignore
 from api.feeds import BlogPostFeed, ReviewFeed
-from django.conf.urls.static import static
-from django.conf import settings
+from django.conf.urls.static import static # type: ignore
+from django.conf import settings # type: ignore
 
 def home_redirect(request):
     return redirect('/cms/')

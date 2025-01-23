@@ -1,25 +1,25 @@
-from django.views.decorators.csrf import csrf_exempt
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.views import APIView
-from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly
-from rest_framework import viewsets
+from django.views.decorators.csrf import csrf_exempt # type: ignore
+from rest_framework.decorators import api_view, permission_classes # type: ignore
+from rest_framework.views import APIView # type: ignore
+from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly # type: ignore
+from rest_framework import viewsets # type: ignore
 from .models import Aktualita, BlogPost, Review, Game, BlogIndexPage, ReviewIndexPage, GameIndexPage, ProductIndexPage, HomePage, Comment, ArticleCategory
 from .serializers import AktualitaSerializer, HomePageContentSerializer, ContactMessageSerializer, BlogPostSerializer, ReviewSerializer, GameSerializer, BlogIndexPageSerializer, ReviewIndexPageSerializer, GameIndexPageSerializer, ProductIndexPageSerializer, HomePageSerializer, CommentSerializer, ArticleCategorySerializer
-from django.http import JsonResponse
-from rest_framework.response import Response
-from rest_framework import status
-from django.shortcuts import redirect
-from django.shortcuts import get_object_or_404
-from django.utils import timezone
+from django.http import JsonResponse # type: ignore
+from rest_framework.response import Response # type: ignore
+from rest_framework import status # type: ignore
+from django.shortcuts import redirect # type: ignore
+from django.shortcuts import get_object_or_404 # type: ignore
+from django.utils import timezone # type: ignore
 import logging
 
-import redis
+import redis # type: ignore
 
-from wagtail.images.models import Image
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import AllowAny
-from rest_framework.response import Response
-from rest_framework import status
+from wagtail.images.models import Image # type: ignore
+from rest_framework.decorators import api_view, permission_classes # type: ignore
+from rest_framework.permissions import AllowAny # type: ignore
+from rest_framework.response import Response # type: ignore
+from rest_framework import status # type: ignore
 
 @api_view(['GET'])
 @permission_classes([AllowAny])

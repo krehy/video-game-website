@@ -32,8 +32,8 @@ const GameContent: React.FC<GameContentProps> = ({ game, isDarkMode }) => {
                   src={fullSrc}
                   alt={alt}
                   layout="responsive"
-                  width={560}
-                  height={315}
+                  width={800}
+                  height={450}
                   className="rounded"
                   objectFit="cover"
                 />

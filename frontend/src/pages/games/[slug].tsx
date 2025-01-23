@@ -68,19 +68,18 @@ const GameDetail: React.FC<GameDetailProps> = ({ game }) => {
         </div>
         
         <GameContent game={game} isDarkMode={isDarkMode} />
-        {game.trailer_url && (
-          <div className="mt-4">
-            <iframe
-              width="560"
-              height="315"
-              src={game.trailer_url.replace('watch?v=', 'embed/')}
-              title="YouTube video player"
-              frameBorder="0"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
-            ></iframe>
-          </div>
-        )}
+{game.trailer_url && (
+  <div className="relative w-full max-w-4xl mx-auto aspect-video mt-4">
+  <iframe
+    className="absolute top-0 left-0 w-full h-full border-0"
+    src={game.trailer_url.replace('watch?v=', 'embed/')}
+    title="YouTube video player"
+    frameBorder="0"
+    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+    allowFullScreen
+  ></iframe>
+</div>
+)}
         
         <GamePinnedContent game={game} />
         <CommentShareLike

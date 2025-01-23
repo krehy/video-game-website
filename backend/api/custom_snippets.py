@@ -1,5 +1,5 @@
-from wagtail.snippets.views.snippets import SnippetViewSet
-from django.utils.translation import gettext_lazy as _
+from wagtail.snippets.views.snippets import SnippetViewSet # type: ignore
+from django.utils.translation import gettext_lazy as _ # type: ignore
 
 class CustomSnippetViewSet(SnippetViewSet):
     icon = 'snippet'

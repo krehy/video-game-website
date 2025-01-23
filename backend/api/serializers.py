@@ -1,8 +1,8 @@
 import re
-from django.contrib.auth.models import User
-from rest_framework import serializers
-from wagtail.images.models import Image
-from bs4 import BeautifulSoup
+from django.contrib.auth.models import User # type: ignore
+from rest_framework import serializers # type: ignore
+from wagtail.images.models import Image # type: ignore
+from bs4 import BeautifulSoup # type: ignore
 
 
 
@@ -76,7 +76,7 @@ class BlogPostSerializer(serializers.ModelSerializer):
 
     def get_url_path(self, obj):
         # Úprava url_path odstraněním slova "superpařmeni"
-        return obj.url_path.replace('/superpařmeni', '')
+        return re.sub(r'/superpa[řr]meni', '', obj.url_path)
 
     def get_enriched_body(self, obj):
         # Implementace funkce get_enriched_body
@@ -93,7 +93,6 @@ class BlogPostSerializer(serializers.ModelSerializer):
         # Implementace pro manipulaci s HTML
         if hasattr(value, 'source'):
             value = value.source
-        from bs4 import BeautifulSoup
         soup = BeautifulSoup(value, 'html.parser')
         for embed_tag in soup.find_all('embed', {'embedtype': 'image'}):
             image_id = embed_tag.get('id')

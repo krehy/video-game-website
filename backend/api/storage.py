@@ -1,5 +1,5 @@
-from django.core.files.storage import FileSystemStorage
-from PIL import Image
+from django.core.files.storage import FileSystemStorage # type: ignore
+from PIL import Image # type: ignore
 from io import BytesIO
 import os
 

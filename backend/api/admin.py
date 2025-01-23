@@ -1,5 +1,5 @@
-from wagtail_modeladmin.options import ModelAdmin, ModelAdminGroup, modeladmin_register
-from wagtail.snippets.views.snippets import SnippetViewSet
+from wagtail_modeladmin.options import ModelAdmin, ModelAdminGroup, modeladmin_register # type: ignore
+from wagtail.snippets.views.snippets import SnippetViewSet # type: ignore
 
 from .models import Partner, Aktualita, ContactMessage, Developer, Publisher, Genre, Platform, BlogPost, Game, Review, ArticleCategory, Comment
 

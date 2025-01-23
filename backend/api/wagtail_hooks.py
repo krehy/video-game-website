@@ -1,4 +1,4 @@
-from wagtail import hooks
+from wagtail import hooks # type: ignore
 
 @hooks.register('construct_main_menu')
 def hide_snippets_from_main_menu(request, menu_items):

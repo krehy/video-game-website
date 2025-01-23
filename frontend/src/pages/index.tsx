@@ -7,7 +7,8 @@ import SmallArticleCard from '../components/BlogPage/SmallArticleCard';
 import {
   fetchHomePageSEO,
   fetchAktuality,
-  fetchArticles,
+  fetchLatestArticles,
+  fetchMostLikedArticle,
   fetchReviews,
   fetchGames,
 } from '../services/api';
@@ -42,70 +43,95 @@ const HomePage = () => {
   const [aktuality, setAktuality] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [articles, setArticles] = useState<Article[]>([]);
+  const [mostLikedArticle, setMostLikedArticle] = useState<Article | null>(null);
   const [reviews, setReviews] = useState<Review[]>([]);
   const [upcomingGames, setUpcomingGames] = useState<any[]>([]);
   const [randomFact, setRandomFact] = useState<string | null>(null);
 
   useEffect(() => {
-    const getSeoData = async () => {
-      try {
-        const seo = await fetchHomePageSEO();
-        setSeoData(seo[0]);
-      } catch (error) {
-        console.error('Error fetching SEO data:', error);
-      }
-    };
+    const fetchDataWithCache = async () => {
+      const now = Date.now();
+      const cacheExpiration = 60 * 1000; // 1 minuta
 
-    const getAktuality = async () => {
+      // Načítání z localStorage
+      const cachedData = {
+        seo: JSON.parse(localStorage.getItem('seoData') || 'null'),
+        aktuality: JSON.parse(localStorage.getItem('aktuality') || 'null'),
+        articles: JSON.parse(localStorage.getItem('articles') || 'null'),
+        mostLikedArticle: JSON.parse(localStorage.getItem('mostLikedArticle') || 'null'),
+        reviews: JSON.parse(localStorage.getItem('reviews') || 'null'),
+        upcomingGames: JSON.parse(localStorage.getItem('upcomingGames') || 'null'),
+        lastFetch: parseInt(localStorage.getItem('lastFetch') || '0', 10),
+      };
+
+      const shouldFetch = !cachedData.lastFetch || now - cachedData.lastFetch > cacheExpiration;
+
+      if (!shouldFetch && cachedData.articles && cachedData.mostLikedArticle) {
+        setSeoData(cachedData.seo || {});
+        setAktuality(cachedData.aktuality || []);
+        setArticles(cachedData.articles || []);
+        setMostLikedArticle(cachedData.mostLikedArticle || null);
+        setReviews(cachedData.reviews || []);
+        setUpcomingGames(cachedData.upcomingGames || []);
+        setIsLoading(false);
+        return;
+      }
+
       try {
-        const aktualityData = await fetchAktuality();
+        const [
+          seo,
+          aktualityData,
+          latestArticles,
+          likedArticle,
+          reviewsData,
+          gamesData,
+        ] = await Promise.all([
+          fetchHomePageSEO(),
+          fetchAktuality(),
+          fetchLatestArticles(),
+          fetchMostLikedArticle(),
+          fetchReviews(),
+          fetchGames(),
+        ]);
+
+        // Nastavení dat
+        setSeoData(seo[0]);
+        localStorage.setItem('seoData', JSON.stringify(seo[0]));
+
         const aktualityTexty = aktualityData.map((aktualita: { text: string }) => aktualita.text);
         setAktuality(aktualityTexty);
-      } catch (error) {
-        console.error('Error processing aktuality:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
+        localStorage.setItem('aktuality', JSON.stringify(aktualityTexty));
 
-    const getArticles = async () => {
-      try {
-        const articlesData = await fetchArticles();
-        const sortedArticles = articlesData.sort(
+        const sortedArticles = latestArticles.sort(
           (a, b) =>
             new Date(b.first_published_at || b.last_published_at).getTime() -
             new Date(a.first_published_at || a.last_published_at).getTime()
         );
         setArticles(sortedArticles);
-      } catch (error) {
-        console.error('Error fetching articles:', error);
-      }
-    };
+        localStorage.setItem('articles', JSON.stringify(sortedArticles));
 
-    const getReviews = async () => {
-      try {
-        const reviewsData = await fetchReviews();
+        setMostLikedArticle(likedArticle);
+        localStorage.setItem('mostLikedArticle', JSON.stringify(likedArticle));
+
         setReviews(reviewsData);
-      } catch (error) {
-        console.error('Error fetching reviews:', error);
-      }
-    };
+        localStorage.setItem('reviews', JSON.stringify(reviewsData));
 
-    const getUpcomingGames = async () => {
-      try {
-        const games = await fetchGames();
         const now = new Date();
         const oneMonthLater = new Date();
         oneMonthLater.setMonth(now.getMonth() + 1);
 
-        const upcoming = games.filter((game: any) => {
+        const upcoming = gamesData.filter((game: any) => {
           const releaseDate = new Date(game.release_date);
           return releaseDate >= now && releaseDate <= oneMonthLater;
         });
+        setUpcomingGames(upcoming.slice(0, 3));
+        localStorage.setItem('upcomingGames', JSON.stringify(upcoming.slice(0, 3)));
 
-        setUpcomingGames(upcoming.slice(0, 3)); // Only keep the first 3 games
+        localStorage.setItem('lastFetch', now.toString());
       } catch (error) {
-        console.error('Error fetching upcoming games:', error);
+        console.error('Error fetching data:', error);
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -116,11 +142,7 @@ const HomePage = () => {
       setRandomFact(fact);
     }
 
-    getSeoData();
-    getAktuality();
-    getArticles();
-    getReviews();
-    getUpcomingGames();
+    fetchDataWithCache();
   }, []);
 
   const breadcrumbList = {
@@ -136,22 +158,16 @@ const HomePage = () => {
     ],
   };
 
-  const mostLikedArticle = articles.reduce((prev, current) => {
-    const currentLikes = current.like_count || 0;
-    const prevLikes = prev.like_count || 0;
-    return currentLikes > prevLikes ? current : prev;
-  }, {} as Article);
-  
   return (
     <div className="container mx-auto p-4">
       <SEOHead seoData={seoData} breadcrumbList={breadcrumbList} />
 
       <h1 className="text-3xl font-bold text-white">
-        {randomFact || "Hlavní stránka"}
+        {randomFact || 'Hlavní stránka'}
       </h1>
 
       {!isLoading && aktuality.length > 0 ? (
-        <AktualityMarquee aktuality={aktuality}/>
+        <AktualityMarquee aktuality={aktuality} />
       ) : (
         <p className="text-center text-gray-600 mt-4">Žádné aktuality k zobrazení.</p>
       )}
@@ -166,20 +182,14 @@ const HomePage = () => {
           ))}
           {articles.length > 8 && (
             <div className="text-center mt-4">
-              <Link href="/blog">
-                Zobrazit více
-              </Link>
+              <Link href="/blog">Zobrazit více</Link>
             </div>
           )}
         </div>
 
         <div className="md:col-span-1 flex flex-col">
           <div className="bg-white p-4 h-full rounded-lg shadow-md">
-
-
-            <h2 className="text-xl font-semibold mb-4 text-black">
-              Nejnovější Recenze:
-            </h2>
+            <h2 className="text-xl font-semibold mb-4 text-black">Nejnovější Recenze:</h2>
             <div className="space-y-4">
               {reviews.slice(0, 3).map((review) => (
                 <SmallReviewCard key={review.id} review={review} />
@@ -191,86 +201,60 @@ const HomePage = () => {
                 <SmallArticleCard article={mostLikedArticle} />
               </div>
             )}
-{upcomingGames.length > 0 && (
-  <div className="mb-8">
-    <h2 className="text-xl font-semibold mb-4 text-black">Brzy vyjde:</h2>
-    <ul className="space-y-4">
-      {upcomingGames.map((game, index) => {
-        const imageUrl = game.main_image
-          ? `${process.env.NEXT_PUBLIC_INDEX_URL}${game.main_image.url}`
-          : '/default-game-image.jpg';
-
-        const isLeft = index % 2 === 0; // Alternating left/right positions
-
-        // Naformátování data do DD.MM.YYYY
-        const formattedDate = new Date(game.release_date).toLocaleDateString('cs-CZ', {
-          day: '2-digit',
-          month: '2-digit',
-          year: 'numeric',
-        });
-
-        return (
-          <li
-            key={game.id}
-            className="flex items-center space-x-4 bg-gray-200 p-4 rounded-lg"
-          >
-            {isLeft && (
-              <motion.div
-                className="relative w-16 h-24 flex-shrink-0 overflow-hidden rounded-lg bg-gray-200 mr-4"
-                whileHover={{ scale: 1.05 }} // Add hover zoom effect
-                transition={{ duration: 0.3 }}
-              >
-                <Link href={`/games/${game.slug}`} legacyBehavior>
-                  <Image
-                    src={imageUrl}
-                    alt={game.title}
-                    fill
-                    className="rounded-lg cursor-pointer object-cover"
-                  />
-                </Link>
-              </motion.div>
+            {upcomingGames.length > 0 && (
+              <div className="mb-8">
+                <h2 className="text-xl font-semibold mb-4 text-black">Brzy vyjde:</h2>
+                <ul className="space-y-4">
+                  {upcomingGames.map((game, index) => {
+                    const imageUrl = game.main_image
+                      ? `${process.env.NEXT_PUBLIC_INDEX_URL}${game.main_image.url}`
+                      : '/default-game-image.jpg';
+                    const formattedDate = new Date(game.release_date).toLocaleDateString('cs-CZ', {
+                      day: '2-digit',
+                      month: '2-digit',
+                      year: 'numeric',
+                    });
+                    return (
+                      <li
+                        key={game.id}
+                        className="flex items-center space-x-4 bg-gray-200 p-4 rounded-lg"
+                      >
+                        <motion.div
+                          className="relative w-16 h-24 flex-shrink-0 overflow-hidden rounded-lg bg-gray-200 mr-4"
+                          whileHover={{ scale: 1.05 }}
+                          transition={{ duration: 0.3 }}
+                        >
+                          <Link href={`/games/${game.slug}`} legacyBehavior>
+                            <Image
+                              src={imageUrl}
+                              alt={game.title}
+                              fill
+                              className="rounded-lg cursor-pointer object-cover"
+                            />
+                          </Link>
+                        </motion.div>
+                        <div className="flex flex-col">
+                          <Link href={`/games/${game.slug}`} legacyBehavior>
+                            <a className="text-[#8e67ea] text-sm font-semibold hover:underline">
+                              {game.title}
+                            </a>
+                          </Link>
+                          <span className="text-sm text-gray-600">({formattedDate})</span>
+                        </div>
+                      </li>
+                    );
+                  })}
+                </ul>
+                <div className="mt-4 text-center">
+                  <Link
+                    href="/calendar"
+                    className="inline-block bg-[#8e67ea] text-white px-4 py-2 rounded-lg shadow-md hover:bg-[#764bb5] transition"
+                  >
+                    Více nadcházejících her
+                  </Link>
+                </div>
+              </div>
             )}
-            <div className="flex flex-col">
-              <Link href={`/games/${game.slug}`} legacyBehavior>
-                <a
-                  className="text-[#8e67ea] text-sm font-semibold hover:underline"
-                >
-                  {game.title}
-                </a>
-              </Link>
-              <span className="text-sm text-gray-600">({formattedDate})</span>
-            </div>
-            {!isLeft && (
-              <motion.div
-                className="relative w-16 h-24 flex-shrink-0 overflow-hidden rounded-lg bg-gray-200 ml-4"
-                whileHover={{ scale: 1.05 }} // Add hover zoom effect
-                transition={{ duration: 0.3 }}
-              >
-                <Link href={`/games/${game.slug}`} legacyBehavior>
-                  <Image
-                    src={imageUrl}
-                    alt={game.title}
-                    fill
-                    className="rounded-lg cursor-pointer object-cover"
-                  />
-                </Link>
-              </motion.div>
-            )}
-          </li>
-        );
-      })}
-    </ul>
-    <div className="mt-4 text-center">
-      <Link
-        href="/calendar"
-        className="inline-block bg-[#8e67ea] text-white px-4 py-2 rounded-lg shadow-md hover:bg-[#764bb5] transition"
-      >
-        Více nadcházejících her
-      </Link>
-    </div>
-  </div>
-)}
-
             <div className="mt-8">
               <InstagramPhotos />
             </div>

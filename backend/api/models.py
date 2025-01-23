@@ -1,19 +1,19 @@
-from wagtail.models import Page
-from wagtail.admin.panels import FieldPanel, InlinePanel
-from wagtail.snippets.models import register_snippet
-from wagtail.fields import RichTextField, StreamField
-from wagtail.search import index
-from modelcluster.fields import ParentalKey, ParentalManyToManyField
-from wagtail.embeds.blocks import EmbedBlock
-from wagtail.blocks import StructBlock, URLBlock
-from wagtail.contrib.table_block.blocks import TableBlock
+from wagtail.models import Page # type: ignore
+from wagtail.admin.panels import FieldPanel, InlinePanel # type: ignore
+from wagtail.snippets.models import register_snippet # type: ignore
+from wagtail.fields import RichTextField, StreamField # type: ignore
+from wagtail.search import index # type: ignore
+from modelcluster.fields import ParentalKey, ParentalManyToManyField # type: ignore
+from wagtail.embeds.blocks import EmbedBlock # type: ignore
+from wagtail.blocks import StructBlock, URLBlock # type: ignore
+from wagtail.contrib.table_block.blocks import TableBlock # type: ignore
 
-from django import forms
-from django.db import models
-from slugify import slugify
-from django.core.files.storage import FileSystemStorage
-from wagtail import blocks
-from PIL import Image
+from django import forms # type: ignore
+from django.db import models # type: ignore
+from slugify import slugify # type: ignore
+from django.core.files.storage import FileSystemStorage # type: ignore
+from wagtail import blocks # type: ignore
+from PIL import Image # type: ignore
 from io import BytesIO
 import os
 
@@ -297,13 +297,12 @@ class BlogPost(Page, SEOFields, index.Indexed):
     body = StreamField([
         ('paragraph', blocks.RichTextBlock(required=True)),
         ('advertisement', SimpleAdvertisementBlock()),
-    ('table', TableBlock(table_options={
-        'minSpareRows': 1,  # Povolit přidávání řádků
-        'minSpareCols': 1,  # Povolit přidávání sloupců
-        'startRows': 3,  # Počáteční počet řádků
-        'startCols': 3,  # Počáteční počet sloupců
-    })),  # Přidání nastavení pro tabulky
-
+        ('table', TableBlock(table_options={
+            'minSpareRows': 1,
+            'minSpareCols': 1,
+            'startRows': 3,
+            'startCols': 3,
+        })),
     ], use_json_field=True, default='')
     active_users_count = models.IntegerField(default=0)
     read_count = models.IntegerField(default=0)
@@ -342,6 +341,12 @@ class BlogPost(Page, SEOFields, index.Indexed):
 
     class Meta:
         ordering = ['-first_published_at']
+
+    def save(self, *args, **kwargs):
+        # Generování slugu pouze pokud není definován
+        if not self.slug or self.slug != slugify(self.slug):
+            self.slug = generate_slug(self.title)
+        super().save(*args, **kwargs)
 
 class Game(Page, SEOFields, index.Indexed):
     description = RichTextField(default='')
