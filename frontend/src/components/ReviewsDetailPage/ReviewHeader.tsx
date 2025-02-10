@@ -1,4 +1,5 @@
 import React from 'react';
+import Link from 'next/link';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUser, faCalendarAlt, faEye } from '@fortawesome/free-solid-svg-icons';
 import Image from 'next/image';
@@ -23,9 +24,6 @@ interface ReviewHeaderProps {
 }
 
 const ReviewHeader: React.FC<ReviewHeaderProps> = ({ review, readCount }) => {
-  // Remove or replace usage of `url_path`
-  // const cleanedUrlPath = review.url_path?.replace('/placeholder', '') || '';
-
   return (
     <>
       <h1 style={{color:'white'}} className="text-3xl font-bold mb-4 break-words">{review.title}</h1>
@@ -44,7 +42,9 @@ const ReviewHeader: React.FC<ReviewHeaderProps> = ({ review, readCount }) => {
             <p className="mb-2 break-words">{review.intro}</p>
             <div className="flex items-center text-sm mb-2">
               <FontAwesomeIcon icon={faUser} className="mr-2 text-[#8e67ea] text-lg" />
-              <span className="mr-4 break-words">{review.owner.username}</span>
+              <Link href={`/profile/${review.owner.username}`} className="mr-4 text-[#8e67ea] hover:underline">
+                {review.owner.username}
+              </Link>
               <FontAwesomeIcon icon={faCalendarAlt} className="mr-2 text-[#8e67ea] text-lg" />
               <span>{new Date(review.first_published_at).toLocaleDateString()}</span>
               <FontAwesomeIcon icon={faEye} className="mr-2 text-[#8e67ea] text-lg" style={{ marginLeft: '15' }} />

@@ -94,7 +94,9 @@ const ReviewCard: React.FC<ReviewCardProps> = ({ review, info }) => {
       <div className="p-4">
         <div className="flex items-center text-gray-500 text-sm mb-4">
           <FontAwesomeIcon icon={faUser} className="mr-1 text-[#8e67ea]" />
-          <span className="mr-4">{review.owner.username}</span>
+          <Link href={`/profile/${review.owner.username}`} className="mr-4 text-[#8e67ea] hover:underline">
+            {review.owner.username}
+          </Link>
           <FontAwesomeIcon icon={faCalendarAlt} className="mr-1 text-[#8e67ea]" />
           <span>{new Date(review.first_published_at).toLocaleDateString()}</span>
           <FontAwesomeIcon style={{marginRight:'7px'}} icon={faEye} className="ml-4 text-[#8e67ea]" />

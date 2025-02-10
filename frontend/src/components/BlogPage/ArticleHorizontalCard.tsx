@@ -6,7 +6,7 @@ import { motion } from 'framer-motion';
 import Image from 'next/image';
 import { ArticleCardProps } from '../../types';
 
-const ArticleHorizontalCard: React.FC<ArticleCardProps> = ({ article }) => {
+const ArticleHorizontalCard: React.FC<ArticleCardProps> = ({ article, isFirst = false }) => {
   const [isHovered, setIsHovered] = useState(false);
 
   return (
@@ -25,6 +25,7 @@ const ArticleHorizontalCard: React.FC<ArticleCardProps> = ({ article }) => {
                 alt={article.title}
                 fill
                 className="group-hover:scale-110 transition-transform duration-500 object-cover"
+                priority={isFirst} // Prioritní načítání u prvního článku
               />
             </div>
           </Link>
@@ -37,7 +38,9 @@ const ArticleHorizontalCard: React.FC<ArticleCardProps> = ({ article }) => {
           </h2>
           <div className="flex items-center text-gray-500 text-sm mb-4">
             <FontAwesomeIcon icon={faUser} className="mr-1 text-[#8e67ea]" />
-            <span className="mr-4">{article.owner.username}</span>
+            <Link href={`/profile/${article.owner.username}`} className="mr-4 text-[#8e67ea] hover:underline">
+              {article.owner.username}
+            </Link>
             <FontAwesomeIcon icon={faCalendarAlt} className="mr-1 text-[#8e67ea]" />
             <span>{new Date(article.first_published_at).toLocaleDateString()}</span>
             <FontAwesomeIcon icon={faEye} className="ml-4 text-[#8e67ea]" />

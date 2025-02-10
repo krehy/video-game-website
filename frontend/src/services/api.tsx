@@ -20,11 +20,31 @@ export const fetchAktuality = async () => {
 
 export const fetchMostLikedArticle = async (): Promise<Article> => {
   try {
-    const response = await axiosInstance.get('/posts/?page_size=1&ordering=-like_count');
-    return response.data[0] as Article;
+    const response = await axiosInstance.get('/most-liked-article/');
+    return response.data as Article;
   } catch (error) {
     console.error('Error fetching most liked article:', error);
     throw error;
+  }
+};
+
+export const fetchUserProfile = async (username: string, signal?: AbortSignal) => {
+  try {
+    const response = await axiosInstance.get(`/profile/${username}/`, { signal });
+    return response.data;
+  } catch (error) {
+    if (axios.isCancel(error)) {
+      console.log('Request was canceled:', error.message);
+      return null; // Pokud byl request zrušen, jen ho ignorujeme
+    }
+    
+    if (axios.isAxiosError(error) && error.response?.status === 404) {
+      console.warn(`User profile for "${username}" not found.`);
+      return null; // Vrátíme null místo erroru
+    }
+
+    console.error(`Error fetching user profile for ${username}:`, error);
+    throw error; // Pokud není 404, vyhodíme error
   }
 };
 
@@ -41,7 +61,7 @@ export const fetchArticles = async (): Promise<Article[]> => {
 
 export const fetchLatestArticles = async (): Promise<Article[]> => {
   try {
-    const response = await axiosInstance.get('/posts/?limit=10&ordering=-published_date');
+    const response = await axiosInstance.get('/latest-posts/');
     return response.data as Article[]; // Type assertion
   } catch (error) {
     console.error('Error fetching latest articles:', error);
@@ -69,6 +89,17 @@ export const fetchGames = async () => {
     throw error;
   }
 };
+
+export const fetchGamesHomepage = async () => {
+  try {
+    const response = await axiosInstance.get('/upcoming-games/');  // Opravená URL
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching games:', error);
+    throw error;
+  }
+};
+
 
 export const fetchCategories = async () => {
   try {

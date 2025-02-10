@@ -176,6 +176,7 @@ export interface BlogIndexProps {
   export interface ArticleCardProps {
     article: Article;
     info?: boolean;
+    isFirst?: boolean; // Přidáme volitelný prop
   }
   
   export interface ListItem {
@@ -365,5 +366,23 @@ export interface BlogIndexProps {
     scores: number[]; // Assuming scores is an array of numbers
     aspects: string[]; // Assuming aspects is an array of strings
     isDarkMode: boolean; // Assuming isDarkMode is a boolean
+  }
+  export interface UserProfile {
+    username: string;
+    first_name: string;
+    last_name: string;
+    profile_image: string;
+    groups: string[];
+    latest_posts: UserPost[];
+  }
+  export interface UserPost {
+    id: number;
+    title: string;
+    slug: string;
+    intro: string;
+    type: 'review' | 'blog';
+    main_image?: string;
+    published_at: string;
+    read_count: number;
   }
   

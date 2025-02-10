@@ -4,7 +4,7 @@ from rest_framework.views import APIView # type: ignore
 from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly # type: ignore
 from rest_framework import viewsets # type: ignore
 from .models import Aktualita, BlogPost, Review, Game, BlogIndexPage, ReviewIndexPage, GameIndexPage, ProductIndexPage, HomePage, Comment, ArticleCategory
-from .serializers import AktualitaSerializer, HomePageContentSerializer, ContactMessageSerializer, BlogPostSerializer, ReviewSerializer, GameSerializer, BlogIndexPageSerializer, ReviewIndexPageSerializer, GameIndexPageSerializer, ProductIndexPageSerializer, HomePageSerializer, CommentSerializer, ArticleCategorySerializer
+from .serializers import AktualitaSerializer, HomePageContentSerializer,UserProfileSerializer, ContactMessageSerializer, BlogPostSerializer, ReviewSerializer, GameSerializer, BlogIndexPageSerializer, ReviewIndexPageSerializer, GameIndexPageSerializer, ProductIndexPageSerializer, HomePageSerializer, CommentSerializer, ArticleCategorySerializer
 from django.http import JsonResponse # type: ignore
 from rest_framework.response import Response # type: ignore
 from rest_framework import status # type: ignore
@@ -20,6 +20,113 @@ from rest_framework.decorators import api_view, permission_classes # type: ignor
 from rest_framework.permissions import AllowAny # type: ignore
 from rest_framework.response import Response # type: ignore
 from rest_framework import status # type: ignore
+from django.contrib.auth import get_user_model # type: ignore
+
+User = get_user_model()
+
+@api_view(["GET"])
+def get_user_profile(request, username):
+    try:
+        user = User.objects.get(username=username)
+    except User.DoesNotExist:
+        return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+
+    serializer = UserProfileSerializer(user, context={"request": request})
+    return Response(serializer.data, status=status.HTTP_200_OK)
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def most_liked_article(request):
+    """
+    Returns the most liked article based on like_count.
+    """
+    most_liked = BlogPost.objects.order_by('-like_count').first()
+
+    if not most_liked:
+        return Response({'error': 'No articles found'}, status=status.HTTP_404_NOT_FOUND)
+
+    response_data = {
+        "id": most_liked.id,
+        "title": most_liked.title,
+        "slug": most_liked.slug,
+        "first_published_at": most_liked.first_published_at,
+        "like_count": most_liked.like_count,
+        "read_count":most_liked.read_count,
+        "main_image": {
+            "id": most_liked.main_image.id,
+            "url": most_liked.main_image.file.url
+        } if most_liked.main_image else None,
+        "owner": {
+            "id": most_liked.owner.id,
+            "username": most_liked.owner.username,
+            "first_name": most_liked.owner.first_name,
+            "last_name": most_liked.owner.last_name
+        } if most_liked.owner else None,
+        "categories": [{"id": cat.id, "name": cat.name} for cat in most_liked.categories.all()]
+    }
+
+    return Response(response_data, status=status.HTTP_200_OK)
+
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def upcoming_games(request):
+    """
+    Returns 3 games with the closest release date.
+    """
+    upcoming_games = Game.objects.filter(release_date__gte=timezone.now()).order_by('release_date')[:3]
+    
+    game_data = []
+    for game in upcoming_games:
+        game_data.append({
+            "id": game.id,
+            "title": game.title,
+            "slug": game.slug,
+            "release_date": game.release_date,
+            "main_image": game.main_image.file.url if game.main_image else None,
+        })
+    
+    return Response(game_data, status=status.HTTP_200_OK)
+
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def latest_posts(request):
+    """
+    Returns the 10 latest published blog posts, including the owner's information, categories, and properly formatted main image.
+    """
+    latest_posts = BlogPost.objects.live().select_related('owner', 'main_image').prefetch_related('categories').order_by('-first_published_at')[:5]
+    
+    post_data = []
+    for post in latest_posts:
+        owner_data = {
+            "id": post.owner.id if post.owner else None,
+            "username": post.owner.username if post.owner else "Unknown",
+            "first_name": post.owner.first_name if post.owner else "",
+            "last_name": post.owner.last_name if post.owner else ""
+        }
+
+        category_data = [{"id": category.id, "name": category.name} for category in post.categories.all()]
+
+        main_image_data = {
+            "id": post.main_image.id,
+            "url": post.main_image.file.url
+        } if post.main_image else None
+
+        post_data.append({
+            "id": post.id,
+            "title": post.title,
+            "slug": post.slug,
+            "intro": post.intro,
+            "read_count": post.read_count,
+            "first_published_at": post.first_published_at,
+            "main_image": main_image_data,  # Správně formátovaný hlavní obrázek
+            "owner": owner_data,  # Přidání ownera do odpovědi
+            "categories": category_data  # Přidání kategorií do odpovědi
+        })
+    
+    return Response(post_data, status=status.HTTP_200_OK)
+
 
 @api_view(['GET'])
 @permission_classes([AllowAny])

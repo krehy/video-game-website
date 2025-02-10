@@ -1,4 +1,5 @@
 import React from 'react';
+import Link from 'next/link';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUser, faCalendarAlt, faEye } from '@fortawesome/free-solid-svg-icons';
 import Image from 'next/image';
@@ -10,22 +11,24 @@ const ArticleHeader: React.FC<ArticleHeaderProps> = ({ article, readCount, isDar
 
     {article.main_image && (
       <div className="relative mb-4">
-  <Image
-    src={`${process.env.NEXT_PUBLIC_INDEX_URL}${article.main_image.url}`}
-    alt={article.title}
-    width={1920} // Vyšší šířka pro lepší rozlišení
-    height={1080} // Poměr stran 16:9
-    className="rounded object-cover w-full h-auto"
-    priority
-  />
+        <Image
+          src={`${process.env.NEXT_PUBLIC_INDEX_URL}${article.main_image.url}`}
+          alt={article.title}
+          width={1920} // Vyšší šířka pro lepší rozlišení
+          height={1080} // Poměr stran 16:9
+          className="rounded object-cover w-full h-auto"
+          priority
+        />
 
         <div className="absolute bottom-0 left-0 w-full bg-black bg-opacity-50 text-white p-4 rounded hidden md:block">
           <p className="mb-2">{article.intro}</p>
           <div className="flex items-center text-sm mb-2">
             <FontAwesomeIcon icon={faUser} className="mr-2 text-[#8e67ea] text-lg" />
-            <span className="mr-4">{article.owner.username}</span>
+            <Link href={`/profile/${article.owner.username}`} className="mr-4 text-[#8e67ea] hover:underline">
+              {article.owner.username}
+            </Link>
             <FontAwesomeIcon icon={faCalendarAlt} className="mr-2 text-[#8e67ea] text-lg" />
-            <span className="mr-6">{new Date(article.first_published_at).toLocaleDateString()}</span> {/* Přidáno více místa mezi datum a ikonu oka */}
+            <span className="mr-6">{new Date(article.first_published_at).toLocaleDateString()}</span> 
             <FontAwesomeIcon icon={faEye} className="mr-2 text-[#8e67ea] text-lg" />
             <span>{readCount}</span>
           </div>
@@ -44,9 +47,11 @@ const ArticleHeader: React.FC<ArticleHeaderProps> = ({ article, readCount, isDar
       <p className="mb-2">{article.intro}</p>
       <div className="flex items-center text-sm mb-2">
         <FontAwesomeIcon icon={faUser} className="mr-2 text-[#8e67ea] text-lg" />
-        <span className="mr-4">{article.owner.username}</span>
+        <Link href={`/profile/${article.owner.username}`} className="mr-4 text-[#8e67ea] hover:underline">
+          {article.owner.username}
+        </Link>
         <FontAwesomeIcon icon={faCalendarAlt} className="mr-2 text-[#8e67ea] text-lg" />
-        <span className="mr-2">{new Date(article.first_published_at).toLocaleDateString()}</span> {/* Přidáno více místa mezi datum a ikonu oka */}
+        <span className="mr-2">{new Date(article.first_published_at).toLocaleDateString()}</span> 
         <FontAwesomeIcon icon={faEye} className=" text-[#8e67ea] text-lg" />
         <span>{readCount}</span>
       </div>

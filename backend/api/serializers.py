@@ -1,9 +1,11 @@
 import re
-from django.contrib.auth.models import User # type: ignore
 from rest_framework import serializers # type: ignore
 from wagtail.images.models import Image # type: ignore
 from bs4 import BeautifulSoup # type: ignore
+from django.contrib.auth import get_user_model # type: ignore
+from wagtail.users.models import UserProfile # type: ignore
 
+User = get_user_model()
 
 
 
@@ -14,7 +16,55 @@ from .models import (
     GameIndexPage, ProductIndexPage, HomePage, Comment, Partner
 )
 
+class UserProfileSerializer(serializers.ModelSerializer):
+    profile_image = serializers.SerializerMethodField()
+    latest_posts = serializers.SerializerMethodField()
+    groups = serializers.SerializerMethodField()  # Přidání pole groups
 
+    class Meta:
+        model = User
+        fields = ["id", "username", "first_name", "last_name", "email", "profile_image", "latest_posts", "groups"]
+
+    def get_profile_image(self, obj):
+        request = self.context.get("request")
+        try:
+            user_profile = UserProfile.objects.get(user=obj)
+            if user_profile.avatar:  
+                return request.build_absolute_uri(user_profile.avatar.url)
+        except UserProfile.DoesNotExist:
+            return None
+        return None  
+
+    def get_groups(self, obj):
+        return list(obj.groups.values_list("name", flat=True))  # Vrátí seznam názvů skupin
+
+    def get_latest_posts(self, obj):
+        latest_blog_posts = BlogPost.objects.filter(owner=obj).order_by("-first_published_at")[:5]
+        latest_reviews = Review.objects.filter(owner=obj).order_by("-first_published_at")[:5]
+        
+        all_posts = list(latest_blog_posts) + list(latest_reviews)
+        all_posts.sort(key=lambda post: post.first_published_at, reverse=True)  # Seřazení podle data publikace
+
+        return [
+            {
+                "id": post.id,
+                "title": post.title,
+                "slug": post.slug,
+                "intro": post.intro,
+                "read_count": post.read_count,
+                "published_at": post.first_published_at,
+                "main_image": self.get_main_image_url(post),
+                "type": "review" if isinstance(post, Review) else "blog",
+            }
+            for post in all_posts[:10]  # Vracíme maximálně 10 článků a recenzí dohromady
+        ]
+
+    def get_main_image_url(self, post):
+        """ Pomocná metoda na získání URL hlavního obrázku článku/recenze """
+        request = self.context.get("request")
+        if post.main_image:
+            return request.build_absolute_uri(post.main_image.file.url)
+        return None
 
 
 class AktualitaSerializer(serializers.ModelSerializer):

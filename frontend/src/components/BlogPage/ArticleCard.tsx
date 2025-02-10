@@ -1,5 +1,3 @@
-// src/components/BlogPage/ArticleCard.tsx
-
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -25,8 +23,8 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ article, info }) => {
             <Image
               src={`${process.env.NEXT_PUBLIC_INDEX_URL}${article.main_image.url}`}
               alt={article.title}
-              width={800} // Adjust the width according to your design
-              height={300} // Adjust the height according to your design
+              width={800}
+              height={300}
               layout="responsive"
               objectFit="cover"
               className="rounded-t"
@@ -62,7 +60,9 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ article, info }) => {
       <div className="p-4">
         <div className="flex items-center text-gray-500 text-sm mb-4">
           <FontAwesomeIcon icon={faUser} className="mr-1 text-[#8e67ea]" />
-          <span className="mr-4">{article.owner.username}</span>
+          <Link href={`/profile/${article.owner.username}`} className="mr-4 text-[#8e67ea] hover:underline">
+            {article.owner.username}
+          </Link>
           <FontAwesomeIcon icon={faCalendarAlt} className="mr-1 text-[#8e67ea]" />
           <span>{new Date(article.first_published_at).toLocaleDateString()}</span>
           <FontAwesomeIcon style={{marginRight:'7px'}} icon={faEye} className="ml-4 text-[#8e67ea]" />
