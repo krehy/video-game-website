@@ -27,7 +27,7 @@ User = get_user_model()
 @api_view(["GET"])
 def get_user_profile(request, username):
     try:
-        user = User.objects.get(username=username)
+            user = User.objects.get(username__iexact=username)
     except User.DoesNotExist:
         return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
 

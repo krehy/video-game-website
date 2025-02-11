@@ -29,18 +29,19 @@ class UserProfileSerializer(serializers.ModelSerializer):
         request = self.context.get("request")
         try:
             user_profile = UserProfile.objects.get(user=obj)
-            if user_profile.avatar:  
+            if user_profile.avatar and hasattr(user_profile.avatar, 'url'):
                 return request.build_absolute_uri(user_profile.avatar.url)
         except UserProfile.DoesNotExist:
-            return None
-        return None  
+            pass
+        return None
 
     def get_groups(self, obj):
-        return list(obj.groups.values_list("name", flat=True))  # Vrátí seznam názvů skupin
+        excluded_groups = {"Editor", "Moderator"}  # Skupiny, které chceme vyloučit
+        return [group for group in obj.groups.values_list("name", flat=True) if group not in excluded_groups]
 
     def get_latest_posts(self, obj):
-        latest_blog_posts = BlogPost.objects.filter(owner=obj).order_by("-first_published_at")[:5]
-        latest_reviews = Review.objects.filter(owner=obj).order_by("-first_published_at")[:5]
+        latest_blog_posts = BlogPost.objects.filter(owner=obj, live=True).order_by("-first_published_at")[:5]
+        latest_reviews = Review.objects.filter(owner=obj, live=True).order_by("-first_published_at")[:5]
         
         all_posts = list(latest_blog_posts) + list(latest_reviews)
         all_posts.sort(key=lambda post: post.first_published_at, reverse=True)  # Seřazení podle data publikace
