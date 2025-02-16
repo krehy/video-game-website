@@ -137,14 +137,31 @@ class BlogPostSerializer(serializers.ModelSerializer):
         return re.sub(r'/superpa[řr]meni', '', obj.url_path)
 
     def get_enriched_body(self, obj):
-        # Implementace funkce get_enriched_body
         body_content = []
+    
         for block in obj.body:  # Iterujeme přes StreamField obsah
             if block.block_type == 'paragraph':
                 enriched_value = self.replace_embed_with_url(block.value)
                 body_content.append(enriched_value)
+
+            elif block.block_type == 'advertisement':  
+                ad_data = block.value.get("advertisement")
+                if ad_data:
+                    body_content.append({
+                        "type": "advertisement",
+                        "id": ad_data.id,
+                        "title": ad_data.title,
+                        "image": ad_data.image.file.url if ad_data.image else None,
+                        "link": ad_data.link,
+                        "click_count": ad_data.click_count,
+                    })
+        
+            elif block.block_type == 'table':
+                body_content.append(block.value)  # Tabulky ponecháme ve stávajícím formátu
+        
             else:
-                body_content.append(str(block.value))
+                body_content.append(str(block.value))  # Ostatní hodnoty necháme jako string
+    
         return body_content
 
     def replace_embed_with_url(self, value):

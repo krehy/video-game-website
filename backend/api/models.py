@@ -4,9 +4,9 @@ from wagtail.snippets.models import register_snippet # type: ignore
 from wagtail.fields import RichTextField, StreamField # type: ignore
 from wagtail.search import index # type: ignore
 from modelcluster.fields import ParentalKey, ParentalManyToManyField # type: ignore
-from wagtail.embeds.blocks import EmbedBlock # type: ignore
 from wagtail.blocks import StructBlock, URLBlock # type: ignore
 from wagtail.contrib.table_block.blocks import TableBlock # type: ignore
+from wagtail.snippets.blocks import SnippetChooserBlock  # type: ignore # Použijeme SnippetChooserBlock
 
 from django import forms # type: ignore
 from django.db import models # type: ignore
@@ -298,20 +298,53 @@ class GameIndexPage(Page, SEOFields, index.Indexed):
         self.slug = generate_slug(self.slug)
         super().save(*args, **kwargs)
 
-class SimpleAdvertisementBlock(blocks.StructBlock):
+
+
+@register_snippet  # ✅ Přidání Snippet registrace
+class Advertisement(models.Model):
+    title = models.CharField(max_length=255)
+    image = models.ForeignKey(
+        'wagtailimages.Image',
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name='+'
+    )
+    link = models.URLField()
+    click_count = models.IntegerField(default=0)
+
+    panels = [
+        FieldPanel('title'),
+        FieldPanel('image'),
+        FieldPanel('link'),
+        FieldPanel('click_count'),
+    ]
+
+    def __str__(self):
+        return self.title
+
+    def increment_click_count(self):
+        self.click_count += 1
+        self.save()
+
+    class Meta:
+        verbose_name = 'Advertisement'
+        verbose_name_plural = 'Advertisements'
+
+
+class AdvertisementBlock(blocks.StructBlock):
+    advertisement = SnippetChooserBlock(Advertisement)  # Použijeme SnippetChooserBlock místo ForeignKey
+
     class Meta:
         icon = "placeholder"
         label = "Advertisement"
 
     def get_context(self, value, parent_context=None):
         context = super().get_context(value, parent_context)
-        # Přednastavené hodnoty
-        context.update({
-            'zone_id': 347254,
-            'element_id': 'ssp-zone-347254',
-            'width': 160,
-            'height': 600,
-        })
+        if value.get('advertisement'):
+            context.update({
+                'ad': value['advertisement']
+            })
         return context
 
 
@@ -319,7 +352,7 @@ class BlogPost(Page, SEOFields, index.Indexed):
     intro = models.CharField(max_length=250, default='')
     body = StreamField([
         ('paragraph', blocks.RichTextBlock(required=True)),
-        ('advertisement', SimpleAdvertisementBlock()),
+        ('advertisement', AdvertisementBlock()),  # Tento blok teď použijeme pro reklamy
         ('table', TableBlock(table_options={
             'minSpareRows': 1,
             'minSpareCols': 1,
