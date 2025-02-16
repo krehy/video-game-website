@@ -1,7 +1,17 @@
 from wagtail_modeladmin.options import ModelAdmin, ModelAdminGroup, modeladmin_register # type: ignore
 from wagtail.snippets.views.snippets import SnippetViewSet # type: ignore
+from .models import Partner, ContestEntry, Aktualita, ContactMessage, Developer, Publisher, Genre, Platform, BlogPost, Game, Review, ArticleCategory, Comment
 
-from .models import Partner, Aktualita, ContactMessage, Developer, Publisher, Genre, Platform, BlogPost, Game, Review, ArticleCategory, Comment
+class ContestEntryAdmin(ModelAdmin):
+    model = ContestEntry
+    menu_label = "Soutěžní přihlášky"
+    menu_icon = "form"
+    list_display = ("name", "email", "phone", "submitted_at")
+    search_fields = ("name", "email")
+    ordering = ("-submitted_at",)
+
+modeladmin_register(ContestEntryAdmin)
+
 
 class AktualitaAdmin(ModelAdmin):
     model = Aktualita

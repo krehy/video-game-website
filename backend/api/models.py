@@ -17,6 +17,29 @@ from PIL import Image # type: ignore
 from io import BytesIO
 import os
 
+@register_snippet  # ✅ Nutné pro zobrazení ve Wagtail adminu
+class ContestEntry(models.Model):
+    name = models.CharField(max_length=255, verbose_name="Jméno")
+    email = models.EmailField(verbose_name="E-mail")
+    phone = models.CharField(max_length=20, blank=True, null=True, verbose_name="Telefon")
+    answers = models.JSONField(verbose_name="Odpovědi v kvízu")
+    submitted_at = models.DateTimeField(auto_now_add=True, verbose_name="Datum odeslání")
+
+    panels = [
+        FieldPanel("name"),
+        FieldPanel("email"),
+        FieldPanel("phone"),
+        FieldPanel("answers"),
+    ]
+
+    class Meta:
+        verbose_name = "Soutěžní přihláška"
+        verbose_name_plural = "Soutěžní přihlášky"
+        ordering = ["-submitted_at"]
+
+    def __str__(self):
+        return f"{self.name} - {self.email}"
+
 @register_snippet
 class Partner(models.Model):
     name = models.CharField(max_length=255, help_text="Název partnera")

@@ -8,7 +8,7 @@ module.exports = {
     ];
   },
   images: {
-    domains: ['127.0.0.1', '10.0.0.12','localhost', 'scontent.cdninstagram.com', 'instagram.fprg1-1.fna.fbcdn.net'], // Přidání domén do povolených
+    domains: ['127.0.0.1', '10.0.0.12', 'localhost', 'scontent.cdninstagram.com', 'instagram.fprg1-1.fna.fbcdn.net'], // Přidání domén do povolených
   },
   env: {
     // Přidání dalších proměnných prostředí, pokud je potřeba

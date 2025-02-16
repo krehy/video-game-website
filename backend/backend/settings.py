@@ -82,7 +82,7 @@ ALLOWED_HOSTS = [
     '127.0.0.1',
     'localhost',
     'localhost:8000',  # Přidáno pro ladění
-    "10.0.0.12:3000",
+    "10.0.0.12:3001",
 ]
 
 CSRF_TRUSTED_ORIGINS = [

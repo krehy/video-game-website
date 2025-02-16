@@ -3,8 +3,8 @@ from rest_framework.decorators import api_view, permission_classes # type: ignor
 from rest_framework.views import APIView # type: ignore
 from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly # type: ignore
 from rest_framework import viewsets # type: ignore
-from .models import Aktualita, BlogPost, Review, Game, BlogIndexPage, ReviewIndexPage, GameIndexPage, ProductIndexPage, HomePage, Comment, ArticleCategory
-from .serializers import AktualitaSerializer, HomePageContentSerializer,UserProfileSerializer, ContactMessageSerializer, BlogPostSerializer, ReviewSerializer, GameSerializer, BlogIndexPageSerializer, ReviewIndexPageSerializer, GameIndexPageSerializer, ProductIndexPageSerializer, HomePageSerializer, CommentSerializer, ArticleCategorySerializer
+from .models import Aktualita, ContestEntry, BlogPost, Review, Game, BlogIndexPage, ReviewIndexPage, GameIndexPage, ProductIndexPage, HomePage, Comment, ArticleCategory
+from .serializers import AktualitaSerializer, ContestEntrySerializer, HomePageContentSerializer,UserProfileSerializer, ContactMessageSerializer, BlogPostSerializer, ReviewSerializer, GameSerializer, BlogIndexPageSerializer, ReviewIndexPageSerializer, GameIndexPageSerializer, ProductIndexPageSerializer, HomePageSerializer, CommentSerializer, ArticleCategorySerializer
 from django.http import JsonResponse # type: ignore
 from rest_framework.response import Response # type: ignore
 from rest_framework import status # type: ignore
@@ -23,6 +23,17 @@ from rest_framework import status # type: ignore
 from django.contrib.auth import get_user_model # type: ignore
 
 User = get_user_model()
+
+class ContestEntryAPI(APIView):
+    def post(self, request):
+        print("Přijatá data:", request.data)  # Debugging
+        serializer = ContestEntrySerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"message": "Odpověď byla úspěšně uložena!"}, status=status.HTTP_201_CREATED)
+        print("Chyba:", serializer.errors)  # Debugging
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 @api_view(["GET"])
 def get_user_profile(request, username):

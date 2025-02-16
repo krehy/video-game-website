@@ -16,4 +16,3 @@ def rename_snippets_menu(request, menu_items):
 @hooks.register('construct_main_menu')
 def hide_help_menu_item(request, menu_items):
     menu_items[:] = [item for item in menu_items if item.name != 'help']
-

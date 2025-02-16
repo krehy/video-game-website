@@ -4,7 +4,7 @@ from rest_framework.routers import DefaultRouter # type: ignore
 from api.views import ( get_top_most_read, increment_search_week, most_searched_game_of_week,
     increment_active_users, decrement_active_users, get_active_users,
     increment_read_count, ContactMessageView, HomePageContentView, get_user_profile,
-    BlogPostViewSet, ReviewViewSet, GameViewSet,
+    BlogPostViewSet, ReviewViewSet, GameViewSet, ContestEntryAPI,
     BlogIndexPageViewSet, ReviewIndexPageViewSet, most_liked_article, upcoming_games, latest_posts, GameIndexPageViewSet, CommentViewSet,
     ProductIndexPageViewSet, HomePageViewSet, ArticleCategoryViewSet, AktualitaViewSet,
     like_article, dislike_article, like_review, dislike_review, like_game, dislike_game, get_image_url
@@ -44,6 +44,7 @@ urlpatterns = [
     path('api/latest-posts/', latest_posts, name='latest_posts'),
     path('api/most-liked-article/', most_liked_article, name='most_liked_article'),
     path('api/profile/<str:username>/', get_user_profile, name='get_user_profile'),
+    path("api/contest/", ContestEntryAPI.as_view(), name="contest_api"),
 
     path('rss/blog/', BlogPostFeed(), name='blogpost_feed'),
     path('rss/reviews/', ReviewFeed(), name='review_feed'),

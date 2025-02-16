@@ -4,6 +4,7 @@ from wagtail.images.models import Image # type: ignore
 from bs4 import BeautifulSoup # type: ignore
 from django.contrib.auth import get_user_model # type: ignore
 from wagtail.users.models import UserProfile # type: ignore
+from .models import ContestEntry
 
 User = get_user_model()
 
@@ -15,6 +16,12 @@ from .models import (
     Developer, Publisher, BlogIndexPage, ReviewIndexPage,
     GameIndexPage, ProductIndexPage, HomePage, Comment, Partner
 )
+
+class ContestEntrySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ContestEntry
+        fields = ["name", "email", "phone", "answers"]
+
 
 class UserProfileSerializer(serializers.ModelSerializer):
     profile_image = serializers.SerializerMethodField()

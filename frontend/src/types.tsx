@@ -385,4 +385,9 @@ export interface BlogIndexProps {
     published_at: string;
     read_count: number;
   }
+  declare global {
+    interface Window {
+      gapi: any;
+    }
+  }
   
