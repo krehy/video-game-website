@@ -144,6 +144,29 @@ const ArticleBody: React.FC<ArticleBodyProps> = ({ enriched_body, isDarkMode }) 
                 .filter((li) => li.nodeName === 'LI')
                 .map((li, liIndex) => <li key={`${index}-${childIndex}-${liIndex}`} className="ml-5">{li.textContent}</li>);
               return isOrdered ? <ol key={`${index}-${childIndex}`} className="list-decimal mb-4">{items}</ol> : <ul key={`${index}-${childIndex}`} className="list-disc mb-4">{items}</ul>;
+            } else if (node.nodeName === 'EMBED') {
+              const embed = node as HTMLElement;
+              const embedType = embed.getAttribute('embedtype');
+              const url = embed.getAttribute('url');
+              if (embedType === 'media' && url) {
+                const isYouTube = url.includes('youtube.com') || url.includes('youtu.be');
+                const iframeSrc = isYouTube
+                  ? url.replace('/watch?v=', '/embed/')
+                  : url;
+
+                return (
+                  <iframe
+                    key={`iframe-${index}`}
+                    width="560"
+                    height="315"
+                    src={iframeSrc}
+                    frameBorder="0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                  ></iframe>
+                );
+              }
+
             }
 
             return null;
