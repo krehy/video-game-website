@@ -175,12 +175,12 @@ const HomePage = () => {
   
             <div className="md:col-span-1 flex flex-col">
               <div className="bg-white p-4 h-full rounded-lg shadow-md">
-                <h2 className="text-xl font-semibold mb-4 text-black">Nejnovější Recenze:</h2>
-                <div className="space-y-4">
-                  {reviews.slice(0, 3).map((review) => (
-                    <SmallReviewCard key={review.id} review={review} />
-                  ))}
-                </div>
+              <h2 className="text-xl font-semibold mb-4 text-black">Nejnovější Recenze:</h2>
+              <div className="space-y-4">
+                {reviews.slice().reverse().slice(0, 3).map((review) => (
+                <SmallReviewCard key={review.id} review={review} />
+                ))}
+              </div>
                 {mostLikedArticle && (
                   <div className="mt-8">
                     <h2 className="text-xl font-semibold mb-4 text-black">Nejoblíbenější článek:</h2>

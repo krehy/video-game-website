@@ -300,7 +300,22 @@ class ContactMessageView(APIView):
             return Response({'success': 'Zpráva byla úspěšně odeslána.'}, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def esport_blogposts(request):
+    """
+    Vrací blogposty pouze s kategorií 'Esport'.
+    """
+    try:
+        esport_category = ArticleCategory.objects.get(name__iexact="Esport")
+        blogposts = BlogPost.objects.live().filter(categories=esport_category).distinct().order_by('-first_published_at')
+        
+        serializer = BlogPostSerializer(blogposts, many=True, context={"request": request})
+        return Response(serializer.data, status=200)
 
+    except ArticleCategory.DoesNotExist:
+        return Response({"error": "Kategorie 'Esport' nebyla nalezena."}, status=404)
+    
 class BlogPostViewSet(viewsets.ModelViewSet):
     queryset = BlogPost.objects.all()
     serializer_class = BlogPostSerializer

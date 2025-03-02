@@ -98,81 +98,95 @@ const ArticleBody: React.FC<ArticleBodyProps> = ({ enriched_body, isDarkMode }) 
         const doc = parser.parseFromString(decodedHtml, 'text/html');
 
         const elements: JSX.Element[] = Array.from(doc.body.childNodes)
-          .map((node, childIndex) => {
-            if (node.nodeName === 'IMG') {
-              const imgElement = node as HTMLImageElement;
-              const src = imgElement.getAttribute('src');
-              const alt = imgElement.getAttribute('alt') || '';
-              if (src) {
-                return (
-                  <Image
-                    key={`${index}-${childIndex}`}
-                    src={src}
-                    alt={alt}
-                    layout="responsive"
-                    width={800}
-                    height={450}
-                    className="rounded object-cover"
-                  />
-                );
-              }
-            } else if (node.nodeName === 'H2') {
-              return <h2 key={`${index}-${childIndex}`} className="text-2xl font-bold mt-4">{node.textContent}</h2>;
-            } else if (node.nodeName === 'H3') {
-              return <h3 key={`${index}-${childIndex}`} className="text-xl font-semibold mt-3">{node.textContent}</h3>;
-            } else if (node.nodeName === 'H4') {
-              return <h4 key={`${index}-${childIndex}`} className="text-lg font-medium mt-2">{node.textContent}</h4>;
-            } else if (node.nodeName === 'P') {
+        .map((node, childIndex) => {
+          if (node.nodeName === 'IMG') {
+            const imgElement = node as HTMLImageElement;
+            const src = imgElement.getAttribute('src');
+            const alt = imgElement.getAttribute('alt') || '';
+            if (src) {
               return (
-                <p key={`${index}-${childIndex}`} className="mb-4">
-                  {Array.from(node.childNodes).map((child, inlineIndex) => {
-                    if (child.nodeName === 'A') {
-                      const anchor = child as HTMLAnchorElement;
-                      return (
-                        <a key={`${index}-${childIndex}-${inlineIndex}`} href={anchor.href} target="_blank" rel="noopener noreferrer" className="text-blue-500 underline">
-                          {anchor.textContent}
-                        </a>
-                      );
-                    }
-                    return child.textContent;
-                  })}
-                </p>
+                <Image
+                  key={`${index}-${childIndex}`}
+                  src={src}
+                  alt={alt}
+                  layout="responsive"
+                  width={800}
+                  height={450}
+                  className="rounded object-cover"
+                />
               );
-            } else if (node.nodeName === 'UL' || node.nodeName === 'OL') {
-              const isOrdered = node.nodeName === 'OL';
-              const items = Array.from(node.childNodes)
-                .filter((li) => li.nodeName === 'LI')
-                .map((li, liIndex) => <li key={`${index}-${childIndex}-${liIndex}`} className="ml-5">{li.textContent}</li>);
-              return isOrdered ? <ol key={`${index}-${childIndex}`} className="list-decimal mb-4">{items}</ol> : <ul key={`${index}-${childIndex}`} className="list-disc mb-4">{items}</ul>;
-            } else if (node.nodeName === 'EMBED') {
-              const embed = node as HTMLElement;
-              const embedType = embed.getAttribute('embedtype');
-              const url = embed.getAttribute('url');
-              if (embedType === 'media' && url) {
-                const isYouTube = url.includes('youtube.com') || url.includes('youtu.be');
-                const iframeSrc = isYouTube
-                  ? url.replace('/watch?v=', '/embed/')
-                  : url;
-
-                return (
-                  <iframe
-                    key={`iframe-${index}`}
-                    width="560"
-                    height="315"
-                    src={iframeSrc}
-                    frameBorder="0"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                  ></iframe>
-                );
-              }
-
             }
-
-            return null;
-          })
-          .filter((element): element is JSX.Element => element !== null);
-
+          } else if (node.nodeName === 'H2') {
+            return <h2 key={`${index}-${childIndex}`} className="text-2xl font-bold mt-4">{node.textContent}</h2>;
+          } else if (node.nodeName === 'H3') {
+            return <h3 key={`${index}-${childIndex}`} className="text-xl font-semibold mt-3">{node.textContent}</h3>;
+          } else if (node.nodeName === 'H4') {
+            return <h4 key={`${index}-${childIndex}`} className="text-lg font-medium mt-2">{node.textContent}</h4>;
+          } else if (node.nodeName === 'P') {
+            return (
+              <p key={`${index}-${childIndex}`} className="mb-4">
+                {Array.from(node.childNodes).map((child, inlineIndex) => {
+                  if (child.nodeName === 'A') {
+                    const anchor = child as HTMLAnchorElement;
+                    return (
+                      <a key={`${index}-${childIndex}-${inlineIndex}`} href={anchor.href} target="_blank" rel="noopener noreferrer" className="text-blue-500 underline">
+                        {anchor.textContent}
+                      </a>
+                    );
+                  } else if (child.nodeName === 'B' || child.nodeName === 'STRONG') {
+                    return (
+                      <strong
+                          key={`${index}-${childIndex}-${inlineIndex}`}
+                          className={`font-bold ${isDarkMode ? 'text-white' : 'text-black'}`}
+                        >
+                          {child.textContent}
+                        </strong>
+                    );
+                  } else if (child.nodeName === 'I' || child.nodeName === 'EM') {
+                    return (
+                      <em key={`${index}-${childIndex}-${inlineIndex}`} className="italic">
+                        {child.textContent}
+                      </em>
+                    );
+                  }
+                  return child.textContent;
+                })}
+              </p>
+            );
+          } else if (node.nodeName === 'UL' || node.nodeName === 'OL') {
+            const isOrdered = node.nodeName === 'OL';
+            const items = Array.from(node.childNodes)
+              .filter((li) => li.nodeName === 'LI')
+              .map((li, liIndex) => <li key={`${index}-${childIndex}-${liIndex}`} className="ml-5">{li.textContent}</li>);
+            return isOrdered ? <ol key={`${index}-${childIndex}`} className="list-decimal mb-4">{items}</ol> : <ul key={`${index}-${childIndex}`} className="list-disc mb-4">{items}</ul>;
+          } else if (node.nodeName === 'EMBED') {
+            const embed = node as HTMLElement;
+            const embedType = embed.getAttribute('embedtype');
+            const url = embed.getAttribute('url');
+            if (embedType === 'media' && url) {
+              const isYouTube = url.includes('youtube.com') || url.includes('youtu.be');
+              const iframeSrc = isYouTube
+                ? url.replace('/watch?v=', '/embed/')
+                : url;
+      
+              return (
+                <iframe
+                  key={`iframe-${index}`}
+                  width="560"
+                  height="315"
+                  src={iframeSrc}
+                  frameBorder="0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                ></iframe>
+              );
+            }
+          }
+      
+          return null;
+        })
+        .filter((element): element is JSX.Element => element !== null);
+      
         return <div key={index}>{elements}</div>;
       });
 

@@ -390,4 +390,45 @@ export interface BlogIndexProps {
       gapi: any;
     }
   }
+  export interface EsportsOpponent {
+    opponent: {
+      id: number;
+      name: string;
+      image_url: string;
+    };
+  }
   
+  export interface EsportsResult {
+    id: number;
+    begin_at: string;
+    opponents: EsportsOpponent[];
+    results: {
+      score: number;
+    }[];
+    league: {
+      name: string;
+    };
+    tournament: {
+      name: string;
+    };
+  }
+  
+  export interface EsportsMatch {
+    id: string;
+    videogame: {
+      name: string;
+    };
+    opponents: {
+      opponent: {
+        name: string;
+        image_url: string;
+      };
+    }[];
+    scheduled_at: string;
+    league: {
+      name: string;
+    };
+    tournament: {
+      name: string;
+    };
+  }

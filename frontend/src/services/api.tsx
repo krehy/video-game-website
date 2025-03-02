@@ -18,6 +18,16 @@ export const fetchAktuality = async () => {
   }
 };
 
+export const fetchEsportPosts = async () => {
+  try {
+    const response = await axiosInstance.get('/blogposts/esport/');
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching eSport posts:', error);
+    throw error;
+  }
+};
+
 export const fetchMostLikedArticle = async (): Promise<Article> => {
   try {
     const response = await axiosInstance.get('/most-liked-article/');

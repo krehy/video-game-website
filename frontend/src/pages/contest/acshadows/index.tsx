@@ -61,8 +61,12 @@ const ContestPage = () => {
   };
 
   const handleSubmit = async () => {
-    if (!allSocialsFollowed) return;
-
+    // Kontrola, zda uživatel kliknul na všechny odkazy
+    if (!allSocialsFollowed) {
+      alert("Musíš navštívit všechny sociální sítě alespoň jednou! Pokud už sleduješ, rozklikni odkazy.");
+      return;
+    }
+  
     try {
       const payload = {
         name: userData.name.trim(),
@@ -70,15 +74,15 @@ const ContestPage = () => {
         phone: userData.phone.trim() || null,
         answers: selectedAnswers.length > 0 ? selectedAnswers : [],
       };
-
+  
       console.log("Odesílám:", payload);
-
+  
       const response = await axios.post("https://superparmeni.eu/api/contest/", payload, {
         headers: {
           "Content-Type": "application/json",
         },
       });
-
+  
       if (response.status === 201) {
         alert("Úspěšně odesláno!");
         setStep(step + 1); // Přesun na další krok (děkovná stránka)
@@ -87,8 +91,8 @@ const ContestPage = () => {
       console.error("Chyba při odesílání:", (error as any).response?.data || error);
       alert("Nastala chyba při odesílání.");
     }
-};
-
+  };
+  
 const isValidEmail = (email: string) => {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 };
@@ -109,13 +113,18 @@ useEffect(() => {
         {step === 1 && (
           <div>
             <Image src="/acshadows.jpg" alt="Assassin's Creed Shadows" width={600} height={300} className="mx-auto rounded-lg shadow-lg" />
-            <h1 className="text-4xl font-bold mt-6">Vyhraj Assassin’s Creed Shadows!</h1>
+            <h1 className="text-4xl font-bold mt-6">Vyhraj Assassin’s Creed Shadows! <strong>(PC)</strong></h1>
             <p className="mt-4 text-lg">
               Připrav se na novou kapitolu v sérii Assassin’s Creed! <strong>Assassin’s Creed Shadows</strong> tě zavede do feudálního Japonska, kde budeš bojovat jako mistrný shinobi.  
             </p>
             <p className="mt-4 text-lg">
               Otestuj své znalosti a zapoj se do soutěže! Stačí odpovědět na kvíz a sledovat nás na sociálních sítích. 🎮🔥
-            </p>
+            </p> 
+            <p className="mt-4 text-lg">
+              Upozornění:
+                  Pro účast v soutěži ne nutno mít účet a sledovat nás na platformě <a style={{color:"#8e67ea"}} href="twitch.com/superparmeni">Twitch</a>!
+                  
+              </p>
             <button onClick={() => setStep(2)} className="mt-6 bg-red-600 px-6 py-3 text-lg rounded-lg">
               Začít kvíz
             </button>
@@ -149,7 +158,7 @@ useEffect(() => {
             <h2 className="text-2xl font-bold">Zadej své údaje pro účast</h2>
             <p className="mt-2 text-lg">Máš {correctAnswers} z {questions.length} správně!</p>
             <div className="flex flex-col gap-4 mt-4">
-              <input type="text" placeholder="Jméno" value={userData.name} onChange={(e) => setUserData({ ...userData, name: e.target.value })} className="p-2 rounded-lg bg-gray-700 text-white" />
+              <input type="text" placeholder="Nickname na platformě Twitch" value={userData.name} onChange={(e) => setUserData({ ...userData, name: e.target.value })} className="p-2 rounded-lg bg-gray-700 text-white" />
               <input 
   type="email" 
   placeholder="Email" 
@@ -159,7 +168,6 @@ useEffect(() => {
     isValidEmail(userData.email) ? "bg-gray-700" : "bg-gray-700"
   }`} 
 />
-              <input type="tel" placeholder="Telefon (nepovinné)" value={userData.phone} onChange={(e) => setUserData({ ...userData, phone: e.target.value })} className="p-2 rounded-lg bg-gray-700 text-white" />
             </div>
             <button 
   onClick={() => isFormValid && setStep(step + 1)}
@@ -232,14 +240,11 @@ useEffect(() => {
 
           {/* Submit Button */}
           <button
-            onClick={handleSubmit}
-            disabled={!allSocialsFollowed}
-            className={`mt-6 px-6 py-3 rounded-lg ${
-              allSocialsFollowed ? "bg-green-600 hover:bg-green-700" : "bg-gray-500 cursor-not-allowed"
-            }`}
-          >
-            Odeslat odpovědi
-          </button>
+    onClick={handleSubmit}
+    className="mt-6 px-6 py-3 rounded-lg bg-green-600 hover:bg-green-700"
+  >
+    Odeslat odpovědi
+  </button>
         </div>
       )}
       {/* Poděkování za účast */}

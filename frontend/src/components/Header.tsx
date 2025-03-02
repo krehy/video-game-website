@@ -59,6 +59,9 @@ const Header = () => {
             <Link href="/calendar" passHref legacyBehavior>
               <a className={`nav-link ${isActive('/calendar') ? 'active' : ''}`}>Herní kalendář</a>
             </Link>
+            <Link href="/esport" passHref legacyBehavior>
+              <a className={`nav-link ${isActive('/esport') ? 'active' : ''}`}>E-Sport</a>
+            </Link>
             {/* <Link href="/eshop" passHref legacyBehavior>
               <a className={`nav-link ${isActive('/eshop') ? 'active' : ''}`}>Eshop</a>
             </Link> */}
@@ -85,6 +88,9 @@ const Header = () => {
             </Link>
             <Link href="/calendar" passHref legacyBehavior>
               <a className={`nav-link ${isActive('/calendar') ? 'active' : ''}`}>Herní kalendář</a>
+            </Link>
+            <Link href="/esport" passHref legacyBehavior>
+              <a className={`block py-2 ${isActive('/esport') ? 'active' : ''}`}>E-Sport</a>
             </Link>
             {/* <Link href="/eshop" passHref legacyBehavior>
               <a className={`block py-2 ${isActive('/eshop') ? 'active' : ''}`}>Eshop</a>

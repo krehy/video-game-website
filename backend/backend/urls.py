@@ -1,7 +1,7 @@
 from django.contrib import admin # type: ignore
 from django.urls import path, include # type: ignore
 from rest_framework.routers import DefaultRouter # type: ignore
-from api.views import ( get_top_most_read, increment_search_week, most_searched_game_of_week,
+from api.views import ( get_top_most_read, increment_search_week, most_searched_game_of_week, esport_blogposts,
     increment_active_users, decrement_active_users, get_active_users,
     increment_read_count, ContactMessageView, HomePageContentView, get_user_profile,
     BlogPostViewSet, ReviewViewSet, GameViewSet, ContestEntryAPI,
@@ -45,7 +45,7 @@ urlpatterns = [
     path('api/most-liked-article/', most_liked_article, name='most_liked_article'),
     path('api/profile/<str:username>/', get_user_profile, name='get_user_profile'),
     path("api/contest/", ContestEntryAPI.as_view(), name="contest_api"),
-
+    path('api/blogposts/esport/', esport_blogposts, name='esport_blogposts'),
     path('rss/blog/', BlogPostFeed(), name='blogpost_feed'),
     path('rss/reviews/', ReviewFeed(), name='review_feed'),
     path('api/posts/<int:pk>/like/', like_article, name='like_article'),

@@ -90,16 +90,16 @@ CSRF_TRUSTED_ORIGINS = [
     "https://superparmeni.eu",
     "http://127.0.0.1:8000",
     "http://127.0.0.1:3001",
-    "http://10.0.0.12:3001",
+    "http://10.0.0.56:3001",
 ]
 
 CORS_ALLOWED_ORIGINS = [
     "https://superparmeni.eu",
     "https://www.superparmeni.eu",
-    "http://127.0.0.1:3001",
-    "http://localhost:3001",
-    "http://127.0.0.1:8001",
-    "http://10.0.0.12:3001",
+    "http://127.0.0.1:3000",
+    "http://localhost:3000",
+    "http://127.0.0.1:8000",
+    "http://10.0.0.56:3000",
 ]
 
 CSRF_COOKIE_HTTPONLY = False
