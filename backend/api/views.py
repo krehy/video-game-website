@@ -12,6 +12,8 @@ from django.shortcuts import redirect # type: ignore
 from django.shortcuts import get_object_or_404 # type: ignore
 from django.utils import timezone # type: ignore
 import logging
+import requests
+from django.conf import settings
 
 import redis # type: ignore
 
@@ -33,6 +35,35 @@ class ContestEntryAPI(APIView):
             return Response({"message": "Odpověď byla úspěšně uložena!"}, status=status.HTTP_201_CREATED)
         print("Chyba:", serializer.errors)  # Debugging
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+PANDASCORE_API_KEY = settings.PANDASCORE_API_KEY  
+
+def fetch_pandascore_data(endpoint):
+    url = f"https://api.pandascore.co/{endpoint}"
+    headers = {
+        "Authorization": f"Bearer {PANDASCORE_API_KEY}",
+        "Accept": "application/json"
+    }
+
+    try:
+        response = requests.get(url, headers=headers)
+        response.raise_for_status()
+        return response.json()
+    except requests.exceptions.RequestException as e:
+        return {"error": str(e)}
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def fetch_live_esports_matches(request):
+    data = fetch_pandascore_data("matches/running")
+    return JsonResponse(data, safe=False)
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def fetch_recent_esports_results(request):
+    data = fetch_pandascore_data("matches/past")
+    return JsonResponse(data, safe=False)
 
 
 @api_view(["GET"])

@@ -418,6 +418,10 @@ export interface BlogIndexProps {
     videogame: {
       name: string;
     };
+    scores: {
+      team1: number;
+      team2: number;
+    };
     opponents: {
       opponent: {
         name: string;
@@ -431,4 +435,7 @@ export interface BlogIndexProps {
     tournament: {
       name: string;
     };
+    results: {
+      score: number;
+    }[]; // Add the results property
   }

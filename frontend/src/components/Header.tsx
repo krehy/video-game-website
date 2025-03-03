@@ -42,8 +42,8 @@ const Header = () => {
               <Link href="/">Superpařmeni</Link>
             </div>
           </div>
-          {!scrolled && <div className="text-2xl mb-2 transition-all duration-300">...od Hráčů, pro Hráče...</div>}
-          <nav className={`flex space-x-4 ${scrolled ? 'hidden lg:flex' : 'flex'} overflow-x-auto transition-all duration-300`}>
+            {!scrolled && <div className="text-2xl mb-2 transition-all duration-300">...od Hráčů, pro Hráče...</div>}
+            <nav className={`flex space-x-4 ${scrolled ? 'hidden lg:flex' : 'flex'} overflow-x-auto transition-all duration-300 whitespace-nowrap`}>
             <Link href="/" passHref legacyBehavior>
               <a className={`nav-link ${isActive('/') ? 'active' : ''}`}>Domů</a>
             </Link>
@@ -53,19 +53,19 @@ const Header = () => {
             <Link href="/reviews" passHref legacyBehavior>
               <a className={`nav-link ${isActive('/reviews') ? 'active' : ''}`}>Recenze</a>
             </Link>
+            <Link href="/esport" passHref legacyBehavior>
+              <a className={`nav-link ${isActive('/esport') ? 'active' : ''}`}>E-Sport</a>
+            </Link>
             <Link href="/games" passHref legacyBehavior>
               <a className={`nav-link ${isActive('/games') ? 'active' : ''}`}>Databáze her</a>
             </Link>
             <Link href="/calendar" passHref legacyBehavior>
               <a className={`nav-link ${isActive('/calendar') ? 'active' : ''}`}>Herní kalendář</a>
             </Link>
-            <Link href="/esport" passHref legacyBehavior>
-              <a className={`nav-link ${isActive('/esport') ? 'active' : ''}`}>E-Sport</a>
-            </Link>
             {/* <Link href="/eshop" passHref legacyBehavior>
               <a className={`nav-link ${isActive('/eshop') ? 'active' : ''}`}>Eshop</a>
             </Link> */}
-          </nav>
+            </nav>
           {scrolled && (
             <button onClick={toggleMenu} className="text-white lg:hidden">
               {menuOpen ? <XMarkIcon className="h-8 w-8" /> : <Bars3Icon className="h-8 w-8" />}
@@ -83,14 +83,14 @@ const Header = () => {
             <Link href="/reviews" passHref legacyBehavior>
               <a className={`block py-2 ${isActive('/reviews') ? 'active' : ''}`}>Recenze</a>
             </Link>
+            <Link href="/esport" passHref legacyBehavior>
+              <a className={`block py-2 ${isActive('/esport') ? 'active' : ''}`}>E-Sport</a>
+            </Link>
             <Link href="/games" passHref legacyBehavior>
               <a className={`block py-2 ${isActive('/games') ? 'active' : ''}`}>Databáze her</a>
             </Link>
             <Link href="/calendar" passHref legacyBehavior>
               <a className={`nav-link ${isActive('/calendar') ? 'active' : ''}`}>Herní kalendář</a>
-            </Link>
-            <Link href="/esport" passHref legacyBehavior>
-              <a className={`block py-2 ${isActive('/esport') ? 'active' : ''}`}>E-Sport</a>
             </Link>
             {/* <Link href="/eshop" passHref legacyBehavior>
               <a className={`block py-2 ${isActive('/eshop') ? 'active' : ''}`}>Eshop</a>

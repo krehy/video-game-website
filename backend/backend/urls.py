@@ -4,7 +4,7 @@ from rest_framework.routers import DefaultRouter # type: ignore
 from api.views import ( get_top_most_read, increment_search_week, most_searched_game_of_week, esport_blogposts,
     increment_active_users, decrement_active_users, get_active_users,
     increment_read_count, ContactMessageView, HomePageContentView, get_user_profile,
-    BlogPostViewSet, ReviewViewSet, GameViewSet, ContestEntryAPI,
+    BlogPostViewSet, ReviewViewSet, GameViewSet, ContestEntryAPI, fetch_live_esports_matches, fetch_recent_esports_results,
     BlogIndexPageViewSet, ReviewIndexPageViewSet, most_liked_article, upcoming_games, latest_posts, GameIndexPageViewSet, CommentViewSet,
     ProductIndexPageViewSet, HomePageViewSet, ArticleCategoryViewSet, AktualitaViewSet,
     like_article, dislike_article, like_review, dislike_review, like_game, dislike_game, get_image_url
@@ -39,6 +39,8 @@ urlpatterns = [
     path('cms/', include('wagtail.admin.urls')),
     path('documents/', include('wagtail.documents.urls')),
     path('sitemap.xml', sitemap),
+    path('api/esport/matches/live/', fetch_live_esports_matches, name='live_esports_matches'),
+    path('api/esport/matches/results/', fetch_recent_esports_results, name='recent_esports_results'),
     path('api/most-searched-game-week/', most_searched_game_of_week, name='most_searched_game_of_week'),
     path('api/upcoming-games/', upcoming_games, name='upcoming_games'),
     path('api/latest-posts/', latest_posts, name='latest_posts'),

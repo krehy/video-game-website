@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import SEOHead from '../../components/IndexPage/SEOHead';
 import LoadingPlaceholder from '../../components/LoadingPlaceholder';
-import { fetchEsportsSEO, fetchLiveEsportsMatches, fetchRecentEsportsResults } from '../../services/esport';
+import { fetchLiveEsportsMatches, fetchRecentEsportsResults } from '../../services/esport';
 import { fetchEsportPosts } from '../../services/api'; // Import the fetchEsportPosts function
 import { EsportsMatch, EsportsResult, Article } from '../../types';
 import Link from 'next/link';
@@ -12,23 +12,6 @@ import Image from 'next/image';
 import '../../styles/slider.css'; // Import custom CSS for slider
 import ArticleCard from '../../components/BlogPage/ArticleCard'; // Import the ArticleCard component
 
-export async function getServerSideProps() {
-  try {
-    const seo = await fetchEsportsSEO();
-    return {
-      props: {
-        seoData: (Array.isArray(seo) && seo[0]) || {},
-      },
-    };
-  } catch (error) {
-    console.error('Chyba při získávání SEO dat:', error);
-    return {
-      props: {
-        seoData: {},
-      },
-    };
-  }
-}
 
 const EsportsPage = () => {
   const [seoData, setSeoData] = useState<any>({});
@@ -51,9 +34,6 @@ const EsportsPage = () => {
         setEsportPosts(esportPostsData); // Set eSport posts data
 
         // Debug výpis do konzole
-        console.log('Live Matches:', liveMatchesData);
-        console.log('Recent Results:', recentResultsData);
-        console.log('Esport Posts:', esportPostsData); // Log eSport posts data
       } catch (error) {
         console.error('Chyba při získávání dat:', error);
       } finally {
@@ -131,110 +111,112 @@ const EsportsPage = () => {
           <div className="mt-8">
             <h2 className="text-2xl font-semibold">Aktuálně zápasí</h2>
             {liveMatches.length > 0 ? (
-              <Slider {...sliderSettings}>
+                <Slider {...sliderSettings}>
                 {liveMatches.map((match) => (
                   <div key={match.id} className="bg-white p-8 rounded-lg shadow-md h-auto flex flex-col justify-center">
-                    <h3 style={{color:"Black"}} className="text-center text-xl font-semibold mb-4">
-                      {match.videogame?.name || 'Neznámá hra'}
-                    </h3>
-                    <p className="text-center text-gray-600">{new Date(match.scheduled_at).toLocaleString()}</p>
-                    <p className="text-center text-gray-600">{match.league.name} - {match.tournament.name}</p>
-                    <div className="flex justify-between items-center">
-                      <div className="flex flex-col items-center">
-                        {match.opponents[0].opponent.image_url && (
-                          <Image
-                            src={match.opponents[0].opponent.image_url}
-                            alt={match.opponents[0].opponent.name}
-                            width={80}
-                            height={80}
-                            className="rounded-full"
-                          />
-                        )}
-                        <span className="text-black text-2xl font-semibold mt-2">{match.opponents[0].opponent.name}</span>
-                      </div>
-                      <div className="flex flex-col items-center">
-                        <h3 className="text-center text-xl font-semibold mb-4">{match.videogame?.name || 'Neznámá hra'}</h3>
-                        <span className="text-black text-2xl font-semibold">VS</span>
-                      </div>
-                      <div className="flex flex-col items-center">
-                        {match.opponents[1].opponent.image_url && (
-                          <Image
-                            src={match.opponents[1].opponent.image_url}
-                            alt={match.opponents[1].opponent.name}
-                            width={80}
-                            height={80}
-                            className="rounded-full"
-                          />
-                        )}
-                        <span className="text-black text-2xl font-semibold mt-2">{match.opponents[1].opponent.name}</span>
-                      </div>
-                    </div>
+                  <h3 style={{color:"Black"}} className="text-center text-xl font-semibold mb-4">
+                  {match.videogame?.name || 'Neznámá hra'}
+                  </h3>
+                  <p className="text-center text-gray-600">{new Date(match.scheduled_at).toLocaleString()}</p>
+                  <p className="text-center text-gray-600">{match.league.name} - {match.tournament.name}</p>
+                  <div className="flex justify-between items-center">
+                  <div className="flex flex-col items-center">
+                  {match.opponents[0].opponent.image_url && (
+                    <Image
+                    src={match.opponents[0].opponent.image_url}
+                    alt={match.opponents[0].opponent.name}
+                    width={80}
+                    height={80}
+                    className="rounded-full"
+                    />
+                  )}
+                  <span className="text-black text-2xl font-semibold mt-2">{match.opponents[0].opponent.name}</span>
+                  </div>
+                  <div className="flex flex-col items-center mx-4 flex-grow text-center">
+                  <span className="text-black text-2xl font-semibold">VS</span>
+                  {match.results && (
+                    <span className="text-black text-2xl font-semibold mt-2">
+                    {match.results[0]?.score} - {match.results[1]?.score}
+                    </span>
+                  )}
+                  </div>
+                  <div className="flex flex-col items-center">
+                  {match.opponents[1].opponent.image_url && (
+                    <Image
+                    src={match.opponents[1].opponent.image_url}
+                    alt={match.opponents[1].opponent.name}
+                    width={80}
+                    height={80}
+                    className="rounded-full"
+                    />
+                  )}
+                  <span className="text-black text-2xl font-semibold mt-2">{match.opponents[1].opponent.name}</span>
+                  </div>
+                  </div>
                   </div>
                 ))}
-              </Slider>
+                </Slider>
             ) : (
               <p className="text-center text-gray-600 mt-4">Žádné živé zápasy momentálně nejsou.</p>
             )}
           </div>
-
-          <div className="mt-8">
+            <div className="mt-8"></div>
             <h2 className="text-2xl font-semibold">Nedávné výsledky</h2>
             {sortedGames.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {sortedGames.map((game) => (
-                  <div key={game} className="mt-4">
-                    <h3 className="text-xl font-semibold">{game}</h3>
-                    <ul className="space-y-4 overflow-y-auto hide-scrollbar" style={{ maxHeight: '400px' }}>
-                      {recentResultsByGame[game]
-                        .sort((a: EsportsResult, b: EsportsResult) => new Date(b.begin_at).getTime() - new Date(a.begin_at).getTime())
-                        .slice(0, 5)
-                        .map((result: EsportsResult) => (
-                          <li key={result.id} className="bg-white p-4 rounded-lg shadow-md">
-                            <span className="text-center text-gray-400 block">{new Date(result.begin_at).toLocaleDateString()}</span>
-                            <p className="text-center text-gray-600">{result.league.name || 'Unknown League'} - {result.tournament.name || 'Unknown Tournament'}</p>
-                            <div className="flex justify-between items-center mt-2">
-                              <div className="flex flex-col items-center">
-                                {result.opponents[0].opponent.image_url && (
-                                  <Image
-                                    src={result.opponents[0].opponent.image_url}
-                                    alt={result.opponents[0].opponent.name}
-                                    width={30}
-                                    height={30}
-                                    className="rounded-full"
-                                  />
-                                )}
-                                <span className="text-black text-sm mt-2">{result.opponents[0].opponent.name}</span>
-                              </div>
-                              <span className="text-black text-lg">{result.results[0].score} - {result.results[1].score}</span>
-                              <div className="flex flex-col items-center">
-                                {result.opponents[1].opponent.image_url && (
-                                  <Image
-                                    src={result.opponents[1].opponent.image_url}
-                                    alt={result.opponents[1].opponent.name}
-                                    width={30}
-                                    height={30}
-                                    className="rounded-full"
-                                  />
-                                )}
-                                <span className="text-black text-sm mt-2">{result.opponents[1].opponent.name}</span>
-                              </div>
-                            </div>
-                            {result.results[0].score > result.results[1].score ? (
-                              <p className="text-center text-green-500 mt-2">Vítěz: {result.opponents[0].opponent.name}</p>
-                            ) : (
-                              <p className="text-center text-green-500 mt-2">Vítěz: {result.opponents[1].opponent.name}</p>
-                            )}
-                          </li>
-                        ))}
-                    </ul>
+              {sortedGames.map((game) => (
+              <div key={game} className="mt-4">
+              <h3 className="text-xl font-semibold">{game}</h3>
+              <ul className="space-y-4 overflow-y-auto hide-scrollbar" style={{ maxHeight: '500px' }}>
+                {recentResultsByGame[game]
+                .sort((a: EsportsResult, b: EsportsResult) => new Date(b.begin_at).getTime() - new Date(a.begin_at).getTime())
+                .slice(0, 5)
+                .map((result: EsportsResult) => (
+                <li key={result.id} className="bg-white p-4 rounded-lg shadow-md">
+                <span className="text-center text-gray-400 block">{new Date(result.begin_at).toLocaleDateString()}</span>
+                <p className="text-center text-gray-600">{result.league.name || 'Unknown League'} - {result.tournament.name || 'Unknown Tournament'}</p>
+                <div className="flex justify-between items-center mt-2">
+                  <div className="flex flex-col items-center">
+                  {result.opponents[0].opponent.image_url && (
+                  <Image
+                  src={result.opponents[0].opponent.image_url}
+                  alt={result.opponents[0].opponent.name}
+                  width={30}
+                  height={30}
+                  className="rounded-full"
+                  />
+                  )}
+                  <span className="text-black text-sm mt-2">{result.opponents[0].opponent.name}</span>
                   </div>
+                  <span className="text-black text-lg">{result.results[0].score} - {result.results[1].score}</span>
+                  <div className="flex flex-col items-center">
+                  {result.opponents[1].opponent.image_url && (
+                  <Image
+                  src={result.opponents[1].opponent.image_url}
+                  alt={result.opponents[1].opponent.name}
+                  width={30}
+                  height={30}
+                  className="rounded-full"
+                  />
+                  )}
+                  <span className="text-black text-sm mt
+                  -2">{result.opponents[1].opponent.name}</span>
+                  </div>
+                </div>
+                {result.results[0].score > result.results[1].score ? (
+                  <p className="text-center text-green-500 mt-2">Vítěz: {result.opponents[0].opponent.name}</p>
+                ) : (
+                  <p className="text-center text-green-500 mt-2">Vítěz: {result.opponents[1].opponent.name}</p>
+                )}
+                </li>
                 ))}
+              </ul>
+              </div>
+              ))}
               </div>
             ) : (
               <p className="text-center text-gray-600 mt-4">Žádné nedávné výsledky nejsou k dispozici.</p>
             )}
-          </div>
-
           {esportPosts.length > 0 && (
             <div className="mt-8">
               <h2 className="text-2xl font-semibold">Esportové články</h2>
